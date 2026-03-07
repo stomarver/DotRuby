@@ -43,35 +43,47 @@ public class Window {
         glfwWindowHint(GLFW_DECORATED, GLFW_FALSE);         // без рамки и заголовка
         glfwWindowHint(GLFW_FOCUS_ON_SHOW, GLFW_TRUE);
 
+        long primaryMonitor = glfwGetPrimaryMonitor();
+        GLFWVidMode vidmode = (primaryMonitor != NULL) ? glfwGetVideoMode(primaryMonitor) : null;
+
+        // Wayland-композиторы (в т.ч. KDE) могут игнорировать undecorated для оконного режима.
+        // Фолбэк: создаём fullscreen-окно без декораций, чтобы гарантированно убрать рамку.
+        boolean forceFullscreenFallback = isLinuxWaylandSession() && primaryMonitor != NULL && vidmode != null;
+
+        int windowWidth = forceFullscreenFallback ? vidmode.width() : width;
+        int windowHeight = forceFullscreenFallback ? vidmode.height() : height;
+        long monitorForWindow = forceFullscreenFallback ? primaryMonitor : NULL;
+
         // Создаём окно
-        windowHandle = glfwCreateWindow(width, height, title, NULL, NULL);
+        windowHandle = glfwCreateWindow(windowWidth, windowHeight, title, monitorForWindow, NULL);
         if (windowHandle == NULL) {
             throw new RuntimeException("Failed to create window");
         }
 
-        // Центрируем окно
-        try (MemoryStack stack = stackPush()) {
-            IntBuffer pWidth = stack.mallocInt(1);
-            IntBuffer pHeight = stack.mallocInt(1);
+        // Дополнительно применяем атрибут после создания (для платформ, где hint применяется непредсказуемо)
+        glfwSetWindowAttrib(windowHandle, GLFW_DECORATED, GLFW_FALSE);
 
-            glfwGetWindowSize(windowHandle, pWidth, pHeight);
+        // Центрируем только обычное оконное окно (fullscreen центрировать не нужно)
+        if (!forceFullscreenFallback) {
+            try (MemoryStack stack = stackPush()) {
+                IntBuffer pWidth = stack.mallocInt(1);
+                IntBuffer pHeight = stack.mallocInt(1);
 
-            IntBuffer monitorX = stack.mallocInt(1);
-            IntBuffer monitorY = stack.mallocInt(1);
-            glfwGetMonitorPos(glfwGetPrimaryMonitor(), monitorX, monitorY);
+                glfwGetWindowSize(windowHandle, pWidth, pHeight);
 
-            // Получаем видео-режим основного монитора
-            GLFWVidMode vidmode = glfwGetVideoMode(glfwGetPrimaryMonitor());
+                IntBuffer monitorX = stack.mallocInt(1);
+                IntBuffer monitorY = stack.mallocInt(1);
+                glfwGetMonitorPos(primaryMonitor, monitorX, monitorY);
 
-            // Центрируем (с проверкой на null, хотя primary monitor почти всегда есть)
-            int monitorW = (vidmode != null) ? vidmode.width() : width;
-            int monitorH = (vidmode != null) ? vidmode.height() : height;
+                int monitorW = (vidmode != null) ? vidmode.width() : width;
+                int monitorH = (vidmode != null) ? vidmode.height() : height;
 
-            glfwSetWindowPos(
-                    windowHandle,
-                    monitorX.get(0) + (monitorW - pWidth.get(0)) / 2,
-                    monitorY.get(0) + (monitorH - pHeight.get(0)) / 2
-            );
+                glfwSetWindowPos(
+                        windowHandle,
+                        monitorX.get(0) + (monitorW - pWidth.get(0)) / 2,
+                        monitorY.get(0) + (monitorH - pHeight.get(0)) / 2
+                );
+            }
         }
 
         // Делаем контекст текущим
@@ -89,7 +101,13 @@ public class Window {
         // Базовая настройка OpenGL
         glClearColor(0.08f, 0.10f, 0.14f, 1.0f);
         glEnable(GL_DEPTH_TEST);
-        glViewport(0, 0, width, height);
+        glViewport(0, 0, windowWidth, windowHeight);
+    }
+
+    private boolean isLinuxWaylandSession() {
+        String osName = System.getProperty("os.name", "").toLowerCase();
+        String sessionType = System.getenv("XDG_SESSION_TYPE");
+        return osName.contains("linux") && sessionType != null && sessionType.equalsIgnoreCase("wayland");
     }
 
     private void loop() {
@@ -107,8 +125,9 @@ public class Window {
         glfwFreeCallbacks(windowHandle);
         glfwDestroyWindow(windowHandle);
         glfwTerminate();
-        if (glfwSetErrorCallback(null) != null) {
-            glfwSetErrorCallback(null).free();
+        GLFWErrorCallback errorCallback = glfwSetErrorCallback(null);
+        if (errorCallback != null) {
+            errorCallback.free();
         }
     }
 }
