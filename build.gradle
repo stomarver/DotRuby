@@ -1,43 +1,46 @@
 plugins {
     id 'java'
-    id 'application'
 }
 
 group = 'io.56k-panic'
 version = 'dev'
 
-def lwjglVersion = '3.4.1'
-def jomlVersion = '1.10.8'
-def jomlPrimitivesVersion = '1.10.0'
-//Modules/Natives
-def modulesWithNatives = ['glfw', 'stb']
-def modulesWithoutNatives = ['opengl', 'renderdoc']
-def lwjglNatives = ['windows', 'linux', 'linux-arm64', 'macos', 'macos-arm64']
+java {
+    sourceCompatibility = JavaVersion.VERSION_17
+    targetCompatibility = JavaVersion.VERSION_17
+}
+
+tasks.withType(JavaCompile).configureEach {
+    options.encoding = 'UTF-8'
+    options.release.set(17)
+}
 
 repositories {
     mavenCentral()
 }
 
+def lwjglVersion = '3.4.1'
+def jomlVersion = '1.10.8'
+
 dependencies {
-    implementation platform("org.lwjgl:lwjgl-bom:$lwjglVersion")
+    implementation platform("org.lwjgl:lwjgl-bom:${lwjglVersion}")
     implementation 'org.lwjgl:lwjgl'
-    lwjglNatives.each { natives ->
-        runtimeOnly "org.lwjgl:lwjgl::natives-$natives"
-    }
+    implementation 'org.lwjgl:lwjgl-glfw'
+    implementation 'org.lwjgl:lwjgl-opengl'
+    implementation 'org.lwjgl:lwjgl-stb'
+    implementation "org.joml:joml:${jomlVersion}"
 
-    modulesWithNatives.each { module ->
-        implementation "org.lwjgl:lwjgl-$module"
-        lwjglNatives.each { natives ->
-            runtimeOnly "org.lwjgl:lwjgl-$module::natives-$natives"
-        }
-    }
+    // Linux natives
+    runtimeOnly "org.lwjgl:lwjgl::natives-linux"
+    runtimeOnly "org.lwjgl:lwjgl-glfw::natives-linux"
+    runtimeOnly "org.lwjgl:lwjgl-opengl::natives-linux"
+    runtimeOnly "org.lwjgl:lwjgl-stb::natives-linux"
 
-    modulesWithoutNatives.each { module ->
-        implementation "org.lwjgl:lwjgl-$module"
-    }
-
-    implementation "org.joml:joml:$jomlVersion"
-    implementation "org.joml:joml-primitives:$jomlPrimitivesVersion"
+    // Windows natives
+    runtimeOnly "org.lwjgl:lwjgl::natives-windows"
+    runtimeOnly "org.lwjgl:lwjgl-glfw::natives-windows"
+    runtimeOnly "org.lwjgl:lwjgl-opengl::natives-windows"
+    runtimeOnly "org.lwjgl:lwjgl-stb::natives-windows"
 }
 
 sourceSets {
@@ -49,4 +52,15 @@ sourceSets {
             srcDirs = ['src/assets']
         }
     }
+}
+
+// IntelliJ Gradle run configuration compatibility
+// :engine.Launcher.main()
+tasks.register('engine.Launcher.main()', JavaExec) {
+    group = 'application'
+    description = 'Runs engine.Launcher with runtime classpath.'
+    classpath = sourceSets.main.runtimeClasspath
+    mainClass = 'engine.Launcher'
+    dependsOn tasks.named('classes')
+    jvmArgs '--enable-native-access=ALL-UNNAMED'
 }
