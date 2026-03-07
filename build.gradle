@@ -54,13 +54,13 @@ sourceSets {
     }
 }
 
-// IntelliJ Gradle run configuration compatibility
-// :engine.Launcher.main()
-tasks.register('engine.Launcher.main()', JavaExec) {
-    group = 'application'
-    description = 'Runs engine.Launcher with runtime classpath.'
-    classpath = sourceSets.main.runtimeClasspath
-    mainClass = 'engine.Launcher'
-    dependsOn tasks.named('classes')
+tasks.withType(JavaExec).configureEach {
     jvmArgs '--enable-native-access=ALL-UNNAMED'
 }
+
+tasks.matching { it.name == 'engine.Launcher.main()' }.configureEach {
+    if (it instanceof JavaExec) {
+        it.jvmArgs '--enable-native-access=ALL-UNNAMED'
+    }
+}
+
