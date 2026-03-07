@@ -1,0 +1,114 @@
+package engine.display;
+
+import org.lwjgl.glfw.GLFWErrorCallback;
+import org.lwjgl.glfw.GLFWVidMode;
+import org.lwjgl.opengl.GL;
+import org.lwjgl.system.MemoryStack;
+
+import java.nio.IntBuffer;
+
+import static org.lwjgl.glfw.Callbacks.glfwFreeCallbacks;
+import static org.lwjgl.glfw.GLFW.*;
+import static org.lwjgl.opengl.GL11.*;
+import static org.lwjgl.system.MemoryStack.stackPush;
+import static org.lwjgl.system.MemoryUtil.NULL;
+
+public class Window {
+
+    private long windowHandle;
+
+    private final int width = 960;
+    private final int height = 540;
+    private final String title = "";  // не отображается, т.к. без декораций
+
+    public void run() {
+        init();
+        loop();
+        cleanup();
+    }
+
+    private void init() {
+        // Настройка обработки ошибок GLFW
+        GLFWErrorCallback.createPrint(System.err).set();
+
+        // Инициализация GLFW
+        if (!glfwInit()) {
+            throw new IllegalStateException("GLFW is not initialized");
+        }
+
+        // Настройки окна: без рамки и заголовка
+        glfwDefaultWindowHints();
+        glfwWindowHint(GLFW_VISIBLE, GLFW_FALSE);           // спрячем до готовности
+        glfwWindowHint(GLFW_RESIZABLE, GLFW_FALSE);         // фиксированный размер
+        glfwWindowHint(GLFW_DECORATED, GLFW_FALSE);         // без рамки и заголовка
+        glfwWindowHint(GLFW_FOCUS_ON_SHOW, GLFW_TRUE);
+
+        // Создаём окно
+        windowHandle = glfwCreateWindow(width, height, title, NULL, NULL);
+        if (windowHandle == NULL) {
+            throw new RuntimeException("Failed to create window");
+        }
+
+        // Центрируем окно
+        try (MemoryStack stack = stackPush()) {
+            IntBuffer pWidth = stack.mallocInt(1);
+            IntBuffer pHeight = stack.mallocInt(1);
+
+            glfwGetWindowSize(windowHandle, pWidth, pHeight);
+
+            IntBuffer monitorX = stack.mallocInt(1);
+            IntBuffer monitorY = stack.mallocInt(1);
+            glfwGetMonitorPos(glfwGetPrimaryMonitor(), monitorX, monitorY);
+
+            // Получаем видео-режим основного монитора
+            GLFWVidMode vidmode = glfwGetVideoMode(glfwGetPrimaryMonitor());
+
+            // Центрируем (с проверкой на null, хотя primary monitor почти всегда есть)
+            int monitorW = (vidmode != null) ? vidmode.width() : width;
+            int monitorH = (vidmode != null) ? vidmode.height() : height;
+
+            glfwSetWindowPos(
+                    windowHandle,
+                    monitorX.get(0) + (monitorW - pWidth.get(0)) / 2,
+                    monitorY.get(0) + (monitorH - pHeight.get(0)) / 2
+            );
+        }
+
+        // Делаем контекст текущим
+        glfwMakeContextCurrent(windowHandle);
+
+        // Включаем VSync (можно отключить: glfwSwapInterval(0))
+        glfwSwapInterval(1);
+
+        // Показываем окно
+        glfwShowWindow(windowHandle);
+
+        // Инициализация OpenGL
+        GL.createCapabilities();
+
+        // Базовая настройка OpenGL
+        glClearColor(0.08f, 0.10f, 0.14f, 1.0f);
+        glEnable(GL_DEPTH_TEST);
+        glViewport(0, 0, width, height);
+    }
+
+    private void loop() {
+        while (!glfwWindowShouldClose(windowHandle)) {
+            glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
+            // Здесь будет основной рендер игры
+
+            glfwSwapBuffers(windowHandle);
+            glfwPollEvents();
+        }
+    }
+
+    private void cleanup() {
+        glfwFreeCallbacks(windowHandle);
+        glfwDestroyWindow(windowHandle);
+        glfwTerminate();
+        if (glfwSetErrorCallback(null) != null) {
+            glfwSetErrorCallback(null).free();
+        }
+    }
+}
