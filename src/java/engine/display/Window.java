@@ -1,7 +1,6 @@
 package engine.display;
 
 import org.lwjgl.glfw.GLFWErrorCallback;
-import org.lwjgl.glfw.GLFWVidMode;
 import org.lwjgl.opengl.GL;
 import org.lwjgl.system.MemoryStack;
 
@@ -38,8 +37,7 @@ public class Window {
         glfwWindowHint(GLFW_RESIZABLE, GLFW_FALSE);
         glfwWindowHint(GLFW_FOCUS_ON_SHOW, GLFW_TRUE);
 
-        long primaryMonitor = glfwGetPrimaryMonitor();
-        GLFWVidMode vidmode = (primaryMonitor != NULL) ? glfwGetVideoMode(primaryMonitor) : null;
+        Monitor monitor = Monitor.primary(width, height);
 
         int windowWidth = width;
         int windowHeight = height;
@@ -49,25 +47,7 @@ public class Window {
             throw new RuntimeException("Failed to create window");
         }
 
-        try (MemoryStack stack = stackPush()) {
-            IntBuffer pWidth = stack.mallocInt(1);
-            IntBuffer pHeight = stack.mallocInt(1);
-
-            glfwGetWindowSize(windowHandle, pWidth, pHeight);
-
-            IntBuffer monitorX = stack.mallocInt(1);
-            IntBuffer monitorY = stack.mallocInt(1);
-            glfwGetMonitorPos(primaryMonitor, monitorX, monitorY);
-
-            int monitorW = (vidmode != null) ? vidmode.width() : width;
-            int monitorH = (vidmode != null) ? vidmode.height() : height;
-
-            glfwSetWindowPos(
-                    windowHandle,
-                    monitorX.get(0) + (monitorW - pWidth.get(0)) / 2,
-                    monitorY.get(0) + (monitorH - pHeight.get(0)) / 2
-            );
-        }
+        centerWindow(monitor);
 
         glfwMakeContextCurrent(windowHandle);
         glfwSwapInterval(1);
@@ -78,6 +58,25 @@ public class Window {
         glClearColor(0.08f, 0.10f, 0.14f, 1.0f);
         glEnable(GL_DEPTH_TEST);
         glViewport(0, 0, windowWidth, windowHeight);
+    }
+
+    private void centerWindow(Monitor monitor) {
+        if (!Monitor.supportsWindowPositioning()) {
+            return;
+        }
+
+        try (MemoryStack stack = stackPush()) {
+            IntBuffer pWidth = stack.mallocInt(1);
+            IntBuffer pHeight = stack.mallocInt(1);
+
+            glfwGetWindowSize(windowHandle, pWidth, pHeight);
+
+            glfwSetWindowPos(
+                    windowHandle,
+                    monitor.centeredX(pWidth.get(0)),
+                    monitor.centeredY(pHeight.get(0))
+            );
+        }
     }
 
     private void loop() {
