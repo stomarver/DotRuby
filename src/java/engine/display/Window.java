@@ -19,7 +19,6 @@ public class Window {
 
     private final int width = 560;
     private final int height = 540;
-    private final String title = "";  // не отображается, т.к. без декораций
 
     public void run() {
         init();
@@ -28,19 +27,15 @@ public class Window {
     }
 
     private void init() {
-        // Настройка обработки ошибок GLFW
         GLFWErrorCallback.createPrint(System.err).set();
 
-        // Инициализация GLFW
         if (!glfwInit()) {
             throw new IllegalStateException("GLFW is not initialized");
         }
 
-        // Настройки окна: без рамки и заголовка
         glfwDefaultWindowHints();
-        glfwWindowHint(GLFW_VISIBLE, GLFW_FALSE);           // спрячем до готовности
-        glfwWindowHint(GLFW_RESIZABLE, GLFW_FALSE);         // фиксированный размер
-        glfwWindowHint(GLFW_DECORATED, GLFW_FALSE);         // без рамки и заголовка
+        glfwWindowHint(GLFW_VISIBLE, GLFW_FALSE);
+        glfwWindowHint(GLFW_RESIZABLE, GLFW_FALSE);
         glfwWindowHint(GLFW_FOCUS_ON_SHOW, GLFW_TRUE);
 
         long primaryMonitor = glfwGetPrimaryMonitor();
@@ -49,14 +44,10 @@ public class Window {
         int windowWidth = width;
         int windowHeight = height;
 
-        // Создаём окно
-        windowHandle = glfwCreateWindow(windowWidth, windowHeight, title, NULL, NULL);
+        windowHandle = glfwCreateWindow(windowWidth, windowHeight, "DotRuby", NULL, NULL);
         if (windowHandle == NULL) {
             throw new RuntimeException("Failed to create window");
         }
-
-        // Дополнительно применяем атрибут после создания (для платформ, где hint применяется непредсказуемо)
-        glfwSetWindowAttrib(windowHandle, GLFW_DECORATED, GLFW_FALSE);
 
         try (MemoryStack stack = stackPush()) {
             IntBuffer pWidth = stack.mallocInt(1);
@@ -78,19 +69,12 @@ public class Window {
             );
         }
 
-        // Делаем контекст текущим
         glfwMakeContextCurrent(windowHandle);
-
-        // Включаем VSync (можно отключить: glfwSwapInterval(0))
         glfwSwapInterval(1);
-
-        // Показываем окно
         glfwShowWindow(windowHandle);
 
-        // Инициализация OpenGL
         GL.createCapabilities();
 
-        // Базовая настройка OpenGL
         glClearColor(0.08f, 0.10f, 0.14f, 1.0f);
         glEnable(GL_DEPTH_TEST);
         glViewport(0, 0, windowWidth, windowHeight);
@@ -99,8 +83,6 @@ public class Window {
     private void loop() {
         while (!glfwWindowShouldClose(windowHandle)) {
             glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-
-            // Здесь будет основной рендер игры
 
             glfwSwapBuffers(windowHandle);
             glfwPollEvents();
