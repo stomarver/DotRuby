@@ -16,7 +16,7 @@ public class Window {
 
     private long windowHandle;
 
-    private final int width = 560;
+    private final int width = 960;
     private final int height = 540;
 
     public void run() {
@@ -42,7 +42,7 @@ public class Window {
         int windowWidth = width;
         int windowHeight = height;
 
-        windowHandle = glfwCreateWindow(windowWidth, windowHeight, "DotRuby", NULL, NULL);
+        windowHandle = glfwCreateWindow(windowWidth, windowHeight, "", NULL, NULL);
         if (windowHandle == NULL) {
             throw new RuntimeException("Failed to create window");
         }
@@ -55,7 +55,7 @@ public class Window {
 
         GL.createCapabilities();
 
-        glClearColor(0.08f, 0.10f, 0.14f, 1.0f);
+        glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
         glEnable(GL_DEPTH_TEST);
         glViewport(0, 0, windowWidth, windowHeight);
     }
