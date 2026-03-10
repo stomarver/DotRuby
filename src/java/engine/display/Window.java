@@ -1,100 +1,43 @@
 package engine.display;
 
-import org.lwjgl.glfw.GLFWErrorCallback;
-import org.lwjgl.opengl.GL;
-import org.lwjgl.system.MemoryStack;
-
-import java.nio.IntBuffer;
-
-import static org.lwjgl.glfw.Callbacks.glfwFreeCallbacks;
-import static org.lwjgl.glfw.GLFW.*;
-import static org.lwjgl.opengl.GL11.*;
-import static org.lwjgl.system.MemoryStack.stackPush;
-import static org.lwjgl.system.MemoryUtil.NULL;
-
 public class Window {
 
-    private long windowHandle;
+    private final Manager displayManager;
 
-    private final int width = 960;
-    private final int height = 540;
+    public Window() {
+        this(Config.defaults());
+    }
+
+    public Window(Config config) {
+        this.displayManager = new Manager(config);
+    }
 
     public void run() {
-        init();
+        create();
         loop();
-        cleanup();
+        destroy();
     }
 
-    private void init() {
-        GLFWErrorCallback.createPrint(System.err).set();
-
-        if (!glfwInit()) {
-            throw new IllegalStateException("GLFW is not initialized");
-        }
-
-        glfwDefaultWindowHints();
-        glfwWindowHint(GLFW_VISIBLE, GLFW_FALSE);
-        glfwWindowHint(GLFW_RESIZABLE, GLFW_FALSE);
-        glfwWindowHint(GLFW_FOCUS_ON_SHOW, GLFW_TRUE);
-
-        Monitor monitor = Monitor.primary(width, height);
-
-        int windowWidth = width;
-        int windowHeight = height;
-
-        windowHandle = glfwCreateWindow(windowWidth, windowHeight, "", NULL, NULL);
-        if (windowHandle == NULL) {
-            throw new RuntimeException("Failed to create window");
-        }
-
-        centerWindow(monitor);
-
-        glfwMakeContextCurrent(windowHandle);
-        glfwSwapInterval(1);
-        glfwShowWindow(windowHandle);
-
-        GL.createCapabilities();
-
-        glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
-        glEnable(GL_DEPTH_TEST);
-        glViewport(0, 0, windowWidth, windowHeight);
+    public void create() {
+        displayManager.createWindow();
     }
 
-    private void centerWindow(Monitor monitor) {
-        if (!Monitor.supportsWindowPositioning()) {
-            return;
-        }
-
-        try (MemoryStack stack = stackPush()) {
-            IntBuffer pWidth = stack.mallocInt(1);
-            IntBuffer pHeight = stack.mallocInt(1);
-
-            glfwGetWindowSize(windowHandle, pWidth, pHeight);
-
-            glfwSetWindowPos(
-                    windowHandle,
-                    monitor.centeredX(pWidth.get(0)),
-                    monitor.centeredY(pHeight.get(0))
-            );
+    public void loop() {
+        while (!displayManager.shouldClose()) {
+            displayManager.clearFrame();
+            displayManager.updateFrame();
         }
     }
 
-    private void loop() {
-        while (!glfwWindowShouldClose(windowHandle)) {
-            glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-
-            glfwSwapBuffers(windowHandle);
-            glfwPollEvents();
-        }
+    public void destroy() {
+        displayManager.destroyWindow();
     }
 
-    private void cleanup() {
-        glfwFreeCallbacks(windowHandle);
-        glfwDestroyWindow(windowHandle);
-        glfwTerminate();
-        GLFWErrorCallback errorCallback = glfwSetErrorCallback(null);
-        if (errorCallback != null) {
-            errorCallback.free();
-        }
+    public long getHandle() {
+        return displayManager.getWindowHandle();
+    }
+
+    public Manager getDisplayManager() {
+        return displayManager;
     }
 }

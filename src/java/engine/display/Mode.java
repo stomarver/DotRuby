@@ -1,4 +1,6 @@
 package engine.display;
 
-public class Mode {
+public enum Mode {
+    WINDOWED,
+    FULLSCREEN
 }
