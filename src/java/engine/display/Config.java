@@ -13,7 +13,7 @@ public final class Config {
     private static final Path DEFAULT_PATH = Path.of("src/java/config/Display.txt");
 
     public static Config defaults() {
-        return new Config("DotRuby", 960, 540, false, Mode.WINDOWED, Fullscreen.BORDERLESS, false, VSync.DOUBLE_BUFFERED, true, 0.0f, 0.0f, 0.0f, 1.0f);
+        return new Config("DotRuby", 960, 540, false, Mode.WINDOWED, Fullscreen.BORDERLESS, false, true, VSync.DOUBLE_BUFFERED, true, 0.0f, 0.0f, 0.0f, 1.0f);
     }
 
     public static Config loadDefault() {
@@ -31,6 +31,7 @@ public final class Config {
                 parseMode(values.get("window_mode"), defaults.getWindowMode()),
                 parseFullscreen(values.get("fullscreen_type"), defaults.getFullscreen()),
                 parseBoolean(values.get("raw_input"), defaults.isRawInputEnabled()),
+                parseBoolean(values.get("lock_cursor"), defaults.isLockCursor()),
                 parseVSync(values.get("vsync"), defaults.getVSync()),
                 parseBoolean(values.get("centering"), defaults.isCentering()),
                 defaults.getClearR(),
@@ -47,6 +48,7 @@ public final class Config {
     private final Mode windowMode;
     private final Fullscreen fullscreen;
     private final boolean rawInputEnabled;
+    private final boolean lockCursor;
     private final VSync vSync;
     private final boolean centering;
     private final float clearR;
@@ -61,6 +63,7 @@ public final class Config {
                   Mode windowMode,
                   Fullscreen fullscreen,
                   boolean rawInputEnabled,
+                  boolean lockCursor,
                   VSync vSync,
                   boolean centering,
                   float clearR,
@@ -74,6 +77,7 @@ public final class Config {
         this.windowMode = windowMode == null ? Mode.WINDOWED : windowMode;
         this.fullscreen = fullscreen == null ? Fullscreen.BORDERLESS : fullscreen;
         this.rawInputEnabled = rawInputEnabled;
+        this.lockCursor = lockCursor;
         this.vSync = vSync == null ? VSync.DOUBLE_BUFFERED : vSync;
         this.centering = centering;
         this.clearR = clearR;
@@ -108,6 +112,10 @@ public final class Config {
 
     public boolean isRawInputEnabled() {
         return rawInputEnabled;
+    }
+
+    public boolean isLockCursor() {
+        return lockCursor;
     }
 
     public VSync getVSync() {

@@ -111,6 +111,7 @@ public class Manager {
 
         updateViewport();
         glfwSetFramebufferSizeCallback(windowHandle, (window, width, height) -> updateViewport());
+        applyCursorLock();
 
         return windowHandle;
     }
@@ -319,6 +320,10 @@ public class Manager {
 
     public Cursor getCursor() {
         return cursor;
+    }
+
+    public void applyCursorLock() {
+        cursor.setState(windowHandle, config.isLockCursor() ? Cursor.State.CAPTURED : Cursor.State.NORMAL);
     }
 
     public Mode getMode() {
