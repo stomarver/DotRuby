@@ -2,8 +2,10 @@ package engine.util;
 
 import org.lwjgl.opengl.GL;
 import org.lwjgl.opengl.GLCapabilities;
+import com.sun.management.OperatingSystemMXBean;
 
 import java.io.IOException;
+import java.lang.management.ManagementFactory;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Locale;
@@ -17,7 +19,6 @@ import static org.lwjgl.opengl.GL11.glGetString;
 public final class Specs {
 
     private static final Path LOG_DIRECTORY = Path.of("src/java/detect");
-    private static final Path SYS_LOG_PATH = LOG_DIRECTORY.resolve("sys.log");
     private static final Path ENV_LOG_PATH = LOG_DIRECTORY.resolve("env.log");
     private static final Path GPU_LOG_PATH = LOG_DIRECTORY.resolve("gpu.log");
     private static final int GL_GPU_MEMORY_INFO_TOTAL_AVAILABLE_MEMORY_NVX = 0x9048;
@@ -26,82 +27,46 @@ public final class Specs {
     }
 
     public static void updateLogs() {
-        String sys = describeSystem();
         String env = describeEnvironment();
         String gpu = describeGpu();
 
-        write(SYS_LOG_PATH, sys);
+        deleteIfExists(LOG_DIRECTORY.resolve("sys.log"));
         write(ENV_LOG_PATH, env);
         write(GPU_LOG_PATH, gpu);
-
-        System.out.println("[engine.util.Specs]");
-        System.out.print(sys);
-    }
-
-    private static String describeSystem() {
-        String renderer = glString(GL_RENDERER);
-        String vendor = glString(GL_VENDOR);
-        String version = glString(GL_VERSION);
-
-        StringBuilder log = new StringBuilder();
-        appendLine(log, "os", Detect.osName());
-        appendLine(log, "linuxDistro", Detect.linuxDistro());
-        appendLine(log, "glfwPlatform", Detect.glfwPlatformName());
-        appendLine(log, "sessionType", Detect.env("XDG_SESSION_TYPE"));
-        appendLine(log, "desktop", Detect.env("XDG_CURRENT_DESKTOP"));
-        appendLine(log, "backend", graphicsBackend(renderer, version));
-        appendLine(log, "renderer", renderer);
-        appendLine(log, "vendor", vendor);
-        return log.toString();
     }
 
     private static String describeEnvironment() {
         StringBuilder log = new StringBuilder();
-        appendLine(log, "os", Detect.osName());
-        appendLine(log, "linuxDistro", Detect.linuxDistro());
-        appendLine(log, "display", Detect.env("DISPLAY"));
-        appendLine(log, "waylandDisplay", Detect.env("WAYLAND_DISPLAY"));
-        appendLine(log, "desktop", Detect.env("XDG_CURRENT_DESKTOP"));
-        appendLine(log, "sessionType", Detect.env("XDG_SESSION_TYPE"));
-        appendLine(log, "sessionDesktop", Detect.env("XDG_SESSION_DESKTOP"));
-        appendLine(log, "qtPlatform", Detect.env("QT_QPA_PLATFORM"));
+        appendLine(log, "distro", distroLabel());
+        if (Detect.isLinux()) {
+            appendLine(log, "kernel", System.getProperty("os.version", "<unset>"));
+            appendLine(log, "desktop", Detect.env("XDG_CURRENT_DESKTOP"));
+            appendLine(log, "sessionType", Detect.env("XDG_SESSION_TYPE"));
+        }
+        appendLine(log, "platform", Detect.glfwPlatformName());
         appendLine(log, "javaVersion", System.getProperty("java.version", "<unset>"));
-        appendLine(log, "osArch", System.getProperty("os.arch", "<unset>"));
+        appendLine(log, "memory", systemMemory());
         return log.toString();
     }
 
     private static String describeGpu() {
         String renderer = glString(GL_RENDERER);
-        String vendor = glString(GL_VENDOR);
         String version = glString(GL_VERSION);
 
         StringBuilder log = new StringBuilder();
         appendLine(log, "renderer", renderer);
-        appendLine(log, "vendor", vendor);
-        appendLine(log, "driverVersion", version);
-        appendLine(log, "backend", graphicsBackend(renderer, version));
-        appendLine(log, "videoMemoryMiB", detectVideoMemoryMiB());
+        appendLine(log, "driver", detectDriver(version));
+        appendLine(log, "memory", detectVideoMemory());
         return log.toString();
     }
 
-    private static String graphicsBackend(String renderer, String version) {
-        String normalized = (renderer + " " + version).toLowerCase(Locale.ROOT);
-        if (normalized.contains("zink")) {
-            return "zink";
-        }
-        if (normalized.contains("llvmpipe")) {
-            return "llvmpipe";
-        }
-        return "opengl";
-    }
-
-    private static String detectVideoMemoryMiB() {
+    private static String detectVideoMemory() {
         try {
             GLCapabilities capabilities = GL.getCapabilities();
             if (capabilities != null && capabilities.GL_NVX_gpu_memory_info) {
                 int totalKilobytes = glGetInteger(GL_GPU_MEMORY_INFO_TOTAL_AVAILABLE_MEMORY_NVX);
                 if (totalKilobytes > 0) {
-                    return Integer.toString(totalKilobytes / 1024);
+                    return formatMiB(totalKilobytes / 1024L);
                 }
             }
         } catch (RuntimeException exception) {
@@ -110,14 +75,60 @@ public final class Specs {
         return "<unavailable>";
     }
 
+    private static String detectDriver(String version) {
+        String normalized = version.toLowerCase(Locale.ROOT);
+        if (normalized.contains("mesa")) {
+            return "Mesa";
+        }
+        if (normalized.contains("metal")) {
+            return "Metal";
+        }
+        if (normalized.contains("zink")) {
+            return "Zink";
+        }
+        return version;
+    }
+
     private static String glString(int parameter) {
         String value = glGetString(parameter);
         return value == null || value.isBlank() ? "<unavailable>" : value;
     }
 
+    private static String distroLabel() {
+        if (Detect.isLinux()) {
+            return Detect.linuxDistro();
+        }
+        String osName = System.getProperty("os.name", "<unknown>");
+        String osVersion = System.getProperty("os.version", "");
+        return osVersion.isBlank() ? osName : osName + " " + osVersion;
+    }
+
+    private static String systemMemory() {
+        long allocated = Runtime.getRuntime().maxMemory();
+        long totalPhysical = totalPhysicalMemory();
+        if (totalPhysical <= 0L) {
+            return formatMiB(allocated / (1024L * 1024L)) + " / <unavailable>";
+        }
+        return formatMiB(allocated / (1024L * 1024L)) + " / " + formatMiB(totalPhysical / (1024L * 1024L));
+    }
+
+    private static long totalPhysicalMemory() {
+        try {
+            if (ManagementFactory.getOperatingSystemMXBean() instanceof OperatingSystemMXBean bean) {
+                return bean.getTotalMemorySize();
+            }
+        } catch (RuntimeException exception) {
+            return -1L;
+        }
+        return -1L;
+    }
+
+    private static String formatMiB(long mib) {
+        return mib + " MiB";
+    }
+
     private static void appendLine(StringBuilder log, String key, String value) {
-        log.append("  ")
-                .append(String.format("%-15s", key))
+        log.append(String.format("%-11s", key))
                 .append(" = ")
                 .append(value)
                 .append('\n');
@@ -129,6 +140,14 @@ public final class Specs {
             Files.writeString(path, body);
         } catch (IOException exception) {
             System.err.println("[engine.util.Specs] failed to write " + path + ": " + exception.getMessage());
+        }
+    }
+
+    private static void deleteIfExists(Path path) {
+        try {
+            Files.deleteIfExists(path);
+        } catch (IOException exception) {
+            System.err.println("[engine.util.Specs] failed to delete " + path + ": " + exception.getMessage());
         }
     }
 }
