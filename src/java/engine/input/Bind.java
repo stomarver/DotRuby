@@ -2,6 +2,7 @@ package engine.input;
 
 import engine.util.Specs;
 
+import static org.lwjgl.glfw.GLFW.GLFW_MOUSE_BUTTON_LEFT;
 import static org.lwjgl.glfw.GLFW.GLFW_KEY_L;
 import static org.lwjgl.glfw.GLFW.GLFW_PRESS;
 import static org.lwjgl.glfw.GLFW.GLFW_RAW_MOUSE_MOTION;
@@ -44,11 +45,20 @@ public final class Bind {
                 manager.getMouse().setButtonState(button, pressed);
                 displayManager.getCursor().setButtonState(button, pressed);
                 manager.pushEvent(new Event(Event.Type.MOUSE, button, action));
+
+                if (button == GLFW_MOUSE_BUTTON_LEFT) {
+                    if (pressed) {
+                        displayManager.beginSelection(manager.getMouse().getX(), manager.getMouse().getY());
+                    } else {
+                        displayManager.clearSelection();
+                    }
+                }
             });
 
             glfwSetCursorPosCallback(windowHandle, (window, x, y) -> {
                 manager.getMouse().setPosition(x, y);
                 displayManager.updateCursorPosition(x, y);
+                displayManager.updateSelection(x, y);
             });
         }
 
