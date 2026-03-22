@@ -16,8 +16,8 @@ import static org.lwjgl.glfw.GLFW.GLFW_CURSOR_NORMAL;
 import static org.lwjgl.glfw.GLFW.glfwSetInputMode;
 import static org.lwjgl.opengl.GL11.GL_BLEND;
 import static org.lwjgl.opengl.GL11.GL_DEPTH_TEST;
-import static org.lwjgl.opengl.GL11.GL_NEAREST;
 import static org.lwjgl.opengl.GL11.GL_MODELVIEW;
+import static org.lwjgl.opengl.GL11.GL_NEAREST;
 import static org.lwjgl.opengl.GL11.GL_ONE_MINUS_SRC_ALPHA;
 import static org.lwjgl.opengl.GL11.GL_PROJECTION;
 import static org.lwjgl.opengl.GL11.GL_QUADS;
@@ -74,6 +74,9 @@ public class Cursor {
     private State state = State.NORMAL;
     private double x;
     private double y;
+    private double lastPhysicalX;
+    private double lastPhysicalY;
+    private boolean physicalTrackingInitialized;
     private int textureId;
     private int textureWidth;
     private int textureHeight;
@@ -85,6 +88,7 @@ public class Cursor {
 
         state = newState;
         glfwSetInputMode(windowHandle, GLFW_CURSOR, newState.glfwValue());
+        resetMotionTracking();
     }
 
     public State getState() {
@@ -92,8 +96,33 @@ public class Cursor {
     }
 
     public void setPosition(double x, double y) {
-        this.x = Math.round(x);
-        this.y = Math.round(y);
+        this.x = x;
+        this.y = y;
+    }
+
+    public void setClampedPosition(double x, double y, int virtualWidth, int virtualHeight) {
+        this.x = clampX(x, virtualWidth);
+        this.y = clampY(y, virtualHeight);
+    }
+
+    public void updateCapturedPosition(double physicalX, double physicalY, int virtualWidth, int virtualHeight) {
+        if (!physicalTrackingInitialized) {
+            lastPhysicalX = physicalX;
+            lastPhysicalY = physicalY;
+            physicalTrackingInitialized = true;
+            return;
+        }
+
+        double deltaX = physicalX - lastPhysicalX;
+        double deltaY = physicalY - lastPhysicalY;
+        lastPhysicalX = physicalX;
+        lastPhysicalY = physicalY;
+
+        setClampedPosition(x + deltaX, y + deltaY, virtualWidth, virtualHeight);
+    }
+
+    public void resetMotionTracking() {
+        physicalTrackingInitialized = false;
     }
 
     public double getX() {
@@ -158,7 +187,7 @@ public class Cursor {
         }
     }
 
-    public void render(int framebufferWidth, int framebufferHeight) {
+    public void render(int renderWidth, int renderHeight) {
         if (textureId == 0) {
             throw new IllegalStateException("Cursor texture is not loaded");
         }
@@ -171,7 +200,7 @@ public class Cursor {
         glMatrixMode(GL_PROJECTION);
         glPushMatrix();
         glLoadIdentity();
-        glOrtho(0.0, framebufferWidth, framebufferHeight, 0.0, -1.0, 1.0);
+        glOrtho(0.0, renderWidth, renderHeight, 0.0, -1.0, 1.0);
 
         glMatrixMode(GL_MODELVIEW);
         glPushMatrix();
@@ -205,5 +234,15 @@ public class Cursor {
             glDeleteTextures(textureId);
             textureId = 0;
         }
+    }
+
+    private double clampX(double value, int virtualWidth) {
+        double maxX = Math.max(0, virtualWidth - Math.max(1, textureWidth));
+        return Math.max(0, Math.min(Math.round(value), maxX));
+    }
+
+    private double clampY(double value, int virtualHeight) {
+        double maxY = Math.max(0, virtualHeight - Math.max(1, textureHeight));
+        return Math.max(0, Math.min(Math.round(value), maxY));
     }
 }

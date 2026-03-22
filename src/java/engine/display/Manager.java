@@ -291,6 +291,7 @@ public class Manager {
     public void clearFrame() {
         glViewport(0, 0, getFramebufferWidth(), getFramebufferHeight());
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+        applyRenderViewport();
     }
 
     public void updateFrame() {
@@ -338,6 +339,20 @@ public class Manager {
 
     public void applyCursorLock() {
         cursor.setState(windowHandle, config.isLockCursor() ? Cursor.State.CAPTURED : Cursor.State.NORMAL);
+    }
+
+    public void updateCursorPosition(double physicalX, double physicalY) {
+        if (consumeIgnoredCursorSync()) {
+            cursor.resetMotionTracking();
+            return;
+        }
+
+        if (cursor.getState() == Cursor.State.CAPTURED) {
+            cursor.updateCapturedPosition(physicalX, physicalY, virtualWidth, virtualHeight);
+            return;
+        }
+
+        cursor.setClampedPosition(toVirtualX(physicalX), toVirtualY(physicalY), virtualWidth, virtualHeight);
     }
 
     public Mode getMode() {
@@ -403,7 +418,8 @@ public class Manager {
 
     private void preserveCursorGridPosition() {
         ignoreNextCursorSync = true;
-        cursor.setPosition(cursor.getX(), cursor.getY());
+        cursor.resetMotionTracking();
+        cursor.setClampedPosition(cursor.getX(), cursor.getY(), virtualWidth, virtualHeight);
     }
 
     private void applyWindowMode() {
