@@ -9,6 +9,8 @@ import java.lang.management.ManagementFactory;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Locale;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import static org.lwjgl.opengl.GL11.GL_RENDERER;
 import static org.lwjgl.opengl.GL11.GL_VENDOR;
@@ -22,6 +24,8 @@ public final class Specs {
     private static final Path ENV_LOG_PATH = LOG_DIRECTORY.resolve("env.log");
     private static final Path GPU_LOG_PATH = LOG_DIRECTORY.resolve("gpu.log");
     private static final int GL_GPU_MEMORY_INFO_TOTAL_AVAILABLE_MEMORY_NVX = 0x9048;
+    private static final Pattern MESA_DRIVER_PATTERN = Pattern.compile("(Mesa\\s+[\\w.\\-]+)", Pattern.CASE_INSENSITIVE);
+    private static final Pattern METAL_DRIVER_PATTERN = Pattern.compile("(Metal[^,;)]*)", Pattern.CASE_INSENSITIVE);
 
     private Specs() {
     }
@@ -76,16 +80,16 @@ public final class Specs {
     }
 
     private static String detectDriver(String version) {
-        String normalized = version.toLowerCase(Locale.ROOT);
-        if (normalized.contains("mesa")) {
-            return "Mesa";
+        String mesa = extract(version, MESA_DRIVER_PATTERN);
+        if (mesa != null) {
+            return mesa;
         }
-        if (normalized.contains("metal")) {
-            return "Metal";
+
+        String metal = extract(version, METAL_DRIVER_PATTERN);
+        if (metal != null) {
+            return metal;
         }
-        if (normalized.contains("zink")) {
-            return "Zink";
-        }
+
         return version;
     }
 
@@ -149,5 +153,13 @@ public final class Specs {
         } catch (IOException exception) {
             System.err.println("[engine.util.Specs] failed to delete " + path + ": " + exception.getMessage());
         }
+    }
+
+    private static String extract(String value, Pattern pattern) {
+        Matcher matcher = pattern.matcher(value);
+        if (!matcher.find()) {
+            return null;
+        }
+        return matcher.group(1).trim();
     }
 }
