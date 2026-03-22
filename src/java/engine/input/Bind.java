@@ -48,7 +48,7 @@ public final class Bind {
 
                 if (button == GLFW_MOUSE_BUTTON_LEFT) {
                     if (pressed) {
-                        displayManager.beginSelection(manager.getMouse().getX(), manager.getMouse().getY());
+                        displayManager.beginSelection();
                     } else {
                         displayManager.clearSelection();
                     }
@@ -58,7 +58,7 @@ public final class Bind {
             glfwSetCursorPosCallback(windowHandle, (window, x, y) -> {
                 manager.getMouse().setPosition(x, y);
                 displayManager.updateCursorPosition(x, y);
-                displayManager.updateSelection(x, y);
+                displayManager.updateSelection();
             });
         }
 

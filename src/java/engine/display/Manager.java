@@ -351,12 +351,12 @@ public class Manager {
         return cursor;
     }
 
-    public void beginSelection(double physicalX, double physicalY) {
-        selection.begin(clampVirtualX(toVirtualX(physicalX)), clampVirtualY(toVirtualY(physicalY)));
+    public void beginSelection() {
+        selection.begin((float) cursor.getX(), (float) cursor.getY());
     }
 
-    public void updateSelection(double physicalX, double physicalY) {
-        selection.update(clampVirtualX(toVirtualX(physicalX)), clampVirtualY(toVirtualY(physicalY)));
+    public void updateSelection() {
+        selection.update((float) cursor.getX(), (float) cursor.getY());
     }
 
     public void clearSelection() {
@@ -454,14 +454,6 @@ public class Manager {
         ignoreNextCursorSync = true;
         cursor.resetMotionTracking();
         cursor.setClampedPosition(cursor.getX(), cursor.getY(), virtualWidth, virtualHeight);
-    }
-
-    private float clampVirtualX(float value) {
-        return Math.clamp(value, 0f, Math.max(0f, virtualWidth - 1f));
-    }
-
-    private float clampVirtualY(float value) {
-        return Math.clamp(value, 0f, Math.max(0f, virtualHeight));
     }
 
     private void applyWindowMode() {
