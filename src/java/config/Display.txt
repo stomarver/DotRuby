@@ -2,4 +2,4 @@ window_mode=WINDOWED
 fullscreen_type=BORDERLESS
 raw_input=false
 vsync=DOUBLE_BUFFERED
-center_on_mode_change=true
+center_on_windowed_exit=true

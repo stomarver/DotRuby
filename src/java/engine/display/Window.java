@@ -27,7 +27,7 @@ public class Window {
     public void create() {
         displayManager.createWindow();
         displayManager.applyVSync(displayManager.getVSync());
-        displayManager.setFullscreenType(displayManager.getFullscreenType());
+        displayManager.setFullscreen(displayManager.getFullscreen());
         displayManager.setMode(displayManager.getMode());
         inputManager.bind(displayManager.getWindowHandle(), displayManager);
     }

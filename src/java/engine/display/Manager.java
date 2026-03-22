@@ -2,10 +2,6 @@ package engine.display;
 
 import org.lwjgl.glfw.GLFWErrorCallback;
 import org.lwjgl.opengl.GL;
-import org.lwjgl.system.MemoryStack;
-
-import java.nio.IntBuffer;
-
 import static org.lwjgl.glfw.Callbacks.glfwFreeCallbacks;
 import static org.lwjgl.glfw.GLFW.GLFW_DECORATED;
 import static org.lwjgl.glfw.GLFW.GLFW_FALSE;
@@ -16,14 +12,12 @@ import static org.lwjgl.glfw.GLFW.GLFW_VISIBLE;
 import static org.lwjgl.glfw.GLFW.glfwCreateWindow;
 import static org.lwjgl.glfw.GLFW.glfwDefaultWindowHints;
 import static org.lwjgl.glfw.GLFW.glfwDestroyWindow;
-import static org.lwjgl.glfw.GLFW.glfwGetWindowSize;
 import static org.lwjgl.glfw.GLFW.glfwInit;
 import static org.lwjgl.glfw.GLFW.glfwMakeContextCurrent;
 import static org.lwjgl.glfw.GLFW.glfwPollEvents;
 import static org.lwjgl.glfw.GLFW.glfwSetErrorCallback;
 import static org.lwjgl.glfw.GLFW.glfwSetWindowAttrib;
 import static org.lwjgl.glfw.GLFW.glfwSetWindowMonitor;
-import static org.lwjgl.glfw.GLFW.glfwSetWindowPos;
 import static org.lwjgl.glfw.GLFW.glfwShowWindow;
 import static org.lwjgl.glfw.GLFW.glfwSwapBuffers;
 import static org.lwjgl.glfw.GLFW.glfwSwapInterval;
@@ -49,7 +43,6 @@ import static org.lwjgl.opengl.GL20.glVertexAttribPointer;
 import static org.lwjgl.opengl.GL30.glBindVertexArray;
 import static org.lwjgl.opengl.GL30.glDeleteVertexArrays;
 import static org.lwjgl.opengl.GL30.glGenVertexArrays;
-import static org.lwjgl.system.MemoryStack.stackPush;
 import static org.lwjgl.system.MemoryUtil.NULL;
 
 public class Manager {
@@ -59,13 +52,13 @@ public class Manager {
 
     private long windowHandle;
     private Mode mode;
-    private FullscreenType fullscreenType;
+    private Fullscreen fullscreen;
     private VSync vSync;
 
     public Manager(Config config) {
         this.config = config;
         this.mode = config.getWindowMode();
-        this.fullscreenType = config.getFullscreenType();
+        this.fullscreen = config.getFullscreen();
         this.vSync = config.getVSync();
     }
 
@@ -85,7 +78,7 @@ public class Manager {
             throw new RuntimeException("Failed to create window");
         }
 
-        centerWindow(Monitor.primary(config.getWidth(), config.getHeight()));
+        Centering.center(windowHandle, Monitor.primary(config.getWidth(), config.getHeight()));
 
         glfwMakeContextCurrent(windowHandle);
         applyVSync(vSync);
@@ -180,8 +173,8 @@ public class Manager {
         applyWindowMode();
     }
 
-    public void setFullscreenType(FullscreenType fullscreenType) {
-        this.fullscreenType = fullscreenType == null ? FullscreenType.BORDERLESS : fullscreenType;
+    public void setFullscreen(Fullscreen fullscreen) {
+        this.fullscreen = fullscreen == null ? Fullscreen.BORDERLESS : fullscreen;
         if (mode == Mode.FULLSCREEN) {
             applyWindowMode();
         }
@@ -199,8 +192,8 @@ public class Manager {
         return mode;
     }
 
-    public FullscreenType getFullscreenType() {
-        return fullscreenType;
+    public Fullscreen getFullscreen() {
+        return fullscreen;
     }
 
     public long getWindowHandle() {
@@ -219,7 +212,7 @@ public class Manager {
 
     private void applyWindowMode() {
         Monitor monitor = Monitor.primary(config.getWidth(), config.getHeight());
-        if (mode == Mode.FULLSCREEN && fullscreenType == FullscreenType.EXCLUSIVE) {
+        if (mode == Mode.FULLSCREEN && fullscreen == Fullscreen.EXCLUSIVE) {
             glfwSetWindowAttrib(windowHandle, GLFW_DECORATED, GLFW_FALSE);
             glfwSetWindowMonitor(
                     windowHandle,
@@ -230,44 +223,26 @@ public class Manager {
                     monitor.getHeight(),
                     0
             );
-            centerWindowForCurrentMode(monitor);
+            Centering.center(windowHandle, monitor);
             return;
         }
 
         if (mode == Mode.FULLSCREEN) {
             glfwSetWindowMonitor(windowHandle, NULL, monitor.getPositionX(), monitor.getPositionY(), monitor.getWidth(), monitor.getHeight(), 0);
             glfwSetWindowAttrib(windowHandle, GLFW_DECORATED, GLFW_FALSE);
-            centerWindowForCurrentMode(monitor);
+            Centering.center(windowHandle, monitor);
             return;
         }
 
         glfwSetWindowMonitor(windowHandle, NULL, 0, 0, config.getWidth(), config.getHeight(), 0);
         glfwSetWindowAttrib(windowHandle, GLFW_DECORATED, GLFW_TRUE);
-        centerWindowForCurrentMode(monitor);
+        centerWindowOnWindowedExit(monitor);
     }
 
-    private void centerWindow(Monitor monitor) {
-        if (!Monitor.supportsWindowPositioning()) {
+    private void centerWindowOnWindowedExit(Monitor monitor) {
+        if (!config.isCenterOnWindowedExit()) {
             return;
         }
-
-        try (MemoryStack stack = stackPush()) {
-            IntBuffer width = stack.mallocInt(1);
-            IntBuffer height = stack.mallocInt(1);
-            glfwGetWindowSize(windowHandle, width, height);
-
-            glfwSetWindowPos(
-                    windowHandle,
-                    monitor.centeredX(width.get(0)),
-                    monitor.centeredY(height.get(0))
-            );
-        }
-    }
-
-    private void centerWindowForCurrentMode(Monitor monitor) {
-        if (!config.isCenterOnModeChange()) {
-            return;
-        }
-        centerWindow(monitor);
+        Centering.center(windowHandle, monitor);
     }
 }

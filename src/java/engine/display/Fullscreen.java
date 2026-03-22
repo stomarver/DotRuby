@@ -1,6 +1,6 @@
 package engine.display;
 
-public enum FullscreenType {
+public enum Fullscreen {
     BORDERLESS,
     EXCLUSIVE
 }

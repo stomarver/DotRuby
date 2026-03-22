@@ -13,7 +13,7 @@ public final class Config {
     private static final Path DEFAULT_PATH = Path.of("src/java/config/Display.txt");
 
     public static Config defaults() {
-        return new Config("DotRuby", 960, 540, false, Mode.WINDOWED, FullscreenType.BORDERLESS, false, VSync.DOUBLE_BUFFERED, true, 0.0f, 0.0f, 0.0f, 1.0f);
+        return new Config("DotRuby", 960, 540, false, Mode.WINDOWED, Fullscreen.BORDERLESS, false, VSync.DOUBLE_BUFFERED, true, 0.0f, 0.0f, 0.0f, 1.0f);
     }
 
     public static Config loadDefault() {
@@ -29,10 +29,10 @@ public final class Config {
                 defaults.getHeight(),
                 defaults.isResizable(),
                 parseMode(values.get("window_mode"), defaults.getWindowMode()),
-                parseFullscreenType(values.get("fullscreen_type"), defaults.getFullscreenType()),
+                parseFullscreen(values.get("fullscreen_type"), defaults.getFullscreen()),
                 parseBoolean(values.get("raw_input"), defaults.isRawInputEnabled()),
                 parseVSync(values.get("vsync"), defaults.getVSync()),
-                parseBoolean(values.get("center_on_mode_change"), defaults.isCenterOnModeChange()),
+                parseBoolean(values.get("center_on_windowed_exit"), defaults.isCenterOnWindowedExit()),
                 defaults.getClearR(),
                 defaults.getClearG(),
                 defaults.getClearB(),
@@ -45,10 +45,10 @@ public final class Config {
     private final int height;
     private final boolean resizable;
     private final Mode windowMode;
-    private final FullscreenType fullscreenType;
+    private final Fullscreen fullscreen;
     private final boolean rawInputEnabled;
     private final VSync vSync;
-    private final boolean centerOnModeChange;
+    private final boolean centerOnWindowedExit;
     private final float clearR;
     private final float clearG;
     private final float clearB;
@@ -59,10 +59,10 @@ public final class Config {
                   int height,
                   boolean resizable,
                   Mode windowMode,
-                  FullscreenType fullscreenType,
+                  Fullscreen fullscreen,
                   boolean rawInputEnabled,
                   VSync vSync,
-                  boolean centerOnModeChange,
+                  boolean centerOnWindowedExit,
                   float clearR,
                   float clearG,
                   float clearB,
@@ -72,10 +72,10 @@ public final class Config {
         this.height = Math.max(1, height);
         this.resizable = resizable;
         this.windowMode = windowMode == null ? Mode.WINDOWED : windowMode;
-        this.fullscreenType = fullscreenType == null ? FullscreenType.BORDERLESS : fullscreenType;
+        this.fullscreen = fullscreen == null ? Fullscreen.BORDERLESS : fullscreen;
         this.rawInputEnabled = rawInputEnabled;
         this.vSync = vSync == null ? VSync.DOUBLE_BUFFERED : vSync;
-        this.centerOnModeChange = centerOnModeChange;
+        this.centerOnWindowedExit = centerOnWindowedExit;
         this.clearR = clearR;
         this.clearG = clearG;
         this.clearB = clearB;
@@ -102,8 +102,8 @@ public final class Config {
         return windowMode;
     }
 
-    public FullscreenType getFullscreenType() {
-        return fullscreenType;
+    public Fullscreen getFullscreen() {
+        return fullscreen;
     }
 
     public boolean isRawInputEnabled() {
@@ -114,8 +114,8 @@ public final class Config {
         return vSync;
     }
 
-    public boolean isCenterOnModeChange() {
-        return centerOnModeChange;
+    public boolean isCenterOnWindowedExit() {
+        return centerOnWindowedExit;
     }
 
     public float getClearR() {
@@ -173,11 +173,11 @@ public final class Config {
         return Mode.valueOf(value.trim().toUpperCase(Locale.ROOT));
     }
 
-    private static FullscreenType parseFullscreenType(String value, FullscreenType fallback) {
+    private static Fullscreen parseFullscreen(String value, Fullscreen fallback) {
         if (value == null || value.isBlank()) {
             return fallback;
         }
-        return FullscreenType.valueOf(value.trim().toUpperCase(Locale.ROOT));
+        return Fullscreen.valueOf(value.trim().toUpperCase(Locale.ROOT));
     }
 
     private static VSync parseVSync(String value, VSync fallback) {
