@@ -13,7 +13,7 @@ public final class Config {
     private static final Path DEFAULT_PATH = Path.of("src/java/config/Display.txt");
 
     public static Config defaults() {
-        return new Config("DotRuby", 960, 540, false, Mode.WINDOWED, FullscreenType.BORDERLESS, false, VSync.DOUBLE_BUFFERED, 0.0f, 0.0f, 0.0f, 1.0f);
+        return new Config("DotRuby", 960, 540, false, Mode.WINDOWED, FullscreenType.BORDERLESS, false, VSync.DOUBLE_BUFFERED, true, 0.0f, 0.0f, 0.0f, 1.0f);
     }
 
     public static Config loadDefault() {
@@ -32,6 +32,7 @@ public final class Config {
                 parseFullscreenType(values.get("fullscreen_type"), defaults.getFullscreenType()),
                 parseBoolean(values.get("raw_input"), defaults.isRawInputEnabled()),
                 parseVSync(values.get("vsync"), defaults.getVSync()),
+                parseBoolean(values.get("center_on_mode_change"), defaults.isCenterOnModeChange()),
                 defaults.getClearR(),
                 defaults.getClearG(),
                 defaults.getClearB(),
@@ -47,6 +48,7 @@ public final class Config {
     private final FullscreenType fullscreenType;
     private final boolean rawInputEnabled;
     private final VSync vSync;
+    private final boolean centerOnModeChange;
     private final float clearR;
     private final float clearG;
     private final float clearB;
@@ -60,6 +62,7 @@ public final class Config {
                   FullscreenType fullscreenType,
                   boolean rawInputEnabled,
                   VSync vSync,
+                  boolean centerOnModeChange,
                   float clearR,
                   float clearG,
                   float clearB,
@@ -72,6 +75,7 @@ public final class Config {
         this.fullscreenType = fullscreenType == null ? FullscreenType.BORDERLESS : fullscreenType;
         this.rawInputEnabled = rawInputEnabled;
         this.vSync = vSync == null ? VSync.DOUBLE_BUFFERED : vSync;
+        this.centerOnModeChange = centerOnModeChange;
         this.clearR = clearR;
         this.clearG = clearG;
         this.clearB = clearB;
@@ -108,6 +112,10 @@ public final class Config {
 
     public VSync getVSync() {
         return vSync;
+    }
+
+    public boolean isCenterOnModeChange() {
+        return centerOnModeChange;
     }
 
     public float getClearR() {

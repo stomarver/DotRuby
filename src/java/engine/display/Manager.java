@@ -230,22 +230,24 @@ public class Manager {
                     monitor.getHeight(),
                     0
             );
+            centerWindowForCurrentMode(monitor);
             return;
         }
 
         if (mode == Mode.FULLSCREEN) {
             glfwSetWindowMonitor(windowHandle, NULL, monitor.getPositionX(), monitor.getPositionY(), monitor.getWidth(), monitor.getHeight(), 0);
             glfwSetWindowAttrib(windowHandle, GLFW_DECORATED, GLFW_FALSE);
+            centerWindowForCurrentMode(monitor);
             return;
         }
 
         glfwSetWindowMonitor(windowHandle, NULL, 0, 0, config.getWidth(), config.getHeight(), 0);
         glfwSetWindowAttrib(windowHandle, GLFW_DECORATED, GLFW_TRUE);
-        centerWindow(monitor);
+        centerWindowForCurrentMode(monitor);
     }
 
     private void centerWindow(Monitor monitor) {
-        if (!Monitor.supportsWindowPositioning() || mode != Mode.WINDOWED) {
+        if (!Monitor.supportsWindowPositioning()) {
             return;
         }
 
@@ -260,5 +262,12 @@ public class Manager {
                     monitor.centeredY(height.get(0))
             );
         }
+    }
+
+    private void centerWindowForCurrentMode(Monitor monitor) {
+        if (!config.isCenterOnModeChange()) {
+            return;
+        }
+        centerWindow(monitor);
     }
 }
