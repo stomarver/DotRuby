@@ -14,10 +14,12 @@ import static org.lwjgl.glfw.GLFW.GLFW_VISIBLE;
 import static org.lwjgl.glfw.GLFW.glfwCreateWindow;
 import static org.lwjgl.glfw.GLFW.glfwDefaultWindowHints;
 import static org.lwjgl.glfw.GLFW.glfwDestroyWindow;
+import static org.lwjgl.glfw.GLFW.glfwGetFramebufferSize;
 import static org.lwjgl.glfw.GLFW.glfwInit;
 import static org.lwjgl.glfw.GLFW.glfwMakeContextCurrent;
 import static org.lwjgl.glfw.GLFW.glfwPollEvents;
 import static org.lwjgl.glfw.GLFW.glfwSetErrorCallback;
+import static org.lwjgl.glfw.GLFW.glfwSetFramebufferSizeCallback;
 import static org.lwjgl.glfw.GLFW.glfwSetWindowAttrib;
 import static org.lwjgl.glfw.GLFW.glfwSetWindowMonitor;
 import static org.lwjgl.glfw.GLFW.glfwShowWindow;
@@ -57,11 +59,27 @@ public class Manager {
     private Fullscreen fullscreen;
     private VSync vSync;
 
+    private final int virtualWidth;
+    private final int virtualHeight;
+    private int framebufferWidth;
+    private int framebufferHeight;
+    private int physicalX;
+    private int physicalY;
+    private int physicalWidth;
+    private int physicalHeight;
+    private boolean forceVirtualResolution = true;
+
     public Manager(Config config) {
         this.config = config;
         this.mode = config.getWindowMode();
         this.fullscreen = config.getFullscreen();
         this.vSync = config.getVSync();
+        this.virtualWidth = config.getWidth();
+        this.virtualHeight = config.getHeight();
+        this.framebufferWidth = virtualWidth;
+        this.framebufferHeight = virtualHeight;
+        this.physicalWidth = virtualWidth;
+        this.physicalHeight = virtualHeight;
     }
 
     public long createWindow() {
@@ -90,7 +108,9 @@ public class Manager {
 
         glClearColor(config.getClearR(), config.getClearG(), config.getClearB(), config.getClearA());
         glEnable(GL_DEPTH_TEST);
-        glViewport(0, 0, config.getWidth(), config.getHeight());
+
+        updateViewport();
+        glfwSetFramebufferSizeCallback(windowHandle, (window, width, height) -> updateViewport());
 
         return windowHandle;
     }
@@ -114,6 +134,114 @@ public class Manager {
 
     public VSync getVSync() {
         return vSync;
+    }
+
+    public int getVirtualWidth() {
+        return virtualWidth;
+    }
+
+    public int getVirtualHeight() {
+        return virtualHeight;
+    }
+
+    public int getRenderWidth() {
+        return forceVirtualResolution ? virtualWidth : Math.max(1, framebufferWidth);
+    }
+
+    public int getRenderHeight() {
+        return forceVirtualResolution ? virtualHeight : Math.max(1, framebufferHeight);
+    }
+
+    public int getFramebufferWidth() {
+        return Math.max(1, framebufferWidth);
+    }
+
+    public int getFramebufferHeight() {
+        return Math.max(1, framebufferHeight);
+    }
+
+    public int getPhysicalX() {
+        return physicalX;
+    }
+
+    public int getPhysicalY() {
+        return physicalY;
+    }
+
+    public int getPhysicalWidth() {
+        return physicalWidth;
+    }
+
+    public int getPhysicalHeight() {
+        return physicalHeight;
+    }
+
+    public boolean isForceVirtualResolution() {
+        return forceVirtualResolution;
+    }
+
+    public void setForceVirtualResolution(boolean forceVirtualResolution) {
+        this.forceVirtualResolution = forceVirtualResolution;
+        updateViewport();
+    }
+
+    public float getUiScaleToPhysicalPixels() {
+        float rawScale = forceVirtualResolution
+                ? (physicalWidth / (float) virtualWidth)
+                : (framebufferWidth / (float) virtualWidth);
+
+        if (forceVirtualResolution && mode == Mode.FULLSCREEN) {
+            return Math.max(1f, Math.round(rawScale));
+        }
+        return rawScale;
+    }
+
+    public float getUiScaleToPhysicalPixelsExact() {
+        return forceVirtualResolution
+                ? (physicalWidth / (float) virtualWidth)
+                : (framebufferWidth / (float) virtualWidth);
+    }
+
+    public float getVirtualUnitsForPhysicalPixels(float pixels) {
+        float scale = getUiScaleToPhysicalPixels();
+        return scale <= 0f ? pixels : pixels / scale;
+    }
+
+    public float getVirtualUnitsForPhysicalPixelsExact(float pixels) {
+        float scale = getUiScaleToPhysicalPixelsExact();
+        return scale <= 0f ? pixels : pixels / scale;
+    }
+
+    public float toVirtualX(double physicalScreenX) {
+        float scale = forceVirtualResolution
+                ? (physicalWidth / (float) virtualWidth)
+                : (framebufferWidth / (float) virtualWidth);
+        float offsetX = forceVirtualResolution ? physicalX : 0f;
+        return (float) ((physicalScreenX - offsetX) / Math.max(scale, 0.0001f));
+    }
+
+    public float toVirtualY(double physicalScreenY) {
+        float scale = forceVirtualResolution
+                ? (physicalHeight / (float) virtualHeight)
+                : (framebufferHeight / (float) virtualHeight);
+        float offsetY = forceVirtualResolution ? physicalY : 0f;
+        return (float) ((physicalScreenY - offsetY) / Math.max(scale, 0.0001f));
+    }
+
+    public float toPhysicalX(float virtualX) {
+        float scale = forceVirtualResolution
+                ? (physicalWidth / (float) virtualWidth)
+                : (framebufferWidth / (float) virtualWidth);
+        float offsetX = forceVirtualResolution ? physicalX : 0f;
+        return offsetX + (virtualX * scale);
+    }
+
+    public float toPhysicalY(float virtualY) {
+        float scale = forceVirtualResolution
+                ? (physicalHeight / (float) virtualHeight)
+                : (framebufferHeight / (float) virtualHeight);
+        float offsetY = forceVirtualResolution ? physicalY : 0f;
+        return offsetY + (virtualY * scale);
     }
 
     public int createVertexArray() {
@@ -158,6 +286,7 @@ public class Manager {
     }
 
     public void clearFrame() {
+        glViewport(0, 0, getFramebufferWidth(), getFramebufferHeight());
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
     }
 
@@ -173,12 +302,14 @@ public class Manager {
     public void setMode(Mode mode) {
         this.mode = mode == null ? Mode.WINDOWED : mode;
         applyWindowMode();
+        updateViewport();
     }
 
     public void setFullscreen(Fullscreen fullscreen) {
         this.fullscreen = fullscreen == null ? Fullscreen.BORDERLESS : fullscreen;
         if (mode == Mode.FULLSCREEN) {
             applyWindowMode();
+            updateViewport();
         }
     }
 
@@ -209,6 +340,36 @@ public class Manager {
         GLFWErrorCallback errorCallback = glfwSetErrorCallback(null);
         if (errorCallback != null) {
             errorCallback.free();
+        }
+    }
+
+    private void updateViewport() {
+        int[] fbW = new int[1];
+        int[] fbH = new int[1];
+        glfwGetFramebufferSize(windowHandle, fbW, fbH);
+
+        framebufferWidth = Math.max(1, fbW[0]);
+        framebufferHeight = Math.max(1, fbH[0]);
+
+        float targetAspect = virtualWidth / (float) virtualHeight;
+        float windowAspect = framebufferWidth / (float) framebufferHeight;
+
+        if (windowAspect > targetAspect) {
+            physicalHeight = framebufferHeight;
+            physicalWidth = (int) (framebufferHeight * targetAspect);
+            physicalX = (framebufferWidth - physicalWidth) / 2;
+            physicalY = 0;
+        } else {
+            physicalWidth = framebufferWidth;
+            physicalHeight = (int) (framebufferWidth / targetAspect);
+            physicalX = 0;
+            physicalY = (framebufferHeight - physicalHeight) / 2;
+        }
+
+        if (forceVirtualResolution) {
+            glViewport(physicalX, physicalY, physicalWidth, physicalHeight);
+        } else {
+            glViewport(0, 0, framebufferWidth, framebufferHeight);
         }
     }
 
