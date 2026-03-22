@@ -7,6 +7,7 @@ import java.util.List;
 public class Manager {
 
     private final Config config;
+    private boolean rawInputEnabled;
     private final Keyboard keyboard = new Keyboard();
     private final Mouse mouse = new Mouse();
     private final List<Event> events = new ArrayList<>();
@@ -25,6 +26,14 @@ public class Manager {
 
     Config getConfig() {
         return config;
+    }
+
+    public void setRawInputEnabled(boolean rawInputEnabled) {
+        this.rawInputEnabled = rawInputEnabled;
+    }
+
+    public boolean isRawInputEnabled() {
+        return rawInputEnabled;
     }
 
     public Keyboard getKeyboard() {

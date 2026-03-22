@@ -3,14 +3,14 @@ package engine.display;
 public final class Config {
 
     public static Config defaults() {
-        return new Config("DotRuby", 960, 540, false, true, 0.0f, 0.0f, 0.0f, 1.0f);
+        return new Config("DotRuby", 960, 540, false, VSync.DOUBLE_BUFFERED, 0.0f, 0.0f, 0.0f, 1.0f);
     }
 
     private final String title;
     private final int width;
     private final int height;
     private final boolean resizable;
-    private final boolean vSync;
+    private final VSync vSync;
     private final float clearR;
     private final float clearG;
     private final float clearB;
@@ -20,7 +20,7 @@ public final class Config {
                   int width,
                   int height,
                   boolean resizable,
-                  boolean vSync,
+                  VSync vSync,
                   float clearR,
                   float clearG,
                   float clearB,
@@ -29,7 +29,7 @@ public final class Config {
         this.width = Math.max(1, width);
         this.height = Math.max(1, height);
         this.resizable = resizable;
-        this.vSync = vSync;
+        this.vSync = vSync == null ? VSync.DOUBLE_BUFFERED : vSync;
         this.clearR = clearR;
         this.clearG = clearG;
         this.clearB = clearB;
@@ -52,7 +52,7 @@ public final class Config {
         return resizable;
     }
 
-    public boolean isVSync() {
+    public VSync getVSync() {
         return vSync;
     }
 
