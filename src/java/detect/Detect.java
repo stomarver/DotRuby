@@ -1,4 +1,4 @@
-package engine;
+package detect;
 
 import org.lwjgl.opengl.GL;
 import org.lwjgl.opengl.GLCapabilities;
@@ -14,11 +14,13 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 
+import static org.lwjgl.glfw.GLFW.GLFW_KEY_L;
 import static org.lwjgl.glfw.GLFW.GLFW_PLATFORM_COCOA;
 import static org.lwjgl.glfw.GLFW.GLFW_PLATFORM_NULL;
 import static org.lwjgl.glfw.GLFW.GLFW_PLATFORM_WAYLAND;
 import static org.lwjgl.glfw.GLFW.GLFW_PLATFORM_WIN32;
 import static org.lwjgl.glfw.GLFW.GLFW_PLATFORM_X11;
+import static org.lwjgl.glfw.GLFW.GLFW_PRESS;
 import static org.lwjgl.glfw.GLFW.glfwGetPlatform;
 import static org.lwjgl.opengl.GL11.GL_RENDERER;
 import static org.lwjgl.opengl.GL11.GL_VENDOR;
@@ -28,14 +30,14 @@ import static org.lwjgl.opengl.GL11.glGetString;
 
 public final class Detect {
 
-    private static final Path LOG_DIRECTORY = Path.of("src/java/detect/sys/log");
-    private static final Path DETECT_PATH = LOG_DIRECTORY.resolve("Detect.txt");
+    private static final Path LOG_DIRECTORY = Path.of("src/java/detect");
+    private static final Path SYS_LOG_PATH = LOG_DIRECTORY.resolve("sys.log");
     private static final Path ENV_LOG_PATH = LOG_DIRECTORY.resolve("env.log");
     private static final Path GPU_LOG_PATH = LOG_DIRECTORY.resolve("gpu.log");
     private static final long WRITE_DELAY_SECONDS = 30L;
     private static final int GL_GPU_MEMORY_INFO_TOTAL_AVAILABLE_MEMORY_NVX = 0x9048;
     private static final ScheduledExecutorService WRITER = Executors.newSingleThreadScheduledExecutor(runnable -> {
-        Thread thread = new Thread(runnable, "engine-detect-writer");
+        Thread thread = new Thread(runnable, "detect-writer");
         thread.setDaemon(true);
         return thread;
     });
@@ -46,11 +48,11 @@ public final class Detect {
 
     public static void logEnvironment() {
         String body = describeEnvironment();
-        System.out.println("[engine.Detect]");
+        System.out.println("[detect.Detect]");
         System.out.print(body);
-        ensureFileExists(DETECT_PATH);
+        ensureFileExists(SYS_LOG_PATH);
         ensureFileExists(ENV_LOG_PATH);
-        scheduleWrite(DETECT_PATH, body);
+        scheduleWrite(SYS_LOG_PATH, body);
         scheduleWrite(ENV_LOG_PATH, body);
     }
 
@@ -58,6 +60,15 @@ public final class Detect {
         String body = describeGpu();
         ensureFileExists(GPU_LOG_PATH);
         scheduleWrite(GPU_LOG_PATH, body);
+    }
+
+    public static void trigger() {
+        logEnvironment();
+        logGpu();
+    }
+
+    public static boolean isTriggerKey(int key, int action) {
+        return key == GLFW_KEY_L && action == GLFW_PRESS;
     }
 
     public static boolean isLinux() {
@@ -216,7 +227,7 @@ public final class Detect {
                 Files.createFile(path);
             }
         } catch (IOException exception) {
-            System.err.println("[engine.Detect] failed to create " + path + ": " + exception.getMessage());
+            System.err.println("[detect.Detect] failed to create " + path + ": " + exception.getMessage());
         }
     }
 
@@ -230,7 +241,7 @@ public final class Detect {
         try {
             Files.writeString(path, body);
         } catch (IOException exception) {
-            System.err.println("[engine.Detect] failed to write " + path + ": " + exception.getMessage());
+            System.err.println("[detect.Detect] failed to write " + path + ": " + exception.getMessage());
         }
     }
 }

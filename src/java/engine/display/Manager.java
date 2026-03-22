@@ -1,6 +1,6 @@
 package engine.display;
 
-import engine.Detect;
+import detect.Detect;
 import org.lwjgl.glfw.GLFWErrorCallback;
 import org.lwjgl.opengl.GL;
 
