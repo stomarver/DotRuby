@@ -1,4 +1,4 @@
-package detect;
+package engine.util;
 
 import org.lwjgl.opengl.GL;
 import org.lwjgl.opengl.GLCapabilities;
@@ -48,7 +48,7 @@ public final class Detect {
 
     public static void logEnvironment() {
         String body = describeEnvironment();
-        System.out.println("[detect.Detect]");
+        System.out.println("[engine.util.Detect]");
         System.out.print(body);
         ensureFileExists(SYS_LOG_PATH);
         ensureFileExists(ENV_LOG_PATH);
@@ -227,7 +227,7 @@ public final class Detect {
                 Files.createFile(path);
             }
         } catch (IOException exception) {
-            System.err.println("[detect.Detect] failed to create " + path + ": " + exception.getMessage());
+            System.err.println("[engine.util.Detect] failed to create " + path + ": " + exception.getMessage());
         }
     }
 
@@ -241,7 +241,7 @@ public final class Detect {
         try {
             Files.writeString(path, body);
         } catch (IOException exception) {
-            System.err.println("[detect.Detect] failed to write " + path + ": " + exception.getMessage());
+            System.err.println("[engine.util.Detect] failed to write " + path + ": " + exception.getMessage());
         }
     }
 }

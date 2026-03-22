@@ -1,6 +1,6 @@
 package engine.input;
 
-import detect.Detect;
+import engine.util.Detect;
 
 import static org.lwjgl.glfw.GLFW.GLFW_PRESS;
 import static org.lwjgl.glfw.GLFW.GLFW_RAW_MOUSE_MOTION;
