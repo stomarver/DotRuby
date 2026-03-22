@@ -3,6 +3,7 @@ package engine.display;
 public class Window {
 
     private final Manager displayManager;
+    private final engine.input.Manager inputManager;
 
     public Window() {
         this(Config.defaults());
@@ -10,6 +11,7 @@ public class Window {
 
     public Window(Config config) {
         this.displayManager = new Manager(config);
+        this.inputManager = new engine.input.Manager();
     }
 
     public void run() {
@@ -20,6 +22,7 @@ public class Window {
 
     public void create() {
         displayManager.createWindow();
+        inputManager.bind(displayManager.getWindowHandle());
     }
 
     public void loop() {
@@ -39,5 +42,9 @@ public class Window {
 
     public Manager getDisplayManager() {
         return displayManager;
+    }
+
+    public engine.input.Manager getInputManager() {
+        return inputManager;
     }
 }
