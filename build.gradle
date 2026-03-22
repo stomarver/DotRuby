@@ -6,24 +6,13 @@ group = 'io.56k-panic'
 version = 'dev'
 
 java {
-    toolchain {
-        languageVersion = JavaLanguageVersion.of(25)
-    }
     sourceCompatibility = JavaVersion.VERSION_25
     targetCompatibility = JavaVersion.VERSION_25
-}
-
-def java25Launcher = javaToolchains.launcherFor {
-    languageVersion = JavaLanguageVersion.of(25)
 }
 
 tasks.withType(JavaCompile).configureEach {
     options.encoding = 'UTF-8'
     options.release.set(25)
-}
-
-tasks.withType(Test).configureEach {
-    javaLauncher = java25Launcher
 }
 
 repositories {
@@ -69,7 +58,6 @@ sourceSets {
 }
 
 tasks.withType(JavaExec).configureEach {
-    javaLauncher = java25Launcher
     jvmArgs '--enable-native-access=ALL-UNNAMED'
 }
 
