@@ -449,13 +449,14 @@ public class Manager {
             glfwSetWindowAttrib(windowHandle, GLFW_DECORATED, GLFW_FALSE);
             glfwSetWindowMonitor(
                     windowHandle,
-                    monitor.getHandle(),
-                    0,
-                    0,
+                    NULL,
+                    monitor.getPositionX(),
+                    monitor.getPositionY(),
                     monitor.getWidth(),
                     monitor.getHeight(),
-                    monitor.getRefreshRate()
+                    0
             );
+            Borderless.apply(windowHandle);
             return;
         }
 
