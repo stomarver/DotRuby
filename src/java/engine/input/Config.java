@@ -36,4 +36,8 @@ public final class Config {
     public int getMaxBufferedEvents() {
         return maxBufferedEvents;
     }
+
+    public Config withRawMouseInput(boolean rawMouseInputEnabled) {
+        return new Config(mouseTrackingEnabled, keyboardTrackingEnabled, rawMouseInputEnabled, maxBufferedEvents);
+    }
 }

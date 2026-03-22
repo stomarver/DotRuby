@@ -4,10 +4,10 @@ import org.lwjgl.glfw.GLFWErrorCallback;
 import org.lwjgl.opengl.GL;
 import org.lwjgl.system.MemoryStack;
 
-import java.nio.FloatBuffer;
 import java.nio.IntBuffer;
 
 import static org.lwjgl.glfw.Callbacks.glfwFreeCallbacks;
+import static org.lwjgl.glfw.GLFW.GLFW_DECORATED;
 import static org.lwjgl.glfw.GLFW.GLFW_FALSE;
 import static org.lwjgl.glfw.GLFW.GLFW_FOCUS_ON_SHOW;
 import static org.lwjgl.glfw.GLFW.GLFW_RESIZABLE;
@@ -21,6 +21,7 @@ import static org.lwjgl.glfw.GLFW.glfwInit;
 import static org.lwjgl.glfw.GLFW.glfwMakeContextCurrent;
 import static org.lwjgl.glfw.GLFW.glfwPollEvents;
 import static org.lwjgl.glfw.GLFW.glfwSetErrorCallback;
+import static org.lwjgl.glfw.GLFW.glfwSetWindowAttrib;
 import static org.lwjgl.glfw.GLFW.glfwSetWindowMonitor;
 import static org.lwjgl.glfw.GLFW.glfwSetWindowPos;
 import static org.lwjgl.glfw.GLFW.glfwShowWindow;
@@ -177,7 +178,8 @@ public class Manager {
         }
 
         Monitor monitor = Monitor.primary(config.getWidth(), config.getHeight());
-        if (mode == Mode.FULLSCREEN) {
+        if (mode == Mode.EXCLUSIVE) {
+            glfwSetWindowAttrib(windowHandle, GLFW_DECORATED, GLFW_FALSE);
             glfwSetWindowMonitor(
                     windowHandle,
                     monitor.getHandle(),
@@ -187,8 +189,12 @@ public class Manager {
                     monitor.getHeight(),
                     0
             );
+        } else if (mode == Mode.BORDERLESS) {
+            glfwSetWindowMonitor(windowHandle, NULL, monitor.getPositionX(), monitor.getPositionY(), monitor.getWidth(), monitor.getHeight(), 0);
+            glfwSetWindowAttrib(windowHandle, GLFW_DECORATED, GLFW_FALSE);
         } else {
             glfwSetWindowMonitor(windowHandle, NULL, 0, 0, config.getWidth(), config.getHeight(), 0);
+            glfwSetWindowAttrib(windowHandle, GLFW_DECORATED, GLFW_TRUE);
             centerWindow(monitor);
         }
 

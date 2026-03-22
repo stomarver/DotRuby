@@ -4,14 +4,24 @@ public class Window {
 
     private final Manager displayManager;
     private final engine.input.Manager inputManager;
+    private final config.Display displayConfig;
+    private final config.Input inputConfig;
 
     public Window() {
-        this(Config.defaults());
+        this(Config.defaults(), config.Display.defaults(), config.Input.defaults());
     }
 
-    public Window(Config config) {
-        this.displayManager = new Manager(config);
-        this.inputManager = new engine.input.Manager();
+    public Window(Config displayManagerConfig) {
+        this(displayManagerConfig, config.Display.defaults(), config.Input.defaults());
+    }
+
+    public Window(Config displayManagerConfig, config.Display displayConfig, config.Input inputConfig) {
+        this.displayManager = new Manager(displayManagerConfig);
+        this.displayConfig = displayConfig;
+        this.inputConfig = inputConfig;
+        this.inputManager = new engine.input.Manager(
+                engine.input.Config.defaults().withRawMouseInput(displayConfig.isRawInputEnabled())
+        );
     }
 
     public void run() {
@@ -22,7 +32,9 @@ public class Window {
 
     public void create() {
         displayManager.createWindow();
-        inputManager.bind(displayManager.getWindowHandle());
+        displayManager.applyVSync(displayConfig.getVSync());
+        displayManager.setMode(displayConfig.getWindowMode());
+        inputManager.bind(displayManager.getWindowHandle(), displayManager, inputConfig, displayConfig);
     }
 
     public void loop() {
