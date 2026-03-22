@@ -222,15 +222,22 @@ public class Manager {
                     0,
                     monitor.getWidth(),
                     monitor.getHeight(),
-                    0
+                    monitor.getRefreshRate()
             );
             return;
         }
 
         if (mode == Mode.FULLSCREEN) {
-            glfwSetWindowMonitor(windowHandle, NULL, monitor.getPositionX(), monitor.getPositionY(), monitor.getWidth(), monitor.getHeight(), 0);
             glfwSetWindowAttrib(windowHandle, GLFW_DECORATED, GLFW_FALSE);
-            Centering.center(windowHandle, monitor, monitor.getWidth(), monitor.getHeight());
+            glfwSetWindowMonitor(
+                    windowHandle,
+                    monitor.getHandle(),
+                    0,
+                    0,
+                    monitor.getWidth(),
+                    monitor.getHeight(),
+                    monitor.getRefreshRate()
+            );
             return;
         }
 
