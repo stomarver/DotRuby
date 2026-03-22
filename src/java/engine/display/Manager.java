@@ -93,6 +93,7 @@ public class Manager {
         glfwWindowHint(GLFW_VISIBLE, GLFW_FALSE);
         glfwWindowHint(GLFW_RESIZABLE, config.isResizable() ? GLFW_TRUE : GLFW_FALSE);
         glfwWindowHint(GLFW_FOCUS_ON_SHOW, GLFW_TRUE);
+        glfwWindowHint(GLFW_DECORATED, GLFW_FALSE);
 
         windowHandle = glfwCreateWindow(config.getWidth(), config.getHeight(), config.getTitle(), NULL, NULL);
         if (windowHandle == NULL) {
@@ -449,21 +450,21 @@ public class Manager {
             glfwSetWindowAttrib(windowHandle, GLFW_DECORATED, GLFW_FALSE);
             glfwSetWindowMonitor(
                     windowHandle,
-                    NULL,
-                    monitor.getPositionX(),
-                    monitor.getPositionY(),
+                    monitor.getHandle(),
+                    0,
+                    0,
                     monitor.getWidth(),
                     monitor.getHeight(),
-                    0
+                    monitor.getRefreshRate()
             );
-            Borderless.apply(windowHandle);
             return;
         }
 
         glfwSetWindowAttrib(windowHandle, GLFW_AUTO_ICONIFY, GLFW_TRUE);
         glfwSetWindowMonitor(windowHandle, NULL, 0, 0, config.getWidth(), config.getHeight(), 0);
-        glfwSetWindowAttrib(windowHandle, GLFW_DECORATED, GLFW_TRUE);
+        glfwSetWindowAttrib(windowHandle, GLFW_DECORATED, GLFW_FALSE);
         centerWindowedIfConfigured(monitor);
+        Borderless.apply(windowHandle);
     }
 
     private void centerWindowedIfConfigured(Monitor monitor) {
