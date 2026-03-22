@@ -32,7 +32,7 @@ public final class Config {
                 parseFullscreen(values.get("fullscreen_type"), defaults.getFullscreen()),
                 parseBoolean(values.get("raw_input"), defaults.isRawInputEnabled()),
                 parseVSync(values.get("vsync"), defaults.getVSync()),
-                parseBoolean(values.get("center_on_windowed_exit"), defaults.isCenterOnWindowedExit()),
+                parseBoolean(values.get("centering"), defaults.isCentering()),
                 defaults.getClearR(),
                 defaults.getClearG(),
                 defaults.getClearB(),
@@ -48,7 +48,7 @@ public final class Config {
     private final Fullscreen fullscreen;
     private final boolean rawInputEnabled;
     private final VSync vSync;
-    private final boolean centerOnWindowedExit;
+    private final boolean centering;
     private final float clearR;
     private final float clearG;
     private final float clearB;
@@ -62,7 +62,7 @@ public final class Config {
                   Fullscreen fullscreen,
                   boolean rawInputEnabled,
                   VSync vSync,
-                  boolean centerOnWindowedExit,
+                  boolean centering,
                   float clearR,
                   float clearG,
                   float clearB,
@@ -75,7 +75,7 @@ public final class Config {
         this.fullscreen = fullscreen == null ? Fullscreen.BORDERLESS : fullscreen;
         this.rawInputEnabled = rawInputEnabled;
         this.vSync = vSync == null ? VSync.DOUBLE_BUFFERED : vSync;
-        this.centerOnWindowedExit = centerOnWindowedExit;
+        this.centering = centering;
         this.clearR = clearR;
         this.clearG = clearG;
         this.clearB = clearB;
@@ -114,8 +114,8 @@ public final class Config {
         return vSync;
     }
 
-    public boolean isCenterOnWindowedExit() {
-        return centerOnWindowedExit;
+    public boolean isCentering() {
+        return centering;
     }
 
     public float getClearR() {

@@ -1,2 +1,4 @@
-fullscreen_toggle_key=F11
+fullscreen_toggle_key=F4
 fullscreen_toggle_modifiers=NONE
+fullscreen_toggle_key_alt=ENTER
+fullscreen_toggle_modifiers_alt=ALT

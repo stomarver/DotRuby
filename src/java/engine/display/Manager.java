@@ -2,6 +2,7 @@ package engine.display;
 
 import org.lwjgl.glfw.GLFWErrorCallback;
 import org.lwjgl.opengl.GL;
+
 import static org.lwjgl.glfw.Callbacks.glfwFreeCallbacks;
 import static org.lwjgl.glfw.GLFW.GLFW_DECORATED;
 import static org.lwjgl.glfw.GLFW.GLFW_FALSE;
@@ -78,7 +79,7 @@ public class Manager {
             throw new RuntimeException("Failed to create window");
         }
 
-        Centering.center(windowHandle, Monitor.primary(config.getWidth(), config.getHeight()));
+        Centering.center(windowHandle, Monitor.primary(config.getWidth(), config.getHeight()), config.getWidth(), config.getHeight());
 
         glfwMakeContextCurrent(windowHandle);
         applyVSync(vSync);
@@ -223,26 +224,25 @@ public class Manager {
                     monitor.getHeight(),
                     0
             );
-            Centering.center(windowHandle, monitor);
             return;
         }
 
         if (mode == Mode.FULLSCREEN) {
             glfwSetWindowMonitor(windowHandle, NULL, monitor.getPositionX(), monitor.getPositionY(), monitor.getWidth(), monitor.getHeight(), 0);
             glfwSetWindowAttrib(windowHandle, GLFW_DECORATED, GLFW_FALSE);
-            Centering.center(windowHandle, monitor);
+            Centering.center(windowHandle, monitor, monitor.getWidth(), monitor.getHeight());
             return;
         }
 
         glfwSetWindowMonitor(windowHandle, NULL, 0, 0, config.getWidth(), config.getHeight(), 0);
         glfwSetWindowAttrib(windowHandle, GLFW_DECORATED, GLFW_TRUE);
-        centerWindowOnWindowedExit(monitor);
+        centerWindowedIfConfigured(monitor);
     }
 
-    private void centerWindowOnWindowedExit(Monitor monitor) {
-        if (!config.isCenterOnWindowedExit()) {
+    private void centerWindowedIfConfigured(Monitor monitor) {
+        if (!config.isCentering()) {
             return;
         }
-        Centering.center(windowHandle, monitor);
+        Centering.center(windowHandle, monitor, config.getWidth(), config.getHeight());
     }
 }

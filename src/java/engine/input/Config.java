@@ -16,7 +16,9 @@ public final class Config {
     private static final Path DEFAULT_PATH = Path.of("src/java/config/Input.txt");
 
     public static Config defaults() {
-        return new Config(true, true, false, 1024, GLFW.GLFW_KEY_F11, 0);
+        return new Config(true, true, false, 1024,
+                GLFW.GLFW_KEY_F4, 0,
+                GLFW.GLFW_KEY_ENTER, GLFW.GLFW_MOD_ALT);
     }
 
     public static Config loadDefault(boolean rawMouseInputEnabled) {
@@ -32,7 +34,9 @@ public final class Config {
                 rawMouseInputEnabled,
                 defaults.getMaxBufferedEvents(),
                 parseKey(values.get("fullscreen_toggle_key"), defaults.getFullscreenToggleKey()),
-                parseModifiers(values.get("fullscreen_toggle_modifiers"), defaults.getFullscreenToggleModifiers())
+                parseModifiers(values.get("fullscreen_toggle_modifiers"), defaults.getFullscreenToggleModifiers()),
+                parseKey(values.get("fullscreen_toggle_key_alt"), defaults.getFullscreenToggleKeyAlt()),
+                parseModifiers(values.get("fullscreen_toggle_modifiers_alt"), defaults.getFullscreenToggleModifiersAlt())
         );
     }
 
@@ -42,19 +46,25 @@ public final class Config {
     private final int maxBufferedEvents;
     private final int fullscreenToggleKey;
     private final int fullscreenToggleModifiers;
+    private final int fullscreenToggleKeyAlt;
+    private final int fullscreenToggleModifiersAlt;
 
     public Config(boolean mouseTrackingEnabled,
                   boolean keyboardTrackingEnabled,
                   boolean rawMouseInputEnabled,
                   int maxBufferedEvents,
                   int fullscreenToggleKey,
-                  int fullscreenToggleModifiers) {
+                  int fullscreenToggleModifiers,
+                  int fullscreenToggleKeyAlt,
+                  int fullscreenToggleModifiersAlt) {
         this.mouseTrackingEnabled = mouseTrackingEnabled;
         this.keyboardTrackingEnabled = keyboardTrackingEnabled;
         this.rawMouseInputEnabled = rawMouseInputEnabled;
         this.maxBufferedEvents = Math.max(1, maxBufferedEvents);
         this.fullscreenToggleKey = fullscreenToggleKey;
         this.fullscreenToggleModifiers = fullscreenToggleModifiers;
+        this.fullscreenToggleKeyAlt = fullscreenToggleKeyAlt;
+        this.fullscreenToggleModifiersAlt = fullscreenToggleModifiersAlt;
     }
 
     public boolean isMouseTrackingEnabled() {
@@ -81,14 +91,36 @@ public final class Config {
         return fullscreenToggleModifiers;
     }
 
+    public int getFullscreenToggleKeyAlt() {
+        return fullscreenToggleKeyAlt;
+    }
+
+    public int getFullscreenToggleModifiersAlt() {
+        return fullscreenToggleModifiersAlt;
+    }
+
     public boolean isFullscreenToggle(int key, int action, int mods) {
-        return action == GLFW.GLFW_PRESS
-                && key == fullscreenToggleKey
-                && mods == fullscreenToggleModifiers;
+        return action == GLFW.GLFW_PRESS && (
+                matches(key, mods, fullscreenToggleKey, fullscreenToggleModifiers)
+                        || matches(key, mods, fullscreenToggleKeyAlt, fullscreenToggleModifiersAlt)
+        );
     }
 
     public Config withRawMouseInput(boolean rawMouseInputEnabled) {
-        return new Config(mouseTrackingEnabled, keyboardTrackingEnabled, rawMouseInputEnabled, maxBufferedEvents, fullscreenToggleKey, fullscreenToggleModifiers);
+        return new Config(
+                mouseTrackingEnabled,
+                keyboardTrackingEnabled,
+                rawMouseInputEnabled,
+                maxBufferedEvents,
+                fullscreenToggleKey,
+                fullscreenToggleModifiers,
+                fullscreenToggleKeyAlt,
+                fullscreenToggleModifiersAlt
+        );
+    }
+
+    private boolean matches(int key, int mods, int expectedKey, int expectedModifiers) {
+        return key == expectedKey && mods == expectedModifiers;
     }
 
     private static Map<String, String> readKeyValueFile(Path path) {
@@ -136,7 +168,7 @@ public final class Config {
 
     private static int parseModifiers(String value, int fallback) {
         if (value == null || value.isBlank() || value.equalsIgnoreCase("NONE")) {
-            return fallback == 0 ? 0 : fallback;
+            return value == null || value.isBlank() ? fallback : 0;
         }
 
         int modifiers = 0;
