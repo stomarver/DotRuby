@@ -35,10 +35,14 @@ public final class Bind {
             glfwSetMouseButtonCallback(windowHandle, (window, button, action, mods) -> {
                 boolean pressed = action == GLFW_PRESS;
                 manager.getMouse().setButtonState(button, pressed);
+                displayManager.getCursor().setButtonState(button, pressed);
                 manager.pushEvent(new Event(Event.Type.MOUSE, button, action));
             });
 
-            glfwSetCursorPosCallback(windowHandle, (window, x, y) -> manager.getMouse().setPosition(x, y));
+            glfwSetCursorPosCallback(windowHandle, (window, x, y) -> {
+                manager.getMouse().setPosition(x, y);
+                displayManager.getCursor().setPosition(x, y);
+            });
         }
 
         applyRawInput(windowHandle, manager);

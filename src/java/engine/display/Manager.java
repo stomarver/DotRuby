@@ -108,6 +108,7 @@ public class Manager {
 
         glClearColor(config.getClearR(), config.getClearG(), config.getClearB(), config.getClearA());
         glEnable(GL_DEPTH_TEST);
+        cursor.loadTextureIfPresent();
 
         updateViewport();
         glfwSetFramebufferSizeCallback(windowHandle, (window, width, height) -> updateViewport());
@@ -339,6 +340,7 @@ public class Manager {
     }
 
     public void destroyWindow() {
+        cursor.destroy();
         glfwFreeCallbacks(windowHandle);
         glfwDestroyWindow(windowHandle);
         glfwTerminate();
