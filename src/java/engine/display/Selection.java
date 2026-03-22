@@ -1,20 +1,5 @@
 package engine.display;
 
-import static org.lwjgl.opengl.GL11.GL_DEPTH_TEST;
-import static org.lwjgl.opengl.GL11.GL_MODELVIEW;
-import static org.lwjgl.opengl.GL11.GL_PROJECTION;
-import static org.lwjgl.opengl.GL11.GL_QUADS;
-import static org.lwjgl.opengl.GL11.glBegin;
-import static org.lwjgl.opengl.GL11.glColor4f;
-import static org.lwjgl.opengl.GL11.glDisable;
-import static org.lwjgl.opengl.GL11.glEnd;
-import static org.lwjgl.opengl.GL11.glLoadIdentity;
-import static org.lwjgl.opengl.GL11.glMatrixMode;
-import static org.lwjgl.opengl.GL11.glOrtho;
-import static org.lwjgl.opengl.GL11.glPopMatrix;
-import static org.lwjgl.opengl.GL11.glPushMatrix;
-import static org.lwjgl.opengl.GL11.glVertex2f;
-
 public final class Selection {
 
     private boolean active;
@@ -43,7 +28,7 @@ public final class Selection {
         active = false;
     }
 
-    public void render(int renderWidth, int renderHeight, float borderThickness) {
+    public void render(OverlayRenderer overlayRenderer, float borderThickness) {
         if (!active) {
             return;
         }
@@ -60,35 +45,6 @@ public final class Selection {
             return;
         }
         float thickness = Math.max(0.1f, borderThickness);
-
-        glDisable(GL_DEPTH_TEST);
-        glMatrixMode(GL_PROJECTION);
-        glPushMatrix();
-        glLoadIdentity();
-        glOrtho(0.0, renderWidth, renderHeight, 0.0, -1.0, 1.0);
-
-        glMatrixMode(GL_MODELVIEW);
-        glPushMatrix();
-        glLoadIdentity();
-
-        glColor4f(1f, 1f, 1f, 1f);
-        drawQuad(minX, minY, maxX, minY + thickness);
-        drawQuad(minX, maxY - thickness, maxX, maxY);
-        drawQuad(minX, minY, minX + thickness, maxY);
-        drawQuad(maxX - thickness, minY, maxX, maxY);
-
-        glPopMatrix();
-        glMatrixMode(GL_PROJECTION);
-        glPopMatrix();
-        glMatrixMode(GL_MODELVIEW);
-    }
-
-    private static void drawQuad(float minX, float minY, float maxX, float maxY) {
-        glBegin(GL_QUADS);
-        glVertex2f(minX, minY);
-        glVertex2f(maxX, minY);
-        glVertex2f(maxX, maxY);
-        glVertex2f(minX, maxY);
-        glEnd();
+        overlayRenderer.drawOutlineRect(minX, minY, maxX, maxY, thickness);
     }
 }

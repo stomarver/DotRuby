@@ -56,6 +56,7 @@ public class Manager {
     private final Config config;
     private final Cursor cursor = new Cursor();
     private final Selection selection = new Selection();
+    private final OverlayRenderer overlayRenderer = new OverlayRenderer();
 
     private long windowHandle;
     private Mode mode;
@@ -118,6 +119,7 @@ public class Manager {
         rememberWindowedBounds(Monitor.primary(config.getWidth(), config.getHeight()));
 
         GL.createCapabilities();
+        overlayRenderer.init();
 
         glClearColor(config.getClearR(), config.getClearG(), config.getClearB(), config.getClearA());
         glEnable(GL_DEPTH_TEST);
@@ -307,14 +309,14 @@ public class Manager {
     }
 
     public void updateFrame() {
-        applyRenderViewport();
-        selection.render(virtualWidth, virtualHeight, getVirtualUnitsForPhysicalPixels(2f));
+        begin2DPass();
+        selection.render(overlayRenderer, getVirtualUnitsForPhysicalPixels(2f));
         cursor.render(
-                getRenderWidth(),
-                getRenderHeight(),
+                overlayRenderer,
                 getVirtualUnitsForPhysicalPixelsExact(cursor.getTextureWidth()),
                 getVirtualUnitsForPhysicalPixelsExact(cursor.getTextureHeight())
         );
+        end2DPass();
         glfwSwapBuffers(windowHandle);
         glfwPollEvents();
     }
@@ -402,6 +404,7 @@ public class Manager {
     }
 
     public void destroyWindow() {
+        overlayRenderer.destroy();
         cursor.destroy();
         glfwFreeCallbacks(windowHandle);
         glfwDestroyWindow(windowHandle);
@@ -418,6 +421,15 @@ public class Manager {
             return;
         }
         glViewport(0, 0, framebufferWidth, framebufferHeight);
+    }
+
+    private void begin2DPass() {
+        applyRenderViewport();
+        overlayRenderer.begin(virtualWidth, virtualHeight);
+    }
+
+    private void end2DPass() {
+        overlayRenderer.end();
     }
 
     private void updateViewport() {
