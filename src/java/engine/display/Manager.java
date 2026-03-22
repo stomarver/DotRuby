@@ -68,6 +68,7 @@ public class Manager {
     private int physicalWidth;
     private int physicalHeight;
     private boolean forceVirtualResolution = true;
+    private boolean ignoreNextCursorSync;
 
     public Manager(Config config) {
         this.config = config;
@@ -305,6 +306,7 @@ public class Manager {
 
     public void setMode(Mode mode) {
         this.mode = mode == null ? Mode.WINDOWED : mode;
+        preserveCursorGridPosition();
         applyWindowMode();
         updateViewport();
     }
@@ -312,6 +314,7 @@ public class Manager {
     public void setFullscreen(Fullscreen fullscreen) {
         this.fullscreen = fullscreen == null ? Fullscreen.BORDERLESS : fullscreen;
         if (mode == Mode.FULLSCREEN) {
+            preserveCursorGridPosition();
             applyWindowMode();
             updateViewport();
         }
@@ -323,6 +326,14 @@ public class Manager {
 
     public Cursor getCursor() {
         return cursor;
+    }
+
+    public boolean consumeIgnoredCursorSync() {
+        if (!ignoreNextCursorSync) {
+            return false;
+        }
+        ignoreNextCursorSync = false;
+        return true;
     }
 
     public void applyCursorLock() {
@@ -388,6 +399,11 @@ public class Manager {
         } else {
             glViewport(0, 0, framebufferWidth, framebufferHeight);
         }
+    }
+
+    private void preserveCursorGridPosition() {
+        ignoreNextCursorSync = true;
+        cursor.setPosition(cursor.getX(), cursor.getY());
     }
 
     private void applyWindowMode() {

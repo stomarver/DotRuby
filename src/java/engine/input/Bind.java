@@ -41,7 +41,9 @@ public final class Bind {
 
             glfwSetCursorPosCallback(windowHandle, (window, x, y) -> {
                 manager.getMouse().setPosition(x, y);
-                displayManager.getCursor().setPosition(displayManager.toVirtualX(x), displayManager.toVirtualY(y));
+                if (!displayManager.consumeIgnoredCursorSync()) {
+                    displayManager.getCursor().setPosition(displayManager.toVirtualX(x), displayManager.toVirtualY(y));
+                }
             });
         }
 
