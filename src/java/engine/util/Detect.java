@@ -6,6 +6,7 @@ import org.lwjgl.opengl.GLCapabilities;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
@@ -34,6 +35,8 @@ public final class Detect {
     private static final Path SYS_LOG_PATH = LOG_DIRECTORY.resolve("sys.log");
     private static final Path ENV_LOG_PATH = LOG_DIRECTORY.resolve("env.log");
     private static final Path GPU_LOG_PATH = LOG_DIRECTORY.resolve("gpu.log");
+    private static final Path LEGACY_SYS_LOG_DIRECTORY = LOG_DIRECTORY.resolve("sys.log");
+    private static final Path LEGACY_SYS_PACKAGE_DIRECTORY = LOG_DIRECTORY.resolve("sys");
     private static final long WRITE_DELAY_SECONDS = 30L;
     private static final int GL_GPU_MEMORY_INFO_TOTAL_AVAILABLE_MEMORY_NVX = 0x9048;
     private static final ScheduledExecutorService WRITER = Executors.newSingleThreadScheduledExecutor(runnable -> {
@@ -50,6 +53,7 @@ public final class Detect {
         String body = describeEnvironment();
         System.out.println("[engine.util.Detect]");
         System.out.print(body);
+        removeLegacyDetectDirectories();
         ensureFileExists(SYS_LOG_PATH);
         ensureFileExists(ENV_LOG_PATH);
         scheduleWrite(SYS_LOG_PATH, body);
@@ -58,6 +62,7 @@ public final class Detect {
 
     public static void logGpu() {
         String body = describeGpu();
+        removeLegacyDetectDirectories();
         ensureFileExists(GPU_LOG_PATH);
         scheduleWrite(GPU_LOG_PATH, body);
     }
@@ -228,6 +233,30 @@ public final class Detect {
             }
         } catch (IOException exception) {
             System.err.println("[engine.util.Detect] failed to create " + path + ": " + exception.getMessage());
+        }
+    }
+
+    private static void removeLegacyDetectDirectories() {
+        deleteDirectoryIfPresent(LEGACY_SYS_LOG_DIRECTORY);
+        deleteDirectoryIfPresent(LEGACY_SYS_PACKAGE_DIRECTORY);
+    }
+
+    private static void deleteDirectoryIfPresent(Path path) {
+        if (!Files.isDirectory(path)) {
+            return;
+        }
+
+        try (var stream = Files.walk(path)) {
+            stream.sorted(Comparator.reverseOrder())
+                    .forEach(entry -> {
+                        try {
+                            Files.deleteIfExists(entry);
+                        } catch (IOException exception) {
+                            throw new RuntimeException(exception);
+                        }
+                    });
+        } catch (IOException | RuntimeException exception) {
+            System.err.println("[engine.util.Detect] failed to remove legacy path " + path + ": " + exception.getMessage());
         }
     }
 
