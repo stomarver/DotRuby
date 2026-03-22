@@ -1,7 +1,8 @@
 package engine.input;
 
-import engine.util.Detect;
+import engine.util.Specs;
 
+import static org.lwjgl.glfw.GLFW.GLFW_KEY_L;
 import static org.lwjgl.glfw.GLFW.GLFW_PRESS;
 import static org.lwjgl.glfw.GLFW.GLFW_RAW_MOUSE_MOTION;
 import static org.lwjgl.glfw.GLFW.GLFW_RELEASE;
@@ -31,8 +32,8 @@ public final class Bind {
                     manager.toggleFullscreen(displayManager);
                 }
 
-                if (Detect.isTriggerKey(key, action)) {
-                    Detect.trigger();
+                if (key == GLFW_KEY_L && action == GLFW_PRESS) {
+                    Specs.updateLogs();
                 }
             });
         }
