@@ -18,19 +18,21 @@ public final class Monitor {
     private final int positionY;
     private final int width;
     private final int height;
+    private final int refreshRate;
 
-    private Monitor(long handle, int positionX, int positionY, int width, int height) {
+    private Monitor(long handle, int positionX, int positionY, int width, int height, int refreshRate) {
         this.handle = handle;
         this.positionX = positionX;
         this.positionY = positionY;
         this.width = width;
         this.height = height;
+        this.refreshRate = refreshRate;
     }
 
     public static Monitor primary(int fallbackWidth, int fallbackHeight) {
         long primaryMonitor = glfwGetPrimaryMonitor();
         if (primaryMonitor == NULL) {
-            return new Monitor(NULL, 0, 0, fallbackWidth, fallbackHeight);
+            return new Monitor(NULL, 0, 0, fallbackWidth, fallbackHeight, 0);
         }
 
         int monitorX = 0;
@@ -48,8 +50,9 @@ public final class Monitor {
         GLFWVidMode videoMode = glfwGetVideoMode(primaryMonitor);
         int monitorWidth = (videoMode != null) ? videoMode.width() : fallbackWidth;
         int monitorHeight = (videoMode != null) ? videoMode.height() : fallbackHeight;
+        int refreshRate = (videoMode != null) ? videoMode.refreshRate() : 0;
 
-        return new Monitor(primaryMonitor, monitorX, monitorY, monitorWidth, monitorHeight);
+        return new Monitor(primaryMonitor, monitorX, monitorY, monitorWidth, monitorHeight, refreshRate);
     }
 
     public long getHandle() {
@@ -70,6 +73,10 @@ public final class Monitor {
 
     public int getHeight() {
         return height;
+    }
+
+    public int getRefreshRate() {
+        return refreshRate;
     }
 
     public int centeredX(int windowWidth) {
