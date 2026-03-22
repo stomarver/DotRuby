@@ -4,6 +4,7 @@ import org.lwjgl.glfw.GLFWErrorCallback;
 import org.lwjgl.opengl.GL;
 
 import static org.lwjgl.glfw.Callbacks.glfwFreeCallbacks;
+import static org.lwjgl.glfw.GLFW.GLFW_AUTO_ICONIFY;
 import static org.lwjgl.glfw.GLFW.GLFW_DECORATED;
 import static org.lwjgl.glfw.GLFW.GLFW_FALSE;
 import static org.lwjgl.glfw.GLFW.GLFW_FOCUS_ON_SHOW;
@@ -214,6 +215,7 @@ public class Manager {
     private void applyWindowMode() {
         Monitor monitor = Monitor.primary(config.getWidth(), config.getHeight());
         if (mode == Mode.FULLSCREEN && fullscreen == Fullscreen.EXCLUSIVE) {
+            glfwSetWindowAttrib(windowHandle, GLFW_AUTO_ICONIFY, GLFW_TRUE);
             glfwSetWindowAttrib(windowHandle, GLFW_DECORATED, GLFW_FALSE);
             glfwSetWindowMonitor(
                     windowHandle,
@@ -228,20 +230,21 @@ public class Manager {
         }
 
         if (mode == Mode.FULLSCREEN) {
+            glfwSetWindowAttrib(windowHandle, GLFW_AUTO_ICONIFY, GLFW_FALSE);
             glfwSetWindowAttrib(windowHandle, GLFW_DECORATED, GLFW_FALSE);
             glfwSetWindowMonitor(
                     windowHandle,
-                    NULL,
-                    monitor.getPositionX(),
-                    monitor.getPositionY(),
+                    monitor.getHandle(),
+                    0,
+                    0,
                     monitor.getWidth(),
                     monitor.getHeight(),
-                    0
+                    monitor.getRefreshRate()
             );
-            Centering.center(windowHandle, monitor, monitor.getWidth(), monitor.getHeight());
             return;
         }
 
+        glfwSetWindowAttrib(windowHandle, GLFW_AUTO_ICONIFY, GLFW_TRUE);
         glfwSetWindowMonitor(windowHandle, NULL, 0, 0, config.getWidth(), config.getHeight(), 0);
         glfwSetWindowAttrib(windowHandle, GLFW_DECORATED, GLFW_TRUE);
         centerWindowedIfConfigured(monitor);
