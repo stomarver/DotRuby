@@ -237,12 +237,12 @@ public class Cursor {
     }
 
     private double clampX(double value, int virtualWidth) {
-        double maxX = Math.max(0, virtualWidth - Math.max(1, textureWidth));
+        double maxX = Math.max(0, virtualWidth - 1);
         return Math.max(0, Math.min(Math.round(value), maxX));
     }
 
     private double clampY(double value, int virtualHeight) {
-        double maxY = Math.max(0, virtualHeight - Math.max(1, textureHeight));
+        double maxY = Math.max(0, virtualHeight - 1);
         return Math.max(0, Math.min(Math.round(value), maxY));
     }
 }
