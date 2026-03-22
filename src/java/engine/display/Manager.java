@@ -108,7 +108,7 @@ public class Manager {
 
         glClearColor(config.getClearR(), config.getClearG(), config.getClearB(), config.getClearA());
         glEnable(GL_DEPTH_TEST);
-        cursor.loadTextureIfPresent();
+        cursor.loadTexture();
 
         updateViewport();
         glfwSetFramebufferSizeCallback(windowHandle, (window, width, height) -> updateViewport());
@@ -293,6 +293,7 @@ public class Manager {
     }
 
     public void updateFrame() {
+        cursor.render(getFramebufferWidth(), getFramebufferHeight());
         glfwSwapBuffers(windowHandle);
         glfwPollEvents();
     }
