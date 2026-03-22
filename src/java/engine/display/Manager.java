@@ -15,6 +15,8 @@ import static org.lwjgl.glfw.GLFW.glfwCreateWindow;
 import static org.lwjgl.glfw.GLFW.glfwDefaultWindowHints;
 import static org.lwjgl.glfw.GLFW.glfwDestroyWindow;
 import static org.lwjgl.glfw.GLFW.glfwGetFramebufferSize;
+import static org.lwjgl.glfw.GLFW.glfwGetWindowPos;
+import static org.lwjgl.glfw.GLFW.glfwGetWindowSize;
 import static org.lwjgl.glfw.GLFW.glfwInit;
 import static org.lwjgl.glfw.GLFW.glfwMakeContextCurrent;
 import static org.lwjgl.glfw.GLFW.glfwPollEvents;
@@ -67,6 +69,10 @@ public class Manager {
     private int physicalY;
     private int physicalWidth;
     private int physicalHeight;
+    private int windowedX;
+    private int windowedY;
+    private int windowedWidth;
+    private int windowedHeight;
     private boolean forceVirtualResolution = true;
     private boolean ignoreNextCursorSync;
 
@@ -81,6 +87,8 @@ public class Manager {
         this.framebufferHeight = virtualHeight;
         this.physicalWidth = virtualWidth;
         this.physicalHeight = virtualHeight;
+        this.windowedWidth = virtualWidth;
+        this.windowedHeight = virtualHeight;
     }
 
     public long createWindow() {
@@ -107,6 +115,7 @@ public class Manager {
         applyVSync(vSync);
         glfwShowWindow(windowHandle);
         Borderless.apply(windowHandle);
+        rememberWindowedBounds(Monitor.primary(config.getWidth(), config.getHeight()));
 
         GL.createCapabilities();
 
@@ -314,7 +323,11 @@ public class Manager {
     }
 
     public void setMode(Mode mode) {
-        this.mode = mode == null ? Mode.WINDOWED : mode;
+        Mode nextMode = mode == null ? Mode.WINDOWED : mode;
+        if (this.mode == Mode.WINDOWED && nextMode == Mode.FULLSCREEN) {
+            rememberWindowedBounds(Monitor.primary(config.getWidth(), config.getHeight()));
+        }
+        this.mode = nextMode;
         preserveCursorGridPosition();
         applyWindowMode();
         updateViewport();
@@ -468,24 +481,75 @@ public class Manager {
                 NULL,
                 windowedX(monitor),
                 windowedY(monitor),
-                config.getWidth(),
-                config.getHeight(),
+                windowedWidth(monitor),
+                windowedHeight(monitor),
                 0
         );
         glfwSetWindowAttrib(windowHandle, GLFW_DECORATED, GLFW_FALSE);
     }
 
     private int windowedX(Monitor monitor) {
-        if (!config.isCentering() || !Monitor.supportsWindowPositioning()) {
+        if (!Monitor.supportsWindowPositioning()) {
+            return 0;
+        }
+        if (windowedWidth > 0 || windowedHeight > 0) {
+            return windowedX;
+        }
+        if (!config.isCentering()) {
             return 0;
         }
         return monitor.centeredX(config.getWidth());
     }
 
     private int windowedY(Monitor monitor) {
-        if (!config.isCentering() || !Monitor.supportsWindowPositioning()) {
+        if (!Monitor.supportsWindowPositioning()) {
+            return 0;
+        }
+        if (windowedWidth > 0 || windowedHeight > 0) {
+            return windowedY;
+        }
+        if (!config.isCentering()) {
             return 0;
         }
         return monitor.centeredY(config.getHeight());
+    }
+
+    private int windowedWidth(Monitor monitor) {
+        if (windowedWidth > 0) {
+            return windowedWidth;
+        }
+        return config.isCentering() ? Math.min(config.getWidth(), monitor.getWidth()) : config.getWidth();
+    }
+
+    private int windowedHeight(Monitor monitor) {
+        if (windowedHeight > 0) {
+            return windowedHeight;
+        }
+        return config.isCentering() ? Math.min(config.getHeight(), monitor.getHeight()) : config.getHeight();
+    }
+
+    private void rememberWindowedBounds(Monitor monitor) {
+        int[] width = new int[1];
+        int[] height = new int[1];
+        glfwGetWindowSize(windowHandle, width, height);
+        windowedWidth = Math.max(1, width[0]);
+        windowedHeight = Math.max(1, height[0]);
+
+        if (!Monitor.supportsWindowPositioning()) {
+            windowedX = 0;
+            windowedY = 0;
+            return;
+        }
+
+        int[] x = new int[1];
+        int[] y = new int[1];
+        glfwGetWindowPos(windowHandle, x, y);
+        if (x[0] == 0 && y[0] == 0 && config.isCentering()) {
+            windowedX = monitor.centeredX(windowedWidth);
+            windowedY = monitor.centeredY(windowedHeight);
+            return;
+        }
+        windowedX = x[0];
+        windowedY = y[0];
     }
 }

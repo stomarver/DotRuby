@@ -4,6 +4,9 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Locale;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.TimeUnit;
 
 import static org.lwjgl.glfw.GLFW.GLFW_PLATFORM_COCOA;
 import static org.lwjgl.glfw.GLFW.GLFW_PLATFORM_NULL;
@@ -15,6 +18,11 @@ import static org.lwjgl.glfw.GLFW.glfwGetPlatform;
 public final class Detect {
 
     private static final Path DEFAULT_PATH = Path.of("src/java/config/Detect.txt");
+    private static final ScheduledExecutorService WRITER = Executors.newSingleThreadScheduledExecutor(runnable -> {
+        Thread thread = new Thread(runnable, "engine-display-detect-writer");
+        thread.setDaemon(true);
+        return thread;
+    });
 
     private Detect() {
     }
@@ -23,7 +31,8 @@ public final class Detect {
         String body = describe();
         System.out.println("[engine.display.Detect]");
         System.out.print(body);
-        write(body);
+        ensureFileExists();
+        WRITER.schedule(() -> write(body), 30, TimeUnit.SECONDS);
     }
 
     public static boolean isLinux() {
@@ -83,9 +92,19 @@ public final class Detect {
                 .append('\n');
     }
 
-    private static void write(String body) {
+    private static void ensureFileExists() {
         try {
             Files.createDirectories(DEFAULT_PATH.getParent());
+            if (!Files.exists(DEFAULT_PATH)) {
+                Files.createFile(DEFAULT_PATH);
+            }
+        } catch (IOException exception) {
+            System.err.println("[engine.display.Detect] failed to create " + DEFAULT_PATH + ": " + exception.getMessage());
+        }
+    }
+
+    private static void write(String body) {
+        try {
             Files.writeString(DEFAULT_PATH, body);
         } catch (IOException exception) {
             System.err.println("[engine.display.Detect] failed to write " + DEFAULT_PATH + ": " + exception.getMessage());
