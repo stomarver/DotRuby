@@ -462,16 +462,30 @@ public class Manager {
         }
 
         glfwSetWindowAttrib(windowHandle, GLFW_AUTO_ICONIFY, GLFW_TRUE);
-        glfwSetWindowMonitor(windowHandle, NULL, 0, 0, config.getWidth(), config.getHeight(), 0);
+        glfwSetWindowMonitor(
+                windowHandle,
+                NULL,
+                windowedX(monitor),
+                windowedY(monitor),
+                config.getWidth(),
+                config.getHeight(),
+                0
+        );
         glfwSetWindowAttrib(windowHandle, GLFW_DECORATED, GLFW_FALSE);
-        centerWindowedIfConfigured(monitor);
         Borderless.apply(windowHandle);
     }
 
-    private void centerWindowedIfConfigured(Monitor monitor) {
-        if (!config.isCentering()) {
-            return;
+    private int windowedX(Monitor monitor) {
+        if (!config.isCentering() || !Monitor.supportsWindowPositioning()) {
+            return 0;
         }
-        Centering.center(windowHandle, monitor, config.getWidth(), config.getHeight());
+        return monitor.centeredX(config.getWidth());
+    }
+
+    private int windowedY(Monitor monitor) {
+        if (!config.isCentering() || !Monitor.supportsWindowPositioning()) {
+            return 0;
+        }
+        return monitor.centeredY(config.getHeight());
     }
 }

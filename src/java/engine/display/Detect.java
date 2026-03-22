@@ -15,14 +15,16 @@ public final class Detect {
     }
 
     public static void log() {
-        System.out.println("[display.detect] os=" + osName()
-                + ", desktop=" + env("XDG_CURRENT_DESKTOP")
-                + ", sessionType=" + env("XDG_SESSION_TYPE")
-                + ", sessionDesktop=" + env("XDG_SESSION_DESKTOP")
-                + ", glfwPlatform=" + glfwPlatformName()
-                + ", display=" + env("DISPLAY")
-                + ", waylandDisplay=" + env("WAYLAND_DISPLAY")
-                + ", qtPlatform=" + env("QT_QPA_PLATFORM"));
+        StringBuilder log = new StringBuilder("[display.detect]\n");
+        appendLine(log, "os", osName());
+        appendLine(log, "desktop", env("XDG_CURRENT_DESKTOP"));
+        appendLine(log, "sessionType", env("XDG_SESSION_TYPE"));
+        appendLine(log, "sessionDesktop", env("XDG_SESSION_DESKTOP"));
+        appendLine(log, "glfwPlatform", glfwPlatformName());
+        appendLine(log, "display", env("DISPLAY"));
+        appendLine(log, "waylandDisplay", env("WAYLAND_DISPLAY"));
+        appendLine(log, "qtPlatform", env("QT_QPA_PLATFORM"));
+        System.out.print(log);
     }
 
     public static boolean isLinux() {
@@ -59,5 +61,13 @@ public final class Detect {
     private static String env(String name) {
         String value = System.getenv(name);
         return value == null || value.isBlank() ? "<unset>" : value;
+    }
+
+    private static void appendLine(StringBuilder log, String key, String value) {
+        log.append("  ")
+                .append(String.format("%-15s", key))
+                .append(" = ")
+                .append(value)
+                .append('\n');
     }
 }
