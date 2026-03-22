@@ -308,7 +308,7 @@ public class Manager {
 
     public void updateFrame() {
         applyRenderViewport();
-        selection.render(getRenderWidth(), getRenderHeight());
+        selection.render(virtualWidth, virtualHeight, getVirtualUnitsForPhysicalPixels(2f));
         cursor.render(
                 getRenderWidth(),
                 getRenderHeight(),

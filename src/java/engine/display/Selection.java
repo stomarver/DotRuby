@@ -17,8 +17,6 @@ import static org.lwjgl.opengl.GL11.glVertex2f;
 
 public final class Selection {
 
-    private static final float BORDER_THICKNESS = 2f;
-
     private boolean active;
     private float startX;
     private float startY;
@@ -45,7 +43,7 @@ public final class Selection {
         active = false;
     }
 
-    public void render(int renderWidth, int renderHeight) {
+    public void render(int renderWidth, int renderHeight, float borderThickness) {
         if (!active) {
             return;
         }
@@ -61,6 +59,7 @@ public final class Selection {
         if (maxX <= minX || maxY <= minY) {
             return;
         }
+        float thickness = Math.max(0.1f, borderThickness);
 
         glDisable(GL_DEPTH_TEST);
         glMatrixMode(GL_PROJECTION);
@@ -73,10 +72,10 @@ public final class Selection {
         glLoadIdentity();
 
         glColor4f(1f, 1f, 1f, 1f);
-        drawQuad(minX, minY, maxX, minY + BORDER_THICKNESS);
-        drawQuad(minX, maxY - BORDER_THICKNESS, maxX, maxY);
-        drawQuad(minX, minY, minX + BORDER_THICKNESS, maxY);
-        drawQuad(maxX - BORDER_THICKNESS, minY, maxX, maxY);
+        drawQuad(minX, minY, maxX, minY + thickness);
+        drawQuad(minX, maxY - thickness, maxX, maxY);
+        drawQuad(minX, minY, minX + thickness, maxY);
+        drawQuad(maxX - thickness, minY, maxX, maxY);
 
         glPopMatrix();
         glMatrixMode(GL_PROJECTION);
