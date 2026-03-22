@@ -13,7 +13,7 @@ public final class Config {
     private static final Path DEFAULT_PATH = Path.of("src/java/config/Display.txt");
 
     public static Config defaults() {
-        return new Config("DotRuby", 960, 540, false, Mode.WINDOWED, Fullscreen.BORDERLESS, false, true, VSync.DOUBLE_BUFFERED, true, 0.0f, 0.0f, 0.0f, 1.0f);
+        return new Config("DotRuby", 960, 540, false, Mode.WINDOWED, Fullscreen.BORDERLESS, false, true, VSync.DOUBLE_BUFFERED, true, 0.0f, 0.0f, 1.0f, 1.0f);
     }
 
     public static Config loadDefault() {

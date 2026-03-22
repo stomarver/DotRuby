@@ -92,8 +92,8 @@ public class Cursor {
     }
 
     public void setPosition(double x, double y) {
-        this.x = x;
-        this.y = y;
+        this.x = Math.round(x);
+        this.y = Math.round(y);
     }
 
     public double getX() {

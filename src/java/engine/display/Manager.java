@@ -293,7 +293,8 @@ public class Manager {
     }
 
     public void updateFrame() {
-        cursor.render(getFramebufferWidth(), getFramebufferHeight());
+        applyRenderViewport();
+        cursor.render(getRenderWidth(), getRenderHeight());
         glfwSwapBuffers(windowHandle);
         glfwPollEvents();
     }
@@ -349,6 +350,14 @@ public class Manager {
         if (errorCallback != null) {
             errorCallback.free();
         }
+    }
+
+    private void applyRenderViewport() {
+        if (forceVirtualResolution) {
+            glViewport(physicalX, physicalY, physicalWidth, physicalHeight);
+            return;
+        }
+        glViewport(0, 0, framebufferWidth, framebufferHeight);
     }
 
     private void updateViewport() {
