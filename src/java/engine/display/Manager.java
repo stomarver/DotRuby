@@ -88,6 +88,7 @@ public class Manager {
         if (!glfwInit()) {
             throw new IllegalStateException("GLFW is not initialized");
         }
+        Detect.log();
 
         glfwDefaultWindowHints();
         glfwWindowHint(GLFW_VISIBLE, GLFW_FALSE);

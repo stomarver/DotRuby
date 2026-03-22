@@ -3,7 +3,6 @@ package engine.display;
 import org.lwjgl.glfw.GLFWNativeX11;
 
 import java.io.IOException;
-import java.util.Locale;
 
 public final class Borderless {
 
@@ -11,11 +10,11 @@ public final class Borderless {
     }
 
     public static void apply(long windowHandle) {
-        if (!isLinuxDesktop()) {
+        if (!Detect.isLinux() || !Detect.isGlfwX11()) {
             return;
         }
 
-        long x11Window = GLFWNativeX11.glfwGetX11Window(windowHandle);
+        long x11Window = getX11Window(windowHandle);
         if (x11Window == 0L) {
             return;
         }
@@ -25,32 +24,12 @@ public final class Borderless {
                 "-set", "_MOTIF_WM_HINTS", "2, 0, 0, 0, 0");
     }
 
-    private static boolean isLinuxDesktop() {
-        String os = System.getProperty("os.name", "").toLowerCase(Locale.ROOT);
-        if (!os.contains("linux")) {
-            return false;
+    private static long getX11Window(long windowHandle) {
+        try {
+            return GLFWNativeX11.glfwGetX11Window(windowHandle);
+        } catch (RuntimeException exception) {
+            return 0L;
         }
-
-        String session = System.getenv("XDG_CURRENT_DESKTOP");
-        String sessionType = System.getenv("XDG_SESSION_TYPE");
-        String qtPlatform = System.getenv("QT_QPA_PLATFORM");
-
-        return containsAny(session, "gnome", "kde", "xfce", "mate", "cinnamon")
-                || containsAny(sessionType, "x11")
-                || containsAny(qtPlatform, "xcb");
-    }
-
-    private static boolean containsAny(String value, String... needles) {
-        if (value == null) {
-            return false;
-        }
-        String normalized = value.toLowerCase(Locale.ROOT);
-        for (String needle : needles) {
-            if (normalized.contains(needle)) {
-                return true;
-            }
-        }
-        return false;
     }
 
     private static void runIfAvailable(String... command) {
