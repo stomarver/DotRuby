@@ -1,0 +1,2 @@
+fullscreen_toggle_key=F11
+fullscreen_toggle_modifiers=NONE

@@ -4,24 +4,18 @@ public class Window {
 
     private final Manager displayManager;
     private final engine.input.Manager inputManager;
-    private final config.Display displayConfig;
-    private final config.Input inputConfig;
 
     public Window() {
-        this(Config.defaults(), config.Display.defaults(), config.Input.defaults());
+        this(Config.loadDefault(), engine.input.Config.loadDefault(Config.loadDefault().isRawInputEnabled()));
     }
 
-    public Window(Config displayManagerConfig) {
-        this(displayManagerConfig, config.Display.defaults(), config.Input.defaults());
+    public Window(Config displayConfig) {
+        this(displayConfig, engine.input.Config.loadDefault(displayConfig.isRawInputEnabled()));
     }
 
-    public Window(Config displayManagerConfig, config.Display displayConfig, config.Input inputConfig) {
-        this.displayManager = new Manager(displayManagerConfig);
-        this.displayConfig = displayConfig;
-        this.inputConfig = inputConfig;
-        this.inputManager = new engine.input.Manager(
-                engine.input.Config.defaults().withRawMouseInput(displayConfig.isRawInputEnabled())
-        );
+    public Window(Config displayConfig, engine.input.Config inputConfig) {
+        this.displayManager = new Manager(displayConfig);
+        this.inputManager = new engine.input.Manager(inputConfig);
     }
 
     public void run() {
@@ -32,9 +26,10 @@ public class Window {
 
     public void create() {
         displayManager.createWindow();
-        displayManager.applyVSync(displayConfig.getVSync());
-        displayManager.setMode(displayConfig.getWindowMode());
-        inputManager.bind(displayManager.getWindowHandle(), displayManager, inputConfig, displayConfig);
+        displayManager.applyVSync(displayManager.getVSync());
+        displayManager.setFullscreenType(displayManager.getFullscreenType());
+        displayManager.setMode(displayManager.getMode());
+        inputManager.bind(displayManager.getWindowHandle(), displayManager);
     }
 
     public void loop() {

@@ -1,9 +1,5 @@
 package engine.input;
 
-import config.Display;
-import config.Input;
-import engine.display.Mode;
-
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -24,15 +20,12 @@ public class Manager {
         this.config = config;
     }
 
-    public void bind(long windowHandle, engine.display.Manager displayManager, Input inputConfig, Display displayConfig) {
-        Bind.apply(windowHandle, displayManager, this, inputConfig, displayConfig);
+    public void bind(long windowHandle, engine.display.Manager displayManager) {
+        Bind.apply(windowHandle, displayManager, this);
     }
 
-    public void toggleFullscreen(engine.display.Manager displayManager, Display displayConfig) {
-        Mode targetMode = displayManager.getMode() == Mode.WINDOWED
-                ? displayConfig.getFullscreenMode()
-                : displayConfig.getWindowMode();
-        displayManager.setMode(targetMode);
+    public void toggleFullscreen(engine.display.Manager displayManager) {
+        displayManager.toggleFullscreen();
     }
 
     Config getConfig() {

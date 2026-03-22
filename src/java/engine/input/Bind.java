@@ -1,8 +1,5 @@
 package engine.input;
 
-import config.Display;
-import config.Input;
-
 import static org.lwjgl.glfw.GLFW.GLFW_PRESS;
 import static org.lwjgl.glfw.GLFW.GLFW_RAW_MOUSE_MOTION;
 import static org.lwjgl.glfw.GLFW.GLFW_RELEASE;
@@ -19,9 +16,7 @@ public final class Bind {
 
     public static void apply(long windowHandle,
                              engine.display.Manager displayManager,
-                             Manager manager,
-                             Input inputConfig,
-                             Display displayConfig) {
+                             Manager manager) {
         Config config = manager.getConfig();
 
         if (config.isKeyboardTrackingEnabled()) {
@@ -30,8 +25,8 @@ public final class Bind {
                 manager.getKeyboard().setKeyState(key, pressed);
                 manager.pushEvent(new Event(Event.Type.KEY, key, action));
 
-                if (inputConfig != null && displayConfig != null && inputConfig.isFullscreenToggle(key, action, mods)) {
-                    manager.toggleFullscreen(displayManager, displayConfig);
+                if (config.isFullscreenToggle(key, action, mods)) {
+                    manager.toggleFullscreen(displayManager);
                 }
             });
         }

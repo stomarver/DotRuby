@@ -58,11 +58,14 @@ public class Manager {
     private final Cursor cursor = new Cursor();
 
     private long windowHandle;
-    private Mode mode = Mode.WINDOWED;
+    private Mode mode;
+    private FullscreenType fullscreenType;
     private VSync vSync;
 
     public Manager(Config config) {
         this.config = config;
+        this.mode = config.getWindowMode();
+        this.fullscreenType = config.getFullscreenType();
         this.vSync = config.getVSync();
     }
 
@@ -173,32 +176,19 @@ public class Manager {
     }
 
     public void setMode(Mode mode) {
-        if (mode == null || mode == this.mode) {
-            return;
-        }
+        this.mode = mode == null ? Mode.WINDOWED : mode;
+        applyWindowMode();
+    }
 
-        Monitor monitor = Monitor.primary(config.getWidth(), config.getHeight());
-        if (mode == Mode.EXCLUSIVE) {
-            glfwSetWindowAttrib(windowHandle, GLFW_DECORATED, GLFW_FALSE);
-            glfwSetWindowMonitor(
-                    windowHandle,
-                    monitor.getHandle(),
-                    0,
-                    0,
-                    monitor.getWidth(),
-                    monitor.getHeight(),
-                    0
-            );
-        } else if (mode == Mode.BORDERLESS) {
-            glfwSetWindowMonitor(windowHandle, NULL, monitor.getPositionX(), monitor.getPositionY(), monitor.getWidth(), monitor.getHeight(), 0);
-            glfwSetWindowAttrib(windowHandle, GLFW_DECORATED, GLFW_FALSE);
-        } else {
-            glfwSetWindowMonitor(windowHandle, NULL, 0, 0, config.getWidth(), config.getHeight(), 0);
-            glfwSetWindowAttrib(windowHandle, GLFW_DECORATED, GLFW_TRUE);
-            centerWindow(monitor);
+    public void setFullscreenType(FullscreenType fullscreenType) {
+        this.fullscreenType = fullscreenType == null ? FullscreenType.BORDERLESS : fullscreenType;
+        if (mode == Mode.FULLSCREEN) {
+            applyWindowMode();
         }
+    }
 
-        this.mode = mode;
+    public void toggleFullscreen() {
+        setMode(mode == Mode.WINDOWED ? Mode.FULLSCREEN : Mode.WINDOWED);
     }
 
     public Cursor getCursor() {
@@ -207,6 +197,10 @@ public class Manager {
 
     public Mode getMode() {
         return mode;
+    }
+
+    public FullscreenType getFullscreenType() {
+        return fullscreenType;
     }
 
     public long getWindowHandle() {
@@ -221,6 +215,33 @@ public class Manager {
         if (errorCallback != null) {
             errorCallback.free();
         }
+    }
+
+    private void applyWindowMode() {
+        Monitor monitor = Monitor.primary(config.getWidth(), config.getHeight());
+        if (mode == Mode.FULLSCREEN && fullscreenType == FullscreenType.EXCLUSIVE) {
+            glfwSetWindowAttrib(windowHandle, GLFW_DECORATED, GLFW_FALSE);
+            glfwSetWindowMonitor(
+                    windowHandle,
+                    monitor.getHandle(),
+                    0,
+                    0,
+                    monitor.getWidth(),
+                    monitor.getHeight(),
+                    0
+            );
+            return;
+        }
+
+        if (mode == Mode.FULLSCREEN) {
+            glfwSetWindowMonitor(windowHandle, NULL, monitor.getPositionX(), monitor.getPositionY(), monitor.getWidth(), monitor.getHeight(), 0);
+            glfwSetWindowAttrib(windowHandle, GLFW_DECORATED, GLFW_FALSE);
+            return;
+        }
+
+        glfwSetWindowMonitor(windowHandle, NULL, 0, 0, config.getWidth(), config.getHeight(), 0);
+        glfwSetWindowAttrib(windowHandle, GLFW_DECORATED, GLFW_TRUE);
+        centerWindow(monitor);
     }
 
     private void centerWindow(Monitor monitor) {
