@@ -1,5 +1,6 @@
 package engine.display;
 
+import engine.Detect;
 import org.lwjgl.glfw.GLFWErrorCallback;
 import org.lwjgl.opengl.GL;
 
@@ -96,7 +97,7 @@ public class Manager {
         if (!glfwInit()) {
             throw new IllegalStateException("GLFW is not initialized");
         }
-        Detect.log();
+        Detect.logEnvironment();
 
         glfwDefaultWindowHints();
         glfwWindowHint(GLFW_VISIBLE, GLFW_FALSE);
@@ -118,6 +119,7 @@ public class Manager {
         rememberWindowedBounds(Monitor.primary(config.getWidth(), config.getHeight()));
 
         GL.createCapabilities();
+        Detect.logGpu();
 
         glClearColor(config.getClearR(), config.getClearG(), config.getClearB(), config.getClearA());
         glEnable(GL_DEPTH_TEST);

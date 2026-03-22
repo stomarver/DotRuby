@@ -39,7 +39,7 @@ bin/
 ### VS Code ###
 .vscode/
 
-src/java/config/Detect.txt
+src/java/detect/sys/log/
 
 ### Mac OS ###
 .DS_Store
