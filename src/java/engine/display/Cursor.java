@@ -187,7 +187,7 @@ public class Cursor {
         }
     }
 
-    public void render(int renderWidth, int renderHeight) {
+    public void render(int renderWidth, int renderHeight, float drawWidth, float drawHeight) {
         if (textureId == 0) {
             throw new IllegalStateException("Cursor texture is not loaded");
         }
@@ -211,8 +211,8 @@ public class Cursor {
 
         float drawX = (float) x;
         float drawY = (float) y;
-        float drawWidth = Math.max(1, textureWidth);
-        float drawHeight = Math.max(1, textureHeight);
+        drawWidth = Math.max(1f, drawWidth);
+        drawHeight = Math.max(1f, drawHeight);
 
         glBegin(GL_QUADS);
         glTexCoord2f(0f, 0f); glVertex2f(drawX, drawY);

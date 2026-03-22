@@ -296,7 +296,12 @@ public class Manager {
 
     public void updateFrame() {
         applyRenderViewport();
-        cursor.render(getRenderWidth(), getRenderHeight());
+        cursor.render(
+                getRenderWidth(),
+                getRenderHeight(),
+                getVirtualUnitsForPhysicalPixelsExact(cursor.getTextureWidth()),
+                getVirtualUnitsForPhysicalPixelsExact(cursor.getTextureHeight())
+        );
         glfwSwapBuffers(windowHandle);
         glfwPollEvents();
     }
