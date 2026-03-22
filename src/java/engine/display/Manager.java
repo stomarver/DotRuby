@@ -106,6 +106,7 @@ public class Manager {
         glfwMakeContextCurrent(windowHandle);
         applyVSync(vSync);
         glfwShowWindow(windowHandle);
+        Borderless.apply(windowHandle);
 
         GL.createCapabilities();
 
@@ -472,7 +473,6 @@ public class Manager {
                 0
         );
         glfwSetWindowAttrib(windowHandle, GLFW_DECORATED, GLFW_FALSE);
-        Borderless.apply(windowHandle);
     }
 
     private int windowedX(Monitor monitor) {
