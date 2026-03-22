@@ -461,7 +461,7 @@ public class Manager {
     }
 
     private float clampVirtualY(float value) {
-        return Math.clamp(value, 0f, Math.max(0f, virtualHeight - 1f));
+        return Math.clamp(value, 0f, Math.max(0f, virtualHeight));
     }
 
     private void applyWindowMode() {

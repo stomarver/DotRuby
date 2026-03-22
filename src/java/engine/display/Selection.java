@@ -54,6 +54,10 @@ public final class Selection {
         float maxX = Math.max(startX, endX);
         float minY = Math.min(startY, endY);
         float maxY = Math.max(startY, endY);
+        minX = (float) Math.floor(minX);
+        maxX = (float) Math.floor(maxX);
+        minY = (float) Math.floor(minY);
+        maxY = (float) Math.floor(maxY);
         if (maxX <= minX || maxY <= minY) {
             return;
         }
