@@ -229,6 +229,18 @@ public class Manager {
         return scale <= 0f ? pixels : pixels / scale;
     }
 
+    public float getPhysicalPixelsPerVirtualUnitXExact() {
+        return forceVirtualResolution
+                ? (physicalWidth / (float) virtualWidth)
+                : (framebufferWidth / (float) virtualWidth);
+    }
+
+    public float getPhysicalPixelsPerVirtualUnitYExact() {
+        return forceVirtualResolution
+                ? (physicalHeight / (float) virtualHeight)
+                : (framebufferHeight / (float) virtualHeight);
+    }
+
     public float toVirtualX(double physicalScreenX) {
         float scale = forceVirtualResolution
                 ? (physicalWidth / (float) virtualWidth)
@@ -384,7 +396,14 @@ public class Manager {
         }
 
         if (cursor.getState() == Cursor.State.CAPTURED) {
-            cursor.updateCapturedPosition(physicalX, physicalY, virtualWidth, virtualHeight);
+            cursor.updateCapturedPosition(
+                    physicalX,
+                    physicalY,
+                    getPhysicalPixelsPerVirtualUnitXExact(),
+                    getPhysicalPixelsPerVirtualUnitYExact(),
+                    virtualWidth,
+                    virtualHeight
+            );
             return;
         }
 

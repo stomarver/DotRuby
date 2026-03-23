@@ -87,7 +87,12 @@ public class Cursor {
         this.y = clampY(y, virtualHeight);
     }
 
-    public void updateCapturedPosition(double physicalX, double physicalY, int virtualWidth, int virtualHeight) {
+    public void updateCapturedPosition(double physicalX,
+                                       double physicalY,
+                                       float physicalPixelsPerVirtualX,
+                                       float physicalPixelsPerVirtualY,
+                                       int virtualWidth,
+                                       int virtualHeight) {
         if (!physicalTrackingInitialized) {
             lastPhysicalX = physicalX;
             lastPhysicalY = physicalY;
@@ -100,7 +105,9 @@ public class Cursor {
         lastPhysicalX = physicalX;
         lastPhysicalY = physicalY;
 
-        setClampedPosition(x + deltaX, y + deltaY, virtualWidth, virtualHeight);
+        double scaleX = Math.max(physicalPixelsPerVirtualX, 0.0001f);
+        double scaleY = Math.max(physicalPixelsPerVirtualY, 0.0001f);
+        setClampedPosition(x + (deltaX / scaleX), y + (deltaY / scaleY), virtualWidth, virtualHeight);
     }
 
     public void resetMotionTracking() {
