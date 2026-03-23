@@ -1,7 +1,9 @@
 package engine.ui.text.font;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 public final class Regular {
 
@@ -15,10 +17,27 @@ public final class Regular {
             "SsTtUuVvWwXxYyZz"
     };
 
-    public record Glyph(char value, int atlasX, int atlasY) {
+    public record Glyph(char value, int atlasX, int atlasY, int atlasWidth, int atlasHeight, int advanceWidth) {
+    }
+
+    public record GlyphParameters(int advanceWidth) {
     }
 
     public record Quad(Glyph glyph, int drawX, int drawY) {
+    }
+
+    private final Map<Character, GlyphParameters> glyphParameters = new HashMap<>();
+
+    public Regular() {
+        withAdvanceWidth('i', 1);
+        withAdvanceWidth('I', 3);
+        withAdvanceWidth('t', 3);
+        withAdvanceWidth('T', 5);
+    }
+
+    public Regular withAdvanceWidth(char value, int advanceWidth) {
+        glyphParameters.put(value, new GlyphParameters(Math.max(1, Math.min(advanceWidth, GLYPH_WIDTH))));
+        return this;
     }
 
     public List<Quad> parse(String text) {
@@ -45,7 +64,7 @@ public final class Regular {
             }
 
             quads.add(new Quad(glyph, penX, penY));
-            penX += GLYPH_WIDTH + GLYPH_GAP_X;
+            penX += glyph.advanceWidth() + GLYPH_GAP_X;
         }
 
         return quads;
@@ -61,7 +80,10 @@ public final class Regular {
             return new Glyph(
                     value,
                     column * (GLYPH_WIDTH + GLYPH_GAP_X),
-                    row * (GLYPH_HEIGHT + GLYPH_GAP_Y)
+                    row * (GLYPH_HEIGHT + GLYPH_GAP_Y),
+                    GLYPH_WIDTH,
+                    GLYPH_HEIGHT,
+                    parameters(value).advanceWidth()
             );
         }
         return null;
@@ -73,5 +95,9 @@ public final class Regular {
 
     public int glyphHeight() {
         return GLYPH_HEIGHT;
+    }
+
+    private GlyphParameters parameters(char value) {
+        return glyphParameters.getOrDefault(value, new GlyphParameters(GLYPH_WIDTH));
     }
 }

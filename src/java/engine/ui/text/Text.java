@@ -32,6 +32,7 @@ public final class Text {
     private static final String TEST_LABEL = "DotRuby";
     private static final float LEFT_PADDING = 2f;
     private static final float TOP_PADDING = 2f;
+    private static final float BASE_SCALE = 2f;
 
     private final Regular regular = new Regular();
     private int textureId;
@@ -73,26 +74,31 @@ public final class Text {
             throw new IllegalStateException("Regular font texture is not loaded");
         }
 
-        draw(overlay, TEST_LABEL, LEFT_PADDING, TOP_PADDING);
+        draw(overlay, TEST_LABEL, LEFT_PADDING, TOP_PADDING, 1f);
     }
 
     public void draw(Overlay overlay, String value, float x, float y) {
+        draw(overlay, value, x, y, 1f);
+    }
+
+    public void draw(Overlay overlay, String value, float x, float y, float size) {
         if (value == null || value.isBlank()) {
             return;
         }
 
+        float resolvedScale = Math.max(0.0001f, size) * BASE_SCALE;
         List<Regular.Quad> quads = regular.parse(value);
         for (Regular.Quad quad : quads) {
             float minU = quad.glyph().atlasX() / (float) textureWidth;
             float minV = quad.glyph().atlasY() / (float) textureHeight;
-            float maxU = (quad.glyph().atlasX() + regular.glyphWidth()) / (float) textureWidth;
-            float maxV = (quad.glyph().atlasY() + regular.glyphHeight()) / (float) textureHeight;
+            float maxU = (quad.glyph().atlasX() + quad.glyph().atlasWidth()) / (float) textureWidth;
+            float maxV = (quad.glyph().atlasY() + quad.glyph().atlasHeight()) / (float) textureHeight;
             overlay.drawTexturedQuadRegion(
                     textureId,
-                    x + quad.drawX(),
-                    y + quad.drawY(),
-                    regular.glyphWidth(),
-                    regular.glyphHeight(),
+                    x + (quad.drawX() * resolvedScale),
+                    y + (quad.drawY() * resolvedScale),
+                    quad.glyph().atlasWidth() * resolvedScale,
+                    quad.glyph().atlasHeight() * resolvedScale,
                     minU,
                     minV,
                     maxU,
