@@ -1,4 +1,6 @@
-package engine.display;
+package engine.ui;
+
+import engine.visual.Overlay;
 
 public final class Selection {
 
@@ -28,7 +30,7 @@ public final class Selection {
         active = false;
     }
 
-    public void render(OverlayRenderer overlayRenderer, float borderThickness) {
+    public void render(Overlay overlay, float borderThickness) {
         if (!active) {
             return;
         }
@@ -45,6 +47,6 @@ public final class Selection {
             return;
         }
         float thickness = Math.max(0.1f, borderThickness);
-        overlayRenderer.drawOutlineRect(minX, minY, maxX, maxY, thickness);
+        overlay.drawOutlineRect(minX, minY, maxX, maxY, thickness);
     }
 }

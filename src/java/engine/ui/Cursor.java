@@ -1,4 +1,6 @@
-package engine.display;
+package engine.ui;
+
+import engine.visual.Overlay;
 
 import org.lwjgl.system.MemoryStack;
 
@@ -176,7 +178,7 @@ public class Cursor {
         }
     }
 
-    public void render(OverlayRenderer overlayRenderer, float drawWidth, float drawHeight) {
+    public void render(Overlay overlay, float drawWidth, float drawHeight) {
         if (textureId == 0) {
             throw new IllegalStateException("Cursor texture is not loaded");
         }
@@ -186,7 +188,7 @@ public class Cursor {
         float drawY = (float) Math.floor(y);
         drawWidth = Math.max(1f, drawWidth);
         drawHeight = Math.max(1f, drawHeight);
-        overlayRenderer.drawTexturedQuad(textureId, drawX, drawY, drawWidth, drawHeight);
+        overlay.drawTexturedQuad(textureId, drawX, drawY, drawWidth, drawHeight);
     }
 
     public void destroy() {

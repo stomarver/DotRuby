@@ -1,4 +1,4 @@
-package engine.display;
+package engine.visual;
 
 import static org.lwjgl.opengl.GL11.GL_BLEND;
 import static org.lwjgl.opengl.GL11.GL_DEPTH_TEST;
@@ -48,7 +48,7 @@ import static org.lwjgl.opengl.GL30.glBindVertexArray;
 import static org.lwjgl.opengl.GL30.glDeleteVertexArrays;
 import static org.lwjgl.opengl.GL30.glGenVertexArrays;
 
-public final class OverlayRenderer {
+public final class Overlay {
 
     private static final String VERTEX_SHADER = """
             #version 330 core
@@ -130,7 +130,7 @@ public final class OverlayRenderer {
 
     public void begin(int virtualWidth, int virtualHeight) {
         if (programId == 0) {
-            throw new IllegalStateException("OverlayRenderer is not initialized");
+            throw new IllegalStateException("Overlay is not initialized");
         }
 
         started = true;
@@ -240,7 +240,7 @@ public final class OverlayRenderer {
 
     private void ensureStarted() {
         if (!started) {
-            throw new IllegalStateException("OverlayRenderer.begin must be called before drawing");
+            throw new IllegalStateException("Overlay.begin must be called before drawing");
         }
     }
 }
