@@ -28,9 +28,12 @@ import static org.lwjgl.system.MemoryStack.stackPush;
 
 public final class Text {
 
-    private static final Path TEXTURE_PATH = Path.of("src/assets/ui/font/regular.png");
+    private static final List<Path> TEXTURE_PATHS = List.of(
+            Path.of("src/assets/ui/font/regular.png"),
+            Path.of("src/main/resources/fonts/font.png")
+    );
     private static final String TEST_LABEL = "DotRuby";
-    private static final float LEFT_PADDING = 2f;
+    private static final float LEFT_PADDING = 10f;
     private static final float TOP_PADDING = 2f;
     private static final float BASE_SCALE = 2f;
 
@@ -38,13 +41,16 @@ public final class Text {
     private int textureId;
     private int textureWidth;
     private int textureHeight;
+    private Path texturePath;
 
     public void load() {
-        if (!Files.exists(TEXTURE_PATH)) {
-            throw new IllegalStateException("Regular font texture is missing: " + TEXTURE_PATH);
-        }
         if (textureId != 0) {
             return;
+        }
+
+        texturePath = resolveTexturePath();
+        if (texturePath == null) {
+            throw new IllegalStateException("Regular font texture is missing. Checked: " + TEXTURE_PATHS);
         }
 
         try (MemoryStack stack = stackPush()) {
@@ -52,7 +58,7 @@ public final class Text {
             IntBuffer height = stack.mallocInt(1);
             IntBuffer channels = stack.mallocInt(1);
 
-            ByteBuffer pixels = stbi_load(TEXTURE_PATH.toString(), width, height, channels, 4);
+            ByteBuffer pixels = stbi_load(texturePath.toString(), width, height, channels, 4);
             if (pixels == null) {
                 throw new IllegalStateException("Unable to load regular font texture: " + stbi_failure_reason());
             }
@@ -113,5 +119,14 @@ public final class Text {
             glDeleteTextures(textureId);
             textureId = 0;
         }
+    }
+
+    private Path resolveTexturePath() {
+        for (Path candidate : TEXTURE_PATHS) {
+            if (Files.exists(candidate)) {
+                return candidate;
+            }
+        }
+        return null;
     }
 }
