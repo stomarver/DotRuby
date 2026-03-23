@@ -73,11 +73,15 @@ public final class Overlay {
             uniform sampler2D uTexture;
             uniform vec4 uColor;
             uniform bool uUseTexture;
+            uniform bool uDiscardBlack;
 
             out vec4 fragColor;
 
             void main() {
                 vec4 base = uUseTexture ? texture(uTexture, vUv) : vec4(1.0);
+                if (uUseTexture && uDiscardBlack && max(base.r, max(base.g, base.b)) <= 0.01) {
+                    discard;
+                }
                 fragColor = base * uColor;
             }
             """;
@@ -90,6 +94,7 @@ public final class Overlay {
     private int resolutionLocation;
     private int colorLocation;
     private int useTextureLocation;
+    private int discardBlackLocation;
     private boolean started;
 
     public void init() {
@@ -126,6 +131,7 @@ public final class Overlay {
         resolutionLocation = glGetUniformLocation(programId, "uResolution");
         colorLocation = glGetUniformLocation(programId, "uColor");
         useTextureLocation = glGetUniformLocation(programId, "uUseTexture");
+        discardBlackLocation = glGetUniformLocation(programId, "uDiscardBlack");
     }
 
     public void begin(int virtualWidth, int virtualHeight) {
@@ -143,11 +149,25 @@ public final class Overlay {
     }
 
     public void drawTexturedQuad(int textureId, float x, float y, float width, float height) {
+        drawTexturedQuadRegion(textureId, x, y, width, height, 0f, 0f, 1f, 1f, false);
+    }
+
+    public void drawTexturedQuadRegion(int textureId,
+                                       float x,
+                                       float y,
+                                       float width,
+                                       float height,
+                                       float minU,
+                                       float minV,
+                                       float maxU,
+                                       float maxV,
+                                       boolean discardBlack) {
         ensureStarted();
         glBindTexture(GL_TEXTURE_2D, textureId);
         glUniform4f(colorLocation, 1f, 1f, 1f, 1f);
         glUniform1i(useTextureLocation, 1);
-        uploadQuad(x, y, x + width, y + height, 0f, 0f, 1f, 1f);
+        glUniform1i(discardBlackLocation, discardBlack ? 1 : 0);
+        uploadQuad(x, y, x + width, y + height, minU, minV, maxU, maxV);
     }
 
     public void drawOutlineRect(float minX, float minY, float maxX, float maxY, float thickness) {
@@ -155,6 +175,7 @@ public final class Overlay {
         glBindTexture(GL_TEXTURE_2D, 0);
         glUniform4f(colorLocation, 1f, 1f, 1f, 1f);
         glUniform1i(useTextureLocation, 0);
+        glUniform1i(discardBlackLocation, 0);
         drawSolidQuad(minX, minY, maxX, minY + thickness);
         drawSolidQuad(minX, maxY - thickness, maxX, maxY);
         drawSolidQuad(minX, minY, minX + thickness, maxY);
