@@ -1,5 +1,7 @@
 package engine.display;
 
+import engine.util.RuntimePaths;
+
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -10,13 +12,14 @@ import java.util.Map;
 
 public final class Config {
 
-    private static final Path DEFAULT_PATH = Path.of("src/java/config/Display.txt");
+    private static final Path DEFAULT_PATH = RuntimePaths.configPath("Display.txt");
 
     public static Config defaults() {
         return new Config("DotRuby", 960, 540, false, Mode.WINDOWED, Fullscreen.BORDERLESS, false, true, VSync.DOUBLE_BUFFERED, true, 0.0f, 0.0f, 1.0f, 1.0f);
     }
 
     public static Config loadDefault() {
+        ensureDefaultConfig(DEFAULT_PATH, defaults());
         return load(DEFAULT_PATH);
     }
 
@@ -165,6 +168,19 @@ public final class Config {
         return values;
     }
 
+    private static void ensureDefaultConfig(Path path, Config defaults) {
+        if (path == null || Files.exists(path)) {
+            return;
+        }
+
+        try {
+            Files.createDirectories(path.getParent());
+            Files.writeString(path, defaults.toConfigFile());
+        } catch (IOException exception) {
+            throw new IllegalStateException("Unable to write default display config: " + path, exception);
+        }
+    }
+
     private static String stripComment(String line) {
         int commentIndex = line.indexOf('#');
         return commentIndex >= 0 ? line.substring(0, commentIndex).trim() : line.trim();
@@ -193,5 +209,16 @@ public final class Config {
             return fallback;
         }
         return VSync.valueOf(value.trim().toUpperCase(Locale.ROOT));
+    }
+
+    private String toConfigFile() {
+        return """
+                window_mode=%s
+                fullscreen_type=%s
+                raw_input=%s
+                vsync=%s
+                centering=%s
+                lock_cursor=%s
+                """.formatted(windowMode, fullscreen, rawInputEnabled, vSync, centering, lockCursor);
     }
 }

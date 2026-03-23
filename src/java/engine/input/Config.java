@@ -1,5 +1,6 @@
 package engine.input;
 
+import engine.util.RuntimePaths;
 import org.lwjgl.glfw.GLFW;
 
 import java.io.IOException;
@@ -13,7 +14,7 @@ import java.util.Map;
 
 public final class Config {
 
-    private static final Path DEFAULT_PATH = Path.of("src/java/config/Input.txt");
+    private static final Path DEFAULT_PATH = RuntimePaths.configPath("Input.txt");
 
     public static Config defaults() {
         return new Config(true, true, false, 1024,
@@ -22,6 +23,7 @@ public final class Config {
     }
 
     public static Config loadDefault(boolean rawMouseInputEnabled) {
+        ensureDefaultConfig(DEFAULT_PATH, defaults().withRawMouseInput(rawMouseInputEnabled));
         return load(DEFAULT_PATH, rawMouseInputEnabled);
     }
 
@@ -146,6 +148,19 @@ public final class Config {
         return values;
     }
 
+    private static void ensureDefaultConfig(Path path, Config defaults) {
+        if (path == null || Files.exists(path)) {
+            return;
+        }
+
+        try {
+            Files.createDirectories(path.getParent());
+            Files.writeString(path, defaults.toConfigFile());
+        } catch (IOException exception) {
+            throw new IllegalStateException("Unable to write default input config: " + path, exception);
+        }
+    }
+
     private static String stripComment(String line) {
         int commentIndex = line.indexOf('#');
         return commentIndex >= 0 ? line.substring(0, commentIndex).trim() : line.trim();
@@ -185,5 +200,61 @@ public final class Config {
             }
         }
         return modifiers;
+    }
+
+    private String toConfigFile() {
+        return """
+                fullscreen_toggle_key=%s
+                fullscreen_toggle_modifiers=%s
+                fullscreen_toggle_key_alt=%s
+                fullscreen_toggle_modifiers_alt=%s
+                """.formatted(
+                keyName(fullscreenToggleKey),
+                modifiersName(fullscreenToggleModifiers),
+                keyName(fullscreenToggleKeyAlt),
+                modifiersName(fullscreenToggleModifiersAlt)
+        );
+    }
+
+    private static String keyName(int key) {
+        return switch (key) {
+            case GLFW.GLFW_KEY_ENTER -> "ENTER";
+            case GLFW.GLFW_KEY_F4 -> "F4";
+            default -> "UNKNOWN";
+        };
+    }
+
+    private static String modifiersName(int modifiers) {
+        if (modifiers == 0) {
+            return "NONE";
+        }
+
+        StringBuilder value = new StringBuilder();
+        if ((modifiers & GLFW.GLFW_MOD_CONTROL) != 0) {
+            appendModifier(value, "CTRL");
+        }
+        if ((modifiers & GLFW.GLFW_MOD_SHIFT) != 0) {
+            appendModifier(value, "SHIFT");
+        }
+        if ((modifiers & GLFW.GLFW_MOD_ALT) != 0) {
+            appendModifier(value, "ALT");
+        }
+        if ((modifiers & GLFW.GLFW_MOD_SUPER) != 0) {
+            appendModifier(value, "SUPER");
+        }
+        if ((modifiers & GLFW.GLFW_MOD_CAPS_LOCK) != 0) {
+            appendModifier(value, "CAPS_LOCK");
+        }
+        if ((modifiers & GLFW.GLFW_MOD_NUM_LOCK) != 0) {
+            appendModifier(value, "NUM_LOCK");
+        }
+        return value.toString();
+    }
+
+    private static void appendModifier(StringBuilder value, String modifier) {
+        if (!value.isEmpty()) {
+            value.append('+');
+        }
+        value.append(modifier);
     }
 }

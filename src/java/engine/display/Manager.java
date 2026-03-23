@@ -1,7 +1,5 @@
 package engine.display;
 
-import engine.ui.Cursor;
-import engine.ui.Selection;
 import engine.visual.Overlay;
 import org.lwjgl.glfw.GLFWErrorCallback;
 import org.lwjgl.opengl.GL;
@@ -57,8 +55,7 @@ import static org.lwjgl.system.MemoryUtil.NULL;
 public class Manager {
 
     private final Config config;
-    private final Cursor cursor = new Cursor();
-    private final Selection selection = new Selection();
+    private final engine.ui.Manager uiManager = new engine.ui.Manager();
     private final Overlay overlay = new Overlay();
 
     private long windowHandle;
@@ -79,7 +76,6 @@ public class Manager {
     private int windowedWidth;
     private int windowedHeight;
     private boolean forceVirtualResolution = true;
-    private boolean ignoreNextCursorSync;
 
     public Manager(Config config) {
         this.config = config;
@@ -126,11 +122,10 @@ public class Manager {
 
         glClearColor(config.getClearR(), config.getClearG(), config.getClearB(), config.getClearA());
         glEnable(GL_DEPTH_TEST);
-        cursor.loadTexture();
+        uiManager.initialize(windowHandle, config.isLockCursor());
 
         updateViewport();
         glfwSetFramebufferSizeCallback(windowHandle, (window, width, height) -> updateViewport());
-        applyCursorLock();
 
         return windowHandle;
     }
@@ -325,11 +320,11 @@ public class Manager {
 
     public void updateFrame() {
         begin2DPass();
-        selection.render(overlay, getVirtualUnitsForPhysicalPixels(2f));
-        cursor.render(
+        uiManager.render(
                 overlay,
-                getVirtualUnitsForPhysicalPixelsExact(cursor.getTextureWidth()),
-                getVirtualUnitsForPhysicalPixelsExact(cursor.getTextureHeight())
+                getVirtualUnitsForPhysicalPixels(2f),
+                getVirtualUnitsForPhysicalPixelsExact(getCursor().getTextureWidth()),
+                getVirtualUnitsForPhysicalPixelsExact(getCursor().getTextureHeight())
         );
         end2DPass();
         glfwSwapBuffers(windowHandle);
@@ -346,7 +341,7 @@ public class Manager {
             rememberWindowedBounds(Monitor.primary(config.getWidth(), config.getHeight()));
         }
         this.mode = nextMode;
-        preserveCursorGridPosition();
+        uiManager.preserveCursorGridPosition(virtualWidth, virtualHeight);
         applyWindowMode();
         updateViewport();
     }
@@ -354,7 +349,7 @@ public class Manager {
     public void setFullscreen(Fullscreen fullscreen) {
         this.fullscreen = fullscreen == null ? Fullscreen.BORDERLESS : fullscreen;
         if (mode == Mode.FULLSCREEN) {
-            preserveCursorGridPosition();
+            uiManager.preserveCursorGridPosition(virtualWidth, virtualHeight);
             applyWindowMode();
             updateViewport();
         }
@@ -364,53 +359,41 @@ public class Manager {
         setMode(mode == Mode.WINDOWED ? Mode.FULLSCREEN : Mode.WINDOWED);
     }
 
-    public Cursor getCursor() {
-        return cursor;
+    public engine.ui.Cursor getCursor() {
+        return uiManager.getCursor();
+    }
+
+    public engine.ui.Manager getUiManager() {
+        return uiManager;
     }
 
     public void beginSelection() {
-        selection.begin((float) cursor.getX(), (float) cursor.getY());
+        uiManager.beginSelection();
     }
 
     public void updateSelection() {
-        selection.update((float) cursor.getX(), (float) cursor.getY());
+        uiManager.updateSelection();
     }
 
     public void clearSelection() {
-        selection.clear();
-    }
-
-    public boolean consumeIgnoredCursorSync() {
-        if (!ignoreNextCursorSync) {
-            return false;
-        }
-        ignoreNextCursorSync = false;
-        return true;
+        uiManager.clearSelection();
     }
 
     public void applyCursorLock() {
-        cursor.setState(windowHandle, config.isLockCursor() ? Cursor.State.CAPTURED : Cursor.State.NORMAL);
+        uiManager.applyCursorLock(windowHandle, config.isLockCursor());
     }
 
     public void updateCursorPosition(double physicalX, double physicalY) {
-        if (consumeIgnoredCursorSync()) {
-            cursor.resetMotionTracking();
-            return;
-        }
-
-        if (cursor.getState() == Cursor.State.CAPTURED) {
-            cursor.updateCapturedPosition(
-                    physicalX,
-                    physicalY,
-                    getPhysicalPixelsPerVirtualUnitXExact(),
-                    getPhysicalPixelsPerVirtualUnitYExact(),
-                    virtualWidth,
-                    virtualHeight
-            );
-            return;
-        }
-
-        cursor.setClampedPosition(toVirtualX(physicalX), toVirtualY(physicalY), virtualWidth, virtualHeight);
+        uiManager.updateCursorPosition(
+                physicalX,
+                physicalY,
+                toVirtualX(physicalX),
+                toVirtualY(physicalY),
+                getPhysicalPixelsPerVirtualUnitXExact(),
+                getPhysicalPixelsPerVirtualUnitYExact(),
+                virtualWidth,
+                virtualHeight
+        );
     }
 
     public Mode getMode() {
@@ -427,7 +410,7 @@ public class Manager {
 
     public void destroyWindow() {
         overlay.destroy();
-        cursor.destroy();
+        uiManager.destroy();
         glfwFreeCallbacks(windowHandle);
         glfwDestroyWindow(windowHandle);
         glfwTerminate();
@@ -483,13 +466,6 @@ public class Manager {
             glViewport(0, 0, framebufferWidth, framebufferHeight);
         }
     }
-
-    private void preserveCursorGridPosition() {
-        ignoreNextCursorSync = true;
-        cursor.resetMotionTracking();
-        cursor.setClampedPosition(cursor.getX(), cursor.getY(), virtualWidth, virtualHeight);
-    }
-
     private void applyWindowMode() {
         Monitor monitor = Monitor.primary(config.getWidth(), config.getHeight());
         if (mode == Mode.FULLSCREEN && fullscreen == Fullscreen.EXCLUSIVE) {

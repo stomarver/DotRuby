@@ -20,7 +20,7 @@ import static org.lwjgl.opengl.GL11.glGetString;
 
 public final class Specs {
 
-    private static final Path LOG_DIRECTORY = Path.of("src/java/detect");
+    private static final Path LOG_DIRECTORY = RuntimePaths.logDirectory();
     private static final Path ENV_LOG_PATH = LOG_DIRECTORY.resolve("env.log");
     private static final Path GPU_LOG_PATH = LOG_DIRECTORY.resolve("gpu.log");
     private static final int GL_GPU_MEMORY_INFO_TOTAL_AVAILABLE_MEMORY_NVX = 0x9048;

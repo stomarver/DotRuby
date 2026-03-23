@@ -43,7 +43,7 @@ public final class Bind {
             glfwSetMouseButtonCallback(windowHandle, (window, button, action, mods) -> {
                 boolean pressed = action == GLFW_PRESS;
                 manager.getMouse().setButtonState(button, pressed);
-                displayManager.getCursor().setButtonState(button, pressed);
+                displayManager.getUiManager().setCursorButtonState(button, pressed);
                 manager.pushEvent(new Event(Event.Type.MOUSE, button, action));
 
                 if (button == GLFW_MOUSE_BUTTON_LEFT) {
