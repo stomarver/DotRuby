@@ -32,7 +32,7 @@ public final class Text {
             Path.of("src/assets/ui/font/regular.png"),
             Path.of("src/main/resources/fonts/font.png")
     );
-    private static final String TEST_LABEL = "DotRuby";
+    private static final String TEST_LABEL = "YOLOOO xoxoxo";
     private static final float LEFT_PADDING = 10f;
     private static final float TOP_PADDING = 2f;
     private static final float BASE_SCALE = 2f;
