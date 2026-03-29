@@ -11,6 +11,10 @@ public final class Regular {
     private static final int GLYPH_HEIGHT = 8;
     private static final int GLYPH_GAP_X = 1;
     private static final int GLYPH_GAP_Y = 1;
+    private static final int ADVANCE_COMMON = 5;
+    private static final int ADVANCE_NARROW = 4;
+    private static final int ADVANCE_THIN = 3;
+    private static final int ADVANCE_SLIM = 2;
     private static final String[] ROWS = {
             "AaBbCcDdEeFfGgHhIi",
             "JjKkLlMmNnOoPpQqRr",
@@ -29,14 +33,25 @@ public final class Regular {
     private final Map<Character, GlyphParameters> glyphParameters = new HashMap<>();
 
     public Regular() {
-        withAdvanceWidth('i', 1);
-        withAdvanceWidth('I', 3);
-        withAdvanceWidth('t', 3);
-        withAdvanceWidth('T', 5);
+        withAdvanceWidth("AaBbCcDdEeFfGgHhJjKkLlNnOoPpQqRrSsUuvXxYyZz", ADVANCE_COMMON);
+
+        withAdvanceWidth('I', ADVANCE_NARROW);
+        withAdvanceWidth('f', ADVANCE_NARROW);
+        withAdvanceWidth('t', ADVANCE_NARROW);
+
+        withAdvanceWidth('l', ADVANCE_THIN);
+        withAdvanceWidth('i', ADVANCE_SLIM);
     }
 
     public Regular withAdvanceWidth(char value, int advanceWidth) {
         glyphParameters.put(value, new GlyphParameters(Math.max(1, Math.min(advanceWidth, GLYPH_WIDTH))));
+        return this;
+    }
+
+    public Regular withAdvanceWidth(String values, int advanceWidth) {
+        for (int index = 0; index < values.length(); index++) {
+            withAdvanceWidth(values.charAt(index), advanceWidth);
+        }
         return this;
     }
 
