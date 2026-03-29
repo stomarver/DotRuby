@@ -33,8 +33,8 @@ public final class Text {
             Path.of("src/main/resources/fonts/font.png")
     );
     private static final String TEST_LABEL =
-            "Age-forged runes: AaBbCcDdEeFfGgHhIiJjKkLlMmNnOoPpQqRrSsTtUuVvWwXxYyZz\n" +
-            "Руны подземелий: АаБбВвГгДдЕеЖжЗзИиКкЛлЬьНнОоПпРрСсТтУуФфХхЦцЧчШшЩщЪъЫыЭэЮюЯя";
+            "Ancient keep records brave quests: Wizards mix jugs, vex nymphs, and forge crazy potions by twilight.\n" +
+            "Старый замок хранит руны: Храбрый маг в тиши кует щит, меч, флягу, а юный вестник шлёт весть, АаБбВвГгДдЕеЖжЗзИиКкЛлМмНнОоПпРрСсТтУуФфХхЦцЧчШшЩщЪъЫыЬьЭэЮюЯя.";
     private static final float BASE_SCALE = 2f;
 
     private final Regular regular = new Regular();
