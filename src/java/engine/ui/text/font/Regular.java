@@ -38,7 +38,7 @@ public final class Regular {
             "JjKkLlMmNnOoPpQqRr",
             "SsTtUuVvWwXxYyZz",
             "АаБбВвГгДдЕеЖжЗзИи",
-            "КкЛлЬьНнОоПпРрСсТт",
+            "КкЛлМмНнОоПпРрСсТт",
             "УуФфХхЦцЧчШшЩщЪъЫы",
             "ЬьЭэЮюЯя"
     };
