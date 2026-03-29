@@ -32,9 +32,9 @@ public final class Text {
             Path.of("src/assets/ui/font/regular.png"),
             Path.of("src/main/resources/fonts/font.png")
     );
-    private static final String TEST_LABEL = "YOLOOO xoxoxo";
-    private static final float LEFT_PADDING = 10f;
-    private static final float TOP_PADDING = 2f;
+    private static final String TEST_LABEL =
+            "Ancient keep records brave quests: Wizards mix jugs, vex nymphs, and forge crazy potions by twilight.\n" +
+            "Старый замок хранит руны: Храбрый маг в тиши кует щит, меч, флягу, а юный вестник шлёт весть, АаБбВвГгДдЕеЖжЗзИиКкЛлМмНнОоПпРрСсТтУуФфХхЦцЧчШшЩщЪъЫыЬьЭэЮюЯя.";
     private static final float BASE_SCALE = 2f;
 
     private final Regular regular = new Regular();
@@ -80,7 +80,7 @@ public final class Text {
             throw new IllegalStateException("Regular font texture is not loaded");
         }
 
-        draw(overlay, TEST_LABEL, LEFT_PADDING, TOP_PADDING, 1f);
+        draw(overlay, TEST_LABEL, 0f, 0f, 1f);
     }
 
     public void draw(Overlay overlay, String value, float x, float y) {
