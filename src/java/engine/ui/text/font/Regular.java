@@ -11,10 +11,20 @@ public final class Regular {
     private static final int GLYPH_HEIGHT = 8;
     private static final int GLYPH_GAP_X = 1;
     private static final int GLYPH_GAP_Y = 1;
+    private static final int ADVANCE_WIDE = 6;
     private static final int ADVANCE_COMMON = 5;
     private static final int ADVANCE_NARROW = 4;
     private static final int ADVANCE_THIN = 3;
     private static final int ADVANCE_SLIM = 2;
+    private static final char[] ADVANCE_WIDE_CHARS = {'M', 'm', 'T', 'V', 'W', 'w'};
+    private static final char[] ADVANCE_COMMON_CHARS = {
+            'A', 'a', 'B', 'b', 'C', 'c', 'D', 'd', 'E', 'e', 'F', 'G', 'g', 'H', 'h',
+            'J', 'j', 'K', 'k', 'L', 'N', 'n', 'O', 'o', 'P', 'p', 'Q', 'q', 'R', 'r',
+            'S', 's', 'U', 'u', 'v', 'X', 'x', 'Y', 'y', 'Z', 'z'
+    };
+    private static final char[] ADVANCE_NARROW_CHARS = {'I', 'f', 't'};
+    private static final char[] ADVANCE_THIN_CHARS = {'l'};
+    private static final char[] ADVANCE_SLIM_CHARS = {'i'};
     private static final String[] ROWS = {
             "AaBbCcDdEeFfGgHhIi",
             "JjKkLlMmNnOoPpQqRr",
@@ -33,14 +43,11 @@ public final class Regular {
     private final Map<Character, GlyphParameters> glyphParameters = new HashMap<>();
 
     public Regular() {
-        withAdvanceWidth("AaBbCcDdEeFfGgHhJjKkLlNnOoPpQqRrSsUuvXxYyZz", ADVANCE_COMMON);
-
-        withAdvanceWidth('I', ADVANCE_NARROW);
-        withAdvanceWidth('f', ADVANCE_NARROW);
-        withAdvanceWidth('t', ADVANCE_NARROW);
-
-        withAdvanceWidth('l', ADVANCE_THIN);
-        withAdvanceWidth('i', ADVANCE_SLIM);
+        withAdvanceWidth(ADVANCE_WIDE_CHARS, ADVANCE_WIDE);
+        withAdvanceWidth(ADVANCE_COMMON_CHARS, ADVANCE_COMMON);
+        withAdvanceWidth(ADVANCE_NARROW_CHARS, ADVANCE_NARROW);
+        withAdvanceWidth(ADVANCE_THIN_CHARS, ADVANCE_THIN);
+        withAdvanceWidth(ADVANCE_SLIM_CHARS, ADVANCE_SLIM);
     }
 
     public Regular withAdvanceWidth(char value, int advanceWidth) {
@@ -48,9 +55,9 @@ public final class Regular {
         return this;
     }
 
-    public Regular withAdvanceWidth(String values, int advanceWidth) {
-        for (int index = 0; index < values.length(); index++) {
-            withAdvanceWidth(values.charAt(index), advanceWidth);
+    public Regular withAdvanceWidth(char[] values, int advanceWidth) {
+        for (char value : values) {
+            withAdvanceWidth(value, advanceWidth);
         }
         return this;
     }
