@@ -12,23 +12,35 @@ public final class Regular {
     private static final int GLYPH_GAP_X = 1;
     private static final int GLYPH_GAP_Y = 1;
     private static final int ADVANCE_WIDE = 6;
+    private static final int ADVANCE_EXTRA_WIDE = 7;
     private static final int ADVANCE_COMMON = 5;
     private static final int ADVANCE_NARROW = 4;
     private static final int ADVANCE_THIN = 3;
     private static final int ADVANCE_SLIM = 2;
-    private static final char[] ADVANCE_WIDE_CHARS = {'M', 'm', 'T', 'V', 'W', 'w'};
+    private static final char[] ADVANCE_WIDE_CHARS = {
+            'M', 'm', 'T', 'V', 'W', 'w',
+            'Д', 'Ж', 'ж', 'Т', 'т', 'Ф', 'ф', 'Х', 'Ц', 'ц', 'Ш', 'ш', 'Ъ', 'ъ'
+    };
+    private static final char[] ADVANCE_EXTRA_WIDE_CHARS = {'Щ', 'щ', 'Ы', 'ы', 'Ю', 'ю'};
     private static final char[] ADVANCE_COMMON_CHARS = {
             'A', 'a', 'B', 'b', 'C', 'c', 'D', 'd', 'E', 'e', 'F', 'G', 'g', 'H', 'h',
             'J', 'j', 'K', 'k', 'L', 'N', 'n', 'O', 'o', 'P', 'p', 'Q', 'q', 'R', 'r',
-            'S', 's', 'U', 'u', 'v', 'X', 'x', 'Y', 'y', 'Z', 'z'
+            'S', 's', 'U', 'u', 'v', 'X', 'x', 'Y', 'y', 'Z', 'z',
+            'А', 'а', 'Б', 'б', 'В', 'в', 'Г', 'д', 'Е', 'е', 'З', 'з', 'И', 'и',
+            'К', 'к', 'Л', 'л', 'Ь', 'ь', 'Н', 'н', 'О', 'о', 'П', 'п', 'Р', 'р', 'С', 'с',
+            'У', 'у', 'х', 'Ч', 'ч', 'Э', 'э', 'Я', 'я'
     };
-    private static final char[] ADVANCE_NARROW_CHARS = {'I', 'f', 't'};
+    private static final char[] ADVANCE_NARROW_CHARS = {'I', 'f', 't', 'г'};
     private static final char[] ADVANCE_THIN_CHARS = {'l'};
     private static final char[] ADVANCE_SLIM_CHARS = {'i'};
     private static final String[] ROWS = {
             "AaBbCcDdEeFfGgHhIi",
             "JjKkLlMmNnOoPpQqRr",
-            "SsTtUuVvWwXxYyZz"
+            "SsTtUuVvWwXxYyZz",
+            "АаБбВвГгДдЕеЖжЗзИи",
+            "КкЛлЬьНнОоПпРрСсТт",
+            "УуФфХхЦцЧчШшЩщЪъЫы",
+            "ЬьЭэЮюЯя"
     };
 
     public record Glyph(char value, int atlasX, int atlasY, int atlasWidth, int atlasHeight, int advanceWidth) {
@@ -44,6 +56,7 @@ public final class Regular {
 
     public Regular() {
         withAdvanceWidth(ADVANCE_WIDE_CHARS, ADVANCE_WIDE);
+        withAdvanceWidth(ADVANCE_EXTRA_WIDE_CHARS, ADVANCE_EXTRA_WIDE);
         withAdvanceWidth(ADVANCE_COMMON_CHARS, ADVANCE_COMMON);
         withAdvanceWidth(ADVANCE_NARROW_CHARS, ADVANCE_NARROW);
         withAdvanceWidth(ADVANCE_THIN_CHARS, ADVANCE_THIN);
