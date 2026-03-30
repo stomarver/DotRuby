@@ -2,6 +2,7 @@ package engine.visual.scene;
 
 import engine.visual.Overlay;
 import engine.visual.Render;
+import engine.util.ResourceDisposer;
 
 public final class LogPromptScene implements Scene {
 
@@ -11,7 +12,7 @@ public final class LogPromptScene implements Scene {
     }
 
     @Override
-    public void initialize() {
+    public void initialize(ResourceDisposer resources) {
     }
 
     @Override

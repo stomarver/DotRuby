@@ -34,6 +34,7 @@ public final class Manager {
     }
 
     public void destroy() {
+        sceneManager.destroy();
         textRender.destroy();
     }
 }

@@ -2,6 +2,7 @@ package engine.visual.scene;
 
 import engine.visual.Overlay;
 import engine.visual.Render;
+import engine.util.ResourceDisposer;
 
 import java.util.Arrays;
 
@@ -28,7 +29,7 @@ public final class RotatingCubeScene implements Scene {
     }
 
     @Override
-    public void initialize() {
+    public void initialize(ResourceDisposer resources) {
         angle = 0f;
     }
 

@@ -2,12 +2,13 @@ package engine.visual.scene;
 
 import engine.visual.Overlay;
 import engine.visual.Render;
+import engine.util.ResourceDisposer;
 
 public interface Scene {
 
     String id();
 
-    void initialize();
+    void initialize(ResourceDisposer resources);
 
     void update(float deltaSeconds);
 
