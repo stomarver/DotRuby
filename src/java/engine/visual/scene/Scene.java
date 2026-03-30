@@ -1,5 +1,8 @@
 package engine.visual.scene;
 
+import engine.visual.Overlay;
+import engine.visual.Render;
+
 public interface Scene {
 
     String id();
@@ -8,7 +11,7 @@ public interface Scene {
 
     void update(float deltaSeconds);
 
-    void render();
+    void render(Overlay overlay, Render textRender);
 
     void destroy();
 }

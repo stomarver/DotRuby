@@ -1,5 +1,8 @@
 package engine.visual.scene;
 
+import engine.visual.Overlay;
+import engine.visual.Render;
+
 import java.util.HashMap;
 import java.util.Map;
 
@@ -29,9 +32,9 @@ public final class SceneManager {
         }
     }
 
-    public void render() {
+    public void render(Overlay overlay, Render textRender) {
         if (activeScene != null) {
-            activeScene.render();
+            activeScene.render(overlay, textRender);
         }
     }
 }

@@ -8,10 +8,6 @@ import java.util.List;
 
 public final class Manager {
 
-    private static final String DEMO_TEXT =
-            "Ancient keep records brave quests: Wizards mix jugs, vex nymphs, and forge crazy potions by twilight.\n" +
-            "Старый замок хранит руны: Храбрый маг в тиши кует щит, меч, флягу, а юный вестник шлёт весть, АаБбВвГгДдЕеЖжЗзИиКкЛлМмНнОоПпРрСсТтУуФфХхЦцЧчШшЩщЪъЫыЬьЭэЮюЯя.";
-
     private final Cursor cursor = new Cursor();
     private final Selection selection = new Selection();
     private final engine.visual.Manager visualManager = new engine.visual.Manager();
@@ -25,9 +21,13 @@ public final class Manager {
     }
 
     public void render(Overlay overlay, float borderThickness, float cursorWidth, float cursorHeight) {
-        visualManager.drawText(overlay, DEMO_TEXT, 0f, 0f, 1f);
+        visualManager.render(overlay);
         selection.render(overlay, borderThickness);
         cursor.render(overlay, cursorWidth, cursorHeight);
+    }
+
+    public void activateScene(int sceneHotkey) {
+        visualManager.activateSceneByHotkey(sceneHotkey);
     }
 
     public Cursor getCursor() {
