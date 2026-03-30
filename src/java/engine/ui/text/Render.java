@@ -9,7 +9,7 @@ import java.util.List;
 
 import static org.lwjgl.opengl.GL11.glDeleteTextures;
 
-public final class TextRenderer {
+public final class Render {
 
     private static final List<Path> TEXTURE_PATHS = List.of(
             Path.of("src/assets/ui/font/regular.png"),

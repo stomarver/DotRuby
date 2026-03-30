@@ -1,6 +1,6 @@
 package engine.ui;
 
-import engine.ui.text.TextRenderer;
+import engine.ui.text.Render;
 import engine.visual.Overlay;
 
 import java.util.ArrayList;
@@ -11,7 +11,7 @@ public final class Manager {
 
     private final Cursor cursor = new Cursor();
     private final Selection selection = new Selection();
-    private final TextRenderer textRenderer = new TextRenderer();
+    private final Render textRenderer = new Render();
     private final List<Event> events = new ArrayList<>();
     private boolean ignoreNextCursorSync;
 
