@@ -1,11 +1,8 @@
 package engine.ui;
 
 import engine.visual.Overlay;
+import engine.visual.TextureLoader;
 
-import org.lwjgl.system.MemoryStack;
-
-import java.nio.ByteBuffer;
-import java.nio.IntBuffer;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.HashSet;
@@ -17,22 +14,8 @@ import static org.lwjgl.glfw.GLFW.GLFW_CURSOR_HIDDEN;
 import static org.lwjgl.glfw.GLFW.GLFW_CURSOR_NORMAL;
 import static org.lwjgl.glfw.GLFW.glfwSetInputMode;
 import static org.lwjgl.opengl.GL11.GL_DEPTH_TEST;
-import static org.lwjgl.opengl.GL11.GL_NEAREST;
-import static org.lwjgl.opengl.GL11.GL_RGBA;
-import static org.lwjgl.opengl.GL11.GL_TEXTURE_2D;
-import static org.lwjgl.opengl.GL11.GL_TEXTURE_MAG_FILTER;
-import static org.lwjgl.opengl.GL11.GL_TEXTURE_MIN_FILTER;
-import static org.lwjgl.opengl.GL11.GL_UNSIGNED_BYTE;
-import static org.lwjgl.opengl.GL11.glBindTexture;
 import static org.lwjgl.opengl.GL11.glDeleteTextures;
 import static org.lwjgl.opengl.GL11.glDisable;
-import static org.lwjgl.opengl.GL11.glTexImage2D;
-import static org.lwjgl.opengl.GL11.glTexParameteri;
-import static org.lwjgl.opengl.GL11.glGenTextures;
-import static org.lwjgl.stb.STBImage.stbi_failure_reason;
-import static org.lwjgl.stb.STBImage.stbi_image_free;
-import static org.lwjgl.stb.STBImage.stbi_load;
-import static org.lwjgl.system.MemoryStack.stackPush;
 
 public class Cursor {
 
@@ -61,6 +44,7 @@ public class Cursor {
     private double lastPhysicalX;
     private double lastPhysicalY;
     private boolean physicalTrackingInitialized;
+    private final TextureLoader textureLoader = new TextureLoader();
     private int textureId;
     private int textureWidth;
     private int textureHeight;
@@ -156,26 +140,10 @@ public class Cursor {
             return;
         }
 
-        try (MemoryStack stack = stackPush()) {
-            IntBuffer width = stack.mallocInt(1);
-            IntBuffer height = stack.mallocInt(1);
-            IntBuffer channels = stack.mallocInt(1);
-
-            ByteBuffer pixels = stbi_load(TEXTURE_PATH.toString(), width, height, channels, 4);
-            if (pixels == null) {
-                throw new IllegalStateException("Unable to load cursor texture: " + stbi_failure_reason());
-            }
-
-            textureWidth = width.get(0);
-            textureHeight = height.get(0);
-            textureId = glGenTextures();
-            glBindTexture(GL_TEXTURE_2D, textureId);
-            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-            glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, textureWidth, textureHeight, 0, GL_RGBA, GL_UNSIGNED_BYTE, pixels);
-            glBindTexture(GL_TEXTURE_2D, 0);
-            stbi_image_free(pixels);
-        }
+        TextureLoader.LoadedTexture loadedTexture = textureLoader.loadNearestRgbaTexture(TEXTURE_PATH);
+        textureId = loadedTexture.id();
+        textureWidth = loadedTexture.width();
+        textureHeight = loadedTexture.height();
     }
 
     public void render(Overlay overlay, float drawWidth, float drawHeight) {

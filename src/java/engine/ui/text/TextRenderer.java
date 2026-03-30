@@ -1,8 +1,8 @@
 package engine.ui.text;
 
-import engine.ui.text.font.RegularFontAtlas;
-import engine.ui.text.texture.TextureLoader;
+import engine.ui.text.font.Regular;
 import engine.visual.Overlay;
+import engine.visual.TextureLoader;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.List;
@@ -20,7 +20,7 @@ public final class TextRenderer {
             "Старый замок хранит руны: Храбрый маг в тиши кует щит, меч, флягу, а юный вестник шлёт весть, АаБбВвГгДдЕеЖжЗзИиКкЛлМмНнОоПпРрСсТтУуФфХхЦцЧчШшЩщЪъЫыЬьЭэЮюЯя.";
     private static final float BASE_SCALE = 2f;
 
-    private final RegularFontAtlas regularFontAtlas = new RegularFontAtlas();
+    private final Regular regularFont = new Regular();
     private final TextureLoader textureLoader = new TextureLoader();
     private int textureId;
     private int textureWidth;
@@ -61,8 +61,8 @@ public final class TextRenderer {
         }
 
         float resolvedScale = Math.max(0.0001f, size) * BASE_SCALE;
-        List<RegularFontAtlas.Quad> quads = regularFontAtlas.parse(value);
-        for (RegularFontAtlas.Quad quad : quads) {
+        List<Regular.Quad> quads = regularFont.parse(value);
+        for (Regular.Quad quad : quads) {
             float minU = quad.glyph().atlasX() / (float) textureWidth;
             float minV = quad.glyph().atlasY() / (float) textureHeight;
             float maxU = (quad.glyph().atlasX() + quad.glyph().atlasWidth()) / (float) textureWidth;

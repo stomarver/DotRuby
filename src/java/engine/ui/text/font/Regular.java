@@ -5,7 +5,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-public final class RegularFontAtlas {
+public final class Regular {
 
     private static final int GLYPH_WIDTH = 6;
     private static final int GLYPH_HEIGHT = 8;
@@ -54,7 +54,7 @@ public final class RegularFontAtlas {
 
     private final Map<Character, GlyphParameters> glyphParameters = new HashMap<>();
 
-    public RegularFontAtlas() {
+    public Regular() {
         withAdvanceWidth(ADVANCE_WIDE_CHARS, ADVANCE_WIDE);
         withAdvanceWidth(ADVANCE_EXTRA_WIDE_CHARS, ADVANCE_EXTRA_WIDE);
         withAdvanceWidth(ADVANCE_COMMON_CHARS, ADVANCE_COMMON);
@@ -63,12 +63,12 @@ public final class RegularFontAtlas {
         withAdvanceWidth(ADVANCE_SLIM_CHARS, ADVANCE_SLIM);
     }
 
-    public RegularFontAtlas withAdvanceWidth(char value, int advanceWidth) {
+    public Regular withAdvanceWidth(char value, int advanceWidth) {
         glyphParameters.put(value, new GlyphParameters(Math.max(1, Math.min(advanceWidth, GLYPH_WIDTH))));
         return this;
     }
 
-    public RegularFontAtlas withAdvanceWidth(char[] values, int advanceWidth) {
+    public Regular withAdvanceWidth(char[] values, int advanceWidth) {
         for (char value : values) {
             withAdvanceWidth(value, advanceWidth);
         }
@@ -112,14 +112,12 @@ public final class RegularFontAtlas {
                 continue;
             }
 
-            return FontAtlasGenerator.gridGlyph(
+            return new Glyph(
                     value,
-                    row,
-                    column,
+                    column * (GLYPH_WIDTH + GLYPH_GAP_X),
+                    row * (GLYPH_HEIGHT + GLYPH_GAP_Y),
                     GLYPH_WIDTH,
                     GLYPH_HEIGHT,
-                    GLYPH_GAP_X,
-                    GLYPH_GAP_Y,
                     parameters(value).advanceWidth()
             );
         }
