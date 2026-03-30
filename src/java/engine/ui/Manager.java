@@ -9,6 +9,10 @@ import java.util.List;
 
 public final class Manager {
 
+    private static final String DEMO_TEXT =
+            "Ancient keep records brave quests: Wizards mix jugs, vex nymphs, and forge crazy potions by twilight.\n" +
+            "Старый замок хранит руны: Храбрый маг в тиши кует щит, меч, флягу, а юный вестник шлёт весть, АаБбВвГгДдЕеЖжЗзИиКкЛлМмНнОоПпРрСсТтУуФфХхЦцЧчШшЩщЪъЫыЬьЭэЮюЯя.";
+
     private final Cursor cursor = new Cursor();
     private final Selection selection = new Selection();
     private final Render textRenderer = new Render();
@@ -22,7 +26,7 @@ public final class Manager {
     }
 
     public void render(Overlay overlay, float borderThickness, float cursorWidth, float cursorHeight) {
-        textRenderer.render(overlay);
+        textRenderer.draw(overlay, DEMO_TEXT, 0f, 0f, 1f);
         selection.render(overlay, borderThickness);
         cursor.render(overlay, cursorWidth, cursorHeight);
     }

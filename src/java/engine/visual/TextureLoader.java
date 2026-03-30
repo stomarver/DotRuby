@@ -4,7 +4,9 @@ import org.lwjgl.system.MemoryStack;
 
 import java.nio.ByteBuffer;
 import java.nio.IntBuffer;
+import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.List;
 
 import static org.lwjgl.opengl.GL11.GL_NEAREST;
 import static org.lwjgl.opengl.GL11.GL_RGBA;
@@ -24,6 +26,15 @@ import static org.lwjgl.system.MemoryStack.stackPush;
 public final class TextureLoader {
 
     public record LoadedTexture(int id, int width, int height) {
+    }
+
+    public LoadedTexture loadNearestRgbaTexture(List<Path> texturePaths) {
+        for (Path candidate : texturePaths) {
+            if (Files.exists(candidate)) {
+                return loadNearestRgbaTexture(candidate);
+            }
+        }
+        throw new IllegalStateException("Texture is missing. Checked: " + texturePaths);
     }
 
     public LoadedTexture loadNearestRgbaTexture(Path texturePath) {

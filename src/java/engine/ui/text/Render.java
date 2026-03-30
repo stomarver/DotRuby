@@ -3,7 +3,6 @@ package engine.ui.text;
 import engine.ui.text.font.Regular;
 import engine.visual.Overlay;
 import engine.visual.TextureLoader;
-import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.List;
 
@@ -15,9 +14,6 @@ public final class Render {
             Path.of("src/assets/ui/font/regular.png"),
             Path.of("src/main/resources/fonts/font.png")
     );
-    private static final String TEST_LABEL =
-            "Ancient keep records brave quests: Wizards mix jugs, vex nymphs, and forge crazy potions by twilight.\n" +
-            "Старый замок хранит руны: Храбрый маг в тиши кует щит, меч, флягу, а юный вестник шлёт весть, АаБбВвГгДдЕеЖжЗзИиКкЛлМмНнОоПпРрСсТтУуФфХхЦцЧчШшЩщЪъЫыЬьЭэЮюЯя.";
     private static final float BASE_SCALE = 2f;
 
     private final Regular regularFont = new Regular();
@@ -25,30 +21,16 @@ public final class Render {
     private int textureId;
     private int textureWidth;
     private int textureHeight;
-    private Path texturePath;
 
     public void load() {
         if (textureId != 0) {
             return;
         }
 
-        texturePath = resolveTexturePath();
-        if (texturePath == null) {
-            throw new IllegalStateException("Regular font texture is missing. Checked: " + TEXTURE_PATHS);
-        }
-
-        TextureLoader.LoadedTexture loadedTexture = textureLoader.loadNearestRgbaTexture(texturePath);
+        TextureLoader.LoadedTexture loadedTexture = textureLoader.loadNearestRgbaTexture(TEXTURE_PATHS);
         textureId = loadedTexture.id();
         textureWidth = loadedTexture.width();
         textureHeight = loadedTexture.height();
-    }
-
-    public void render(Overlay overlay) {
-        if (textureId == 0) {
-            throw new IllegalStateException("Regular font texture is not loaded");
-        }
-
-        draw(overlay, TEST_LABEL, 0f, 0f, 1f);
     }
 
     public void draw(Overlay overlay, String value, float x, float y) {
@@ -56,6 +38,9 @@ public final class Render {
     }
 
     public void draw(Overlay overlay, String value, float x, float y, float size) {
+        if (textureId == 0) {
+            throw new IllegalStateException("Regular font texture is not loaded");
+        }
         if (value == null || value.isBlank()) {
             return;
         }
@@ -87,14 +72,5 @@ public final class Render {
             glDeleteTextures(textureId);
             textureId = 0;
         }
-    }
-
-    private Path resolveTexturePath() {
-        for (Path candidate : TEXTURE_PATHS) {
-            if (Files.exists(candidate)) {
-                return candidate;
-            }
-        }
-        return null;
     }
 }
