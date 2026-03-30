@@ -1,6 +1,6 @@
 package engine.ui;
 
-import engine.ui.text.Text;
+import engine.ui.text.TextRenderer;
 import engine.visual.Overlay;
 
 import java.util.ArrayList;
@@ -11,18 +11,18 @@ public final class Manager {
 
     private final Cursor cursor = new Cursor();
     private final Selection selection = new Selection();
-    private final Text text = new Text();
+    private final TextRenderer textRenderer = new TextRenderer();
     private final List<Event> events = new ArrayList<>();
     private boolean ignoreNextCursorSync;
 
     public void initialize(long windowHandle, boolean lockCursor) {
         cursor.loadTexture();
-        text.load();
+        textRenderer.load();
         applyCursorLock(windowHandle, lockCursor);
     }
 
     public void render(Overlay overlay, float borderThickness, float cursorWidth, float cursorHeight) {
-        text.render(overlay);
+        textRenderer.render(overlay);
         selection.render(overlay, borderThickness);
         cursor.render(overlay, cursorWidth, cursorHeight);
     }
@@ -98,7 +98,7 @@ public final class Manager {
     }
 
     public void destroy() {
-        text.destroy();
+        textRenderer.destroy();
         cursor.destroy();
     }
 
