@@ -11,7 +11,7 @@ public final class Regular {
     private static final int GLYPH_HEIGHT = 8;
     private static final int ATLAS_GAP_X = 1;
     private static final int ATLAS_GAP_Y = 1;
-    private static final int LAYOUT_GAP_X = 0;
+    private static final int LAYOUT_GAP_X = -1;
     private static final int LAYOUT_GAP_Y = 0;
     private static final String[] ROWS = {
             "AaBbCcDdEeFfGgHhIi",
@@ -39,7 +39,7 @@ public final class Regular {
         withAdvanceWidth('l', 3);
         withAdvanceWidth('I', 4);
         withAdvanceWidth('t', 4);
-        withAdvanceWidth('f', 4);
+        withAdvanceWidth('f', 5);
         withAdvanceWidth('г', 4);
     }
 
