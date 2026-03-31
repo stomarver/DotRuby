@@ -1,8 +1,9 @@
-package engine.util;
+package engine.util.sys;
 
 import org.lwjgl.opengl.GL;
 import org.lwjgl.opengl.GLCapabilities;
 import com.sun.management.OperatingSystemMXBean;
+import engine.util.path.RuntimePaths;
 
 import java.io.IOException;
 import java.lang.management.ManagementFactory;
@@ -143,7 +144,7 @@ public final class Specs {
             Files.createDirectories(path.getParent());
             Files.writeString(path, body);
         } catch (IOException exception) {
-            System.err.println("[engine.util.Specs] failed to write " + path + ": " + exception.getMessage());
+            System.err.println("[engine.util.sys.Specs] failed to write " + path + ": " + exception.getMessage());
         }
     }
 
@@ -151,7 +152,7 @@ public final class Specs {
         try {
             Files.deleteIfExists(path);
         } catch (IOException exception) {
-            System.err.println("[engine.util.Specs] failed to delete " + path + ": " + exception.getMessage());
+            System.err.println("[engine.util.sys.Specs] failed to delete " + path + ": " + exception.getMessage());
         }
     }
 

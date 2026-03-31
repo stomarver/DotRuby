@@ -1,6 +1,6 @@
 package engine.visual.scene;
 
-import engine.util.ResourceDisposer;
+import engine.util.res.ResourceDisposer;
 
 import java.util.Arrays;
 

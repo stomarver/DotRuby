@@ -1,4 +1,4 @@
-package engine.util;
+package engine.util.path;
 
 import java.nio.file.Path;
 

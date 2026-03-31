@@ -1,6 +1,7 @@
 package engine.display;
 
 import engine.visual.Overlay;
+import engine.display.gl.Mesh;
 import org.lwjgl.glfw.GLFWErrorCallback;
 import org.lwjgl.opengl.GL;
 
@@ -34,22 +35,10 @@ import static org.lwjgl.glfw.GLFW.glfwWindowShouldClose;
 import static org.lwjgl.opengl.GL11.GL_COLOR_BUFFER_BIT;
 import static org.lwjgl.opengl.GL11.GL_DEPTH_BUFFER_BIT;
 import static org.lwjgl.opengl.GL11.GL_DEPTH_TEST;
-import static org.lwjgl.opengl.GL11.GL_FLOAT;
 import static org.lwjgl.opengl.GL11.glClear;
 import static org.lwjgl.opengl.GL11.glClearColor;
 import static org.lwjgl.opengl.GL11.glEnable;
 import static org.lwjgl.opengl.GL11.glViewport;
-import static org.lwjgl.opengl.GL15.GL_ARRAY_BUFFER;
-import static org.lwjgl.opengl.GL15.GL_STATIC_DRAW;
-import static org.lwjgl.opengl.GL15.glBindBuffer;
-import static org.lwjgl.opengl.GL15.glBufferData;
-import static org.lwjgl.opengl.GL15.glDeleteBuffers;
-import static org.lwjgl.opengl.GL15.glGenBuffers;
-import static org.lwjgl.opengl.GL20.glEnableVertexAttribArray;
-import static org.lwjgl.opengl.GL20.glVertexAttribPointer;
-import static org.lwjgl.opengl.GL30.glBindVertexArray;
-import static org.lwjgl.opengl.GL30.glDeleteVertexArrays;
-import static org.lwjgl.opengl.GL30.glGenVertexArrays;
 import static org.lwjgl.system.MemoryUtil.NULL;
 
 public class Manager {
@@ -57,6 +46,7 @@ public class Manager {
     private final Config config;
     private final engine.ui.Manager uiManager = new engine.ui.Manager();
     private final Overlay overlay = new Overlay();
+    private final Mesh mesh = new Mesh();
 
     private long windowHandle;
     private Mode mode;
@@ -272,44 +262,35 @@ public class Manager {
     }
 
     public int createVertexArray() {
-        return glGenVertexArrays();
+        return mesh.createVertexArray();
     }
 
     public int createVertexBuffer(float[] vertices) {
-        return createVertexBuffer(vertices, GL_STATIC_DRAW);
+        return mesh.createVertexBuffer(vertices);
     }
 
     public int createVertexBuffer(float[] vertices, int usage) {
-        int bufferId = glGenBuffers();
-        glBindBuffer(GL_ARRAY_BUFFER, bufferId);
-        glBufferData(GL_ARRAY_BUFFER, vertices, usage);
-        glBindBuffer(GL_ARRAY_BUFFER, 0);
-        return bufferId;
+        return mesh.createVertexBuffer(vertices, usage);
     }
 
     public void prepareVertexLayout(int vaoId, int vboId, int attributeIndex, int componentCount, int strideBytes, int offsetBytes) {
-        glBindVertexArray(vaoId);
-        glBindBuffer(GL_ARRAY_BUFFER, vboId);
-        glEnableVertexAttribArray(attributeIndex);
-        glVertexAttribPointer(attributeIndex, componentCount, GL_FLOAT, false, strideBytes, offsetBytes);
-        glBindBuffer(GL_ARRAY_BUFFER, 0);
-        glBindVertexArray(0);
+        mesh.prepareVertexLayout(vaoId, vboId, attributeIndex, componentCount, strideBytes, offsetBytes);
     }
 
     public void bindVertexArray(int vaoId) {
-        glBindVertexArray(vaoId);
+        mesh.bindVertexArray(vaoId);
     }
 
     public void unbindVertexArray() {
-        glBindVertexArray(0);
+        mesh.unbindVertexArray();
     }
 
     public void deleteVertexArray(int vaoId) {
-        glDeleteVertexArrays(vaoId);
+        mesh.deleteVertexArray(vaoId);
     }
 
     public void deleteVertexBuffer(int vboId) {
-        glDeleteBuffers(vboId);
+        mesh.deleteVertexBuffer(vboId);
     }
 
     public void clearFrame() {

@@ -1,6 +1,6 @@
 package engine.input;
 
-import engine.util.Specs;
+import engine.util.sys.Specs;
 
 import static org.lwjgl.glfw.GLFW.GLFW_MOUSE_BUTTON_LEFT;
 import static org.lwjgl.glfw.GLFW.GLFW_KEY_F1;

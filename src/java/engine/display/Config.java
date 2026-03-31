@@ -1,6 +1,6 @@
 package engine.display;
 
-import engine.util.RuntimePaths;
+import engine.util.path.RuntimePaths;
 
 import java.io.IOException;
 import java.nio.file.Files;

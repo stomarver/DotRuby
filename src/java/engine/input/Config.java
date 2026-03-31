@@ -1,6 +1,6 @@
 package engine.input;
 
-import engine.util.RuntimePaths;
+import engine.util.path.RuntimePaths;
 import org.lwjgl.glfw.GLFW;
 
 import java.io.IOException;
