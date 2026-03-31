@@ -1,0 +1,3 @@
+id=scene.rotating-cube
+hotkey=F2
+description=Rotating cube made from GL triangles
