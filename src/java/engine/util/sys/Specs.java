@@ -1,8 +1,9 @@
-package engine.util;
+package engine.util.sys;
 
 import org.lwjgl.opengl.GL;
 import org.lwjgl.opengl.GLCapabilities;
 import com.sun.management.OperatingSystemMXBean;
+import engine.util.path.RuntimePaths;
 
 import java.io.IOException;
 import java.lang.management.ManagementFactory;
@@ -116,6 +117,40 @@ public final class Specs {
         return formatMiB(allocated / (1024L * 1024L)) + " / " + formatMiB(totalPhysical / (1024L * 1024L));
     }
 
+    public static String cpuLoadPercent() {
+        try {
+            if (ManagementFactory.getOperatingSystemMXBean() instanceof OperatingSystemMXBean bean) {
+                double value = bean.getCpuLoad();
+                if (value >= 0d) {
+                    return formatPercent(value * 100d);
+                }
+            }
+        } catch (RuntimeException exception) {
+            return "<unavailable>";
+        }
+        return "<unavailable>";
+    }
+
+    public static String ramLoadPercent() {
+        try {
+            if (ManagementFactory.getOperatingSystemMXBean() instanceof OperatingSystemMXBean bean) {
+                long total = bean.getTotalMemorySize();
+                long free = bean.getFreeMemorySize();
+                if (total > 0L) {
+                    long used = Math.max(0L, total - free);
+                    return formatPercent((used * 100d) / total);
+                }
+            }
+        } catch (RuntimeException exception) {
+            return "<unavailable>";
+        }
+        return "<unavailable>";
+    }
+
+    public static String gpuLoadPercent() {
+        return "<unavailable>";
+    }
+
     private static long totalPhysicalMemory() {
         try {
             if (ManagementFactory.getOperatingSystemMXBean() instanceof OperatingSystemMXBean bean) {
@@ -131,6 +166,10 @@ public final class Specs {
         return mib + " MiB";
     }
 
+    private static String formatPercent(double value) {
+        return String.format(Locale.ROOT, "%.1f%%", Math.max(0d, value));
+    }
+
     private static void appendLine(StringBuilder log, String key, String value) {
         log.append(String.format("%-11s", key))
                 .append(" = ")
@@ -143,7 +182,7 @@ public final class Specs {
             Files.createDirectories(path.getParent());
             Files.writeString(path, body);
         } catch (IOException exception) {
-            System.err.println("[engine.util.Specs] failed to write " + path + ": " + exception.getMessage());
+            System.err.println("[engine.util.sys.Specs] failed to write " + path + ": " + exception.getMessage());
         }
     }
 
@@ -151,7 +190,7 @@ public final class Specs {
         try {
             Files.deleteIfExists(path);
         } catch (IOException exception) {
-            System.err.println("[engine.util.Specs] failed to delete " + path + ": " + exception.getMessage());
+            System.err.println("[engine.util.sys.Specs] failed to delete " + path + ": " + exception.getMessage());
         }
     }
 

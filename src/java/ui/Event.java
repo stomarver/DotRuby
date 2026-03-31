@@ -1,4 +1,4 @@
-package engine.ui;
+package ui;
 
 public final class Event {
 

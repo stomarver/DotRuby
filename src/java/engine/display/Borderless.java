@@ -1,6 +1,6 @@
 package engine.display;
 
-import engine.util.Detect;
+import engine.util.sys.Detect;
 import org.lwjgl.glfw.GLFWNativeX11;
 
 import java.io.IOException;
