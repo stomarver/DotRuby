@@ -3,9 +3,9 @@ package engine.visual.scene;
 import engine.visual.Overlay;
 import engine.visual.Render;
 
-public final class LogPromptScene extends SceneTemplate {
+public final class Prompt extends SceneTemplate {
 
-    public LogPromptScene() {
+    public Prompt() {
         super(SceneIds.LOG_PROMPT, SceneType.TWO_D);
     }
 

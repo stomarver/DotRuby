@@ -1,6 +1,6 @@
 package engine.visual.scene;
 
-import engine.util.res.ResourceDisposer;
+import engine.util.res.Unloader;
 import engine.visual.Overlay;
 import engine.visual.Render;
 
@@ -25,7 +25,7 @@ public abstract class SceneTemplate implements Scene {
     }
 
     @Override
-    public void initialize(ResourceDisposer resources) {
+    public void initialize(Unloader resources) {
     }
 
     @Override

@@ -2,7 +2,7 @@ package engine.visual.scene;
 
 import engine.visual.Overlay;
 import engine.visual.Render;
-import engine.util.res.ResourceDisposer;
+import engine.util.res.Unloader;
 
 public interface Scene {
 
@@ -10,7 +10,7 @@ public interface Scene {
 
     SceneType type();
 
-    void initialize(ResourceDisposer resources);
+    void initialize(Unloader resources);
 
     void update(float deltaSeconds);
 

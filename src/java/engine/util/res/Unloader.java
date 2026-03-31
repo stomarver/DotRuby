@@ -3,7 +3,7 @@ package engine.util.res;
 import java.util.ArrayDeque;
 import java.util.Deque;
 
-public final class ResourceDisposer {
+public final class Unloader {
 
     private final Deque<Runnable> disposeStack = new ArrayDeque<>();
 

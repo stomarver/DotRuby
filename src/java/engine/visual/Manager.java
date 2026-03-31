@@ -1,6 +1,6 @@
 package engine.visual;
 
-import engine.visual.scene.LogPromptScene;
+import engine.visual.scene.Prompt;
 import engine.visual.scene.PortalGridScene;
 import engine.visual.scene.RotatingCubeScene;
 import engine.visual.scene.SceneIds;
@@ -14,7 +14,7 @@ public final class Manager {
     private boolean textRenderLoaded;
 
     public void initialize() {
-        sceneManager.register(new LogPromptScene());
+        sceneManager.register(new Prompt());
         sceneManager.register(new RotatingCubeScene());
         sceneManager.register(new PortalGridScene());
         sceneManager.activate(SceneIds.LOG_PROMPT);

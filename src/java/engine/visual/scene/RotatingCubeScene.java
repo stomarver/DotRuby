@@ -1,6 +1,6 @@
 package engine.visual.scene;
 
-import engine.util.res.ResourceDisposer;
+import engine.util.res.Unloader;
 
 import java.util.Arrays;
 
@@ -32,7 +32,7 @@ public final class RotatingCubeScene extends SceneTemplate {
     }
 
     @Override
-    public void initialize(ResourceDisposer resources) {
+    public void initialize(Unloader resources) {
         angle = 0f;
     }
 

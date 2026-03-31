@@ -2,7 +2,7 @@ package engine.visual.scene;
 
 import engine.visual.Overlay;
 import engine.visual.Render;
-import engine.util.res.ResourceDisposer;
+import engine.util.res.Unloader;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -11,7 +11,7 @@ public final class SceneManager {
 
     private final Map<String, Scene> scenes = new HashMap<>();
     private Scene activeScene;
-    private final ResourceDisposer activeSceneResources = new ResourceDisposer();
+    private final Unloader activeSceneResources = new Unloader();
 
     public void register(Scene scene) {
         scenes.put(scene.id(), scene);

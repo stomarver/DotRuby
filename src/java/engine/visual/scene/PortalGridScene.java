@@ -2,7 +2,7 @@ package engine.visual.scene;
 
 import engine.visual.Overlay;
 import engine.visual.Render;
-import engine.util.res.ResourceDisposer;
+import engine.util.res.Unloader;
 
 import static org.lwjgl.opengl.GL11.GL_TRIANGLES;
 import static org.lwjgl.opengl.GL11.glBegin;
@@ -19,7 +19,7 @@ public final class PortalGridScene extends SceneTemplate {
     }
 
     @Override
-    public void initialize(ResourceDisposer resources) {
+    public void initialize(Unloader resources) {
         phase = 0f;
     }
 
