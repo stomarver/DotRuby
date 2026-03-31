@@ -44,7 +44,7 @@ import static org.lwjgl.system.MemoryUtil.NULL;
 public class Manager {
 
     private final Config config;
-    private final engine.ui.Manager uiManager = new engine.ui.Manager();
+    private final ui.Manager uiManager = new ui.Manager();
     private final Overlay overlay = new Overlay();
     private final Mesh mesh = new Mesh();
 
@@ -341,11 +341,11 @@ public class Manager {
         setMode(mode == Mode.WINDOWED ? Mode.FULLSCREEN : Mode.WINDOWED);
     }
 
-    public engine.ui.Cursor getCursor() {
+    public ui.Cursor getCursor() {
         return uiManager.getCursor();
     }
 
-    public engine.ui.Manager getUiManager() {
+    public ui.Manager getUiManager() {
         return uiManager;
     }
 

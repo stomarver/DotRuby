@@ -1,4 +1,4 @@
-package engine.ui;
+package ui;
 
 import engine.visual.Overlay;
 
