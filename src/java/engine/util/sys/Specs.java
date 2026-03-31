@@ -117,40 +117,6 @@ public final class Specs {
         return formatMiB(allocated / (1024L * 1024L)) + " / " + formatMiB(totalPhysical / (1024L * 1024L));
     }
 
-    public static String cpuLoadPercent() {
-        try {
-            if (ManagementFactory.getOperatingSystemMXBean() instanceof OperatingSystemMXBean bean) {
-                double value = bean.getCpuLoad();
-                if (value >= 0d) {
-                    return formatPercent(value * 100d);
-                }
-            }
-        } catch (RuntimeException exception) {
-            return "<unavailable>";
-        }
-        return "<unavailable>";
-    }
-
-    public static String ramLoadPercent() {
-        try {
-            if (ManagementFactory.getOperatingSystemMXBean() instanceof OperatingSystemMXBean bean) {
-                long total = bean.getTotalMemorySize();
-                long free = bean.getFreeMemorySize();
-                if (total > 0L) {
-                    long used = Math.max(0L, total - free);
-                    return formatPercent((used * 100d) / total);
-                }
-            }
-        } catch (RuntimeException exception) {
-            return "<unavailable>";
-        }
-        return "<unavailable>";
-    }
-
-    public static String gpuLoadPercent() {
-        return "<unavailable>";
-    }
-
     private static long totalPhysicalMemory() {
         try {
             if (ManagementFactory.getOperatingSystemMXBean() instanceof OperatingSystemMXBean bean) {
@@ -164,10 +130,6 @@ public final class Specs {
 
     private static String formatMiB(long mib) {
         return mib + " MiB";
-    }
-
-    private static String formatPercent(double value) {
-        return String.format(Locale.ROOT, "%.1f%%", Math.max(0d, value));
     }
 
     private static void appendLine(StringBuilder log, String key, String value) {

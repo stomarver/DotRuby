@@ -5,11 +5,11 @@ import engine.visual.scene.PortalGridScene;
 import engine.visual.scene.RotatingCubeScene;
 import engine.visual.scene.SceneIds;
 import engine.visual.scene.SceneManager;
+import engine.visual.scene.SceneType;
 
 public final class Manager {
 
     private final Render textRender = new Render();
-    private final PerformanceOverlay performanceOverlay = new PerformanceOverlay();
     private final SceneManager sceneManager = new SceneManager();
     private boolean textRenderLoaded;
 
@@ -34,13 +34,11 @@ public final class Manager {
 
     public void render3D() {
         sceneManager.update(1f / 60f);
-        performanceOverlay.apply(performanceOverlay.pollUpdateEvent());
         sceneManager.render3DPass();
     }
 
     public void render2D(Overlay overlay) {
         sceneManager.render2DPass(overlay, textRender);
-        performanceOverlay.render(overlay, textRender);
     }
 
     public void destroy() {
@@ -52,9 +50,15 @@ public final class Manager {
     }
 
     private void syncSceneResources() {
-        if (!textRenderLoaded) {
+        SceneType type = sceneManager.activeSceneType();
+        if (type.requires2D() && !textRenderLoaded) {
             textRender.load();
             textRenderLoaded = true;
+            return;
+        }
+        if (!type.requires2D() && textRenderLoaded) {
+            textRender.destroy();
+            textRenderLoaded = false;
         }
     }
 }
