@@ -19,7 +19,7 @@ import static org.lwjgl.opengl.GL11.glDisable;
 
 public class Cursor {
 
-    private static final Path TEXTURE_PATH = Path.of("src/assets/ui/cursor/classic.png");
+    private static final Path TEXTURE_PATH = Path.of("src/asset/ui/cursor/classic.png");
 
     public enum State {
         NORMAL(GLFW_CURSOR_NORMAL),

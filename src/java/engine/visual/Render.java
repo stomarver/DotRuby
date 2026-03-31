@@ -10,7 +10,7 @@ import static org.lwjgl.opengl.GL11.glDeleteTextures;
 public final class Render {
 
     private static final List<Path> TEXTURE_PATHS = List.of(
-            Path.of("src/assets/ui/font/regular.png"),
+            Path.of("src/asset/ui/font/regular.png"),
             Path.of("src/main/resources/fonts/font.png")
     );
     private static final float BASE_SCALE = 2f;

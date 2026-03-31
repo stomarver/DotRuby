@@ -52,7 +52,7 @@ sourceSets {
             srcDirs = ['src/java']
         }
         resources {
-            srcDirs = ['src/assets']
+            srcDirs = ['src/asset']
         }
     }
 }
