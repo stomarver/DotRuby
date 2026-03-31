@@ -14,7 +14,7 @@ import java.util.Map;
 
 public final class Config {
 
-    private static final Path DEFAULT_PATH = RuntimePaths.configPath("Input.txt");
+    private static final Path DEFAULT_PATH = RuntimePaths.configPath("Input.cfg");
 
     public static Config defaults() {
         return new Config(true, true, false, 1024,

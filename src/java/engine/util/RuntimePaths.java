@@ -5,8 +5,8 @@ import java.nio.file.Path;
 public final class RuntimePaths {
 
     private static final Path ROOT = Path.of(System.getProperty("user.home"), "Documents", "DotRuby");
-    private static final Path CONFIG_DIRECTORY = ROOT.resolve("cfg");
-    private static final Path LOG_DIRECTORY = ROOT.resolve("log");
+    private static final Path CONFIG_DIRECTORY = ROOT.resolve("config");
+    private static final Path LOG_DIRECTORY = ROOT.resolve("journal");
 
     private RuntimePaths() {
     }

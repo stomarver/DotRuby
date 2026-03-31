@@ -319,8 +319,9 @@ public class Manager {
     }
 
     public void updateFrame() {
+        uiManager.render3D();
         begin2DPass();
-        uiManager.render(
+        uiManager.render2D(
                 overlay,
                 getVirtualUnitsForPhysicalPixels(2f),
                 getVirtualUnitsForPhysicalPixelsExact(getCursor().getTextureWidth()),

@@ -182,6 +182,15 @@ public final class Overlay {
         drawSolidQuad(maxX - thickness, minY, maxX, maxY);
     }
 
+    public void drawTriangle(float x1, float y1, float x2, float y2, float x3, float y3) {
+        ensureStarted();
+        glBindTexture(GL_TEXTURE_2D, 0);
+        glUniform4f(colorLocation, 1f, 1f, 1f, 1f);
+        glUniform1i(useTextureLocation, 0);
+        glUniform1i(discardBlackLocation, 0);
+        uploadTriangle(x1, y1, x2, y2, x3, y3);
+    }
+
     public void end() {
         if (!started) {
             return;
@@ -247,6 +256,19 @@ public final class Overlay {
         glBufferSubData(GL_ARRAY_BUFFER, 0, vertices);
         glBindBuffer(GL_ARRAY_BUFFER, 0);
         glDrawArrays(GL_TRIANGLES, 0, 6);
+    }
+
+    private void uploadTriangle(float x1, float y1, float x2, float y2, float x3, float y3) {
+        float[] triangleVertices = {
+                x1, y1, 0f, 0f,
+                x2, y2, 0f, 0f,
+                x3, y3, 0f, 0f
+        };
+
+        glBindBuffer(GL_ARRAY_BUFFER, vboId);
+        glBufferSubData(GL_ARRAY_BUFFER, 0, triangleVertices);
+        glBindBuffer(GL_ARRAY_BUFFER, 0);
+        glDrawArrays(GL_TRIANGLES, 0, 3);
     }
 
     private static int compileShader(int type, String source) {
