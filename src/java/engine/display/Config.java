@@ -13,14 +13,16 @@ import java.util.Map;
 public final class Config {
 
     private static final Path DEFAULT_PATH = RuntimePaths.configPath("Display.cfg");
+    private static final Path LEGACY_PATH = RuntimePaths.legacyConfigPath("Display.txt");
 
     public static Config defaults() {
         return new Config("DotRuby", 960, 540, false, Mode.WINDOWED, Fullscreen.BORDERLESS, false, true, VSync.DOUBLE_BUFFERED, true, 0.0f, 0.0f, 1.0f, 1.0f);
     }
 
     public static Config loadDefault() {
-        ensureDefaultConfig(DEFAULT_PATH, defaults());
-        return load(DEFAULT_PATH);
+        Path path = resolveConfigPath(DEFAULT_PATH, LEGACY_PATH);
+        ensureDefaultConfig(path, defaults());
+        return load(path);
     }
 
     public static Config load(Path path) {
@@ -179,6 +181,16 @@ public final class Config {
         } catch (IOException exception) {
             throw new IllegalStateException("Unable to write default display config: " + path, exception);
         }
+    }
+
+    private static Path resolveConfigPath(Path defaultPath, Path legacyPath) {
+        if (Files.exists(defaultPath)) {
+            return defaultPath;
+        }
+        if (Files.exists(legacyPath)) {
+            return legacyPath;
+        }
+        return defaultPath;
     }
 
     private static String stripComment(String line) {

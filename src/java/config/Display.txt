@@ -1,0 +1,7 @@
+# Legacy config location kept for VCS compatibility.
+# Runtime loader supports both cfg/config names.
+window_mode=WINDOWED
+fullscreen_type=BORDERLESS
+raw_input=false
+vsync=DOUBLE_BUFFERED
+centering=true
