@@ -1,12 +1,16 @@
 package engine.visual.scene;
 
-import engine.visual.Overlay;
-import engine.visual.Render;
-import engine.util.ResourceDisposer;
+import engine.util.res.Unloader;
 
 import java.util.Arrays;
 
-public final class RotatingCubeScene implements Scene {
+import static org.lwjgl.opengl.GL11.GL_TRIANGLES;
+import static org.lwjgl.opengl.GL11.glBegin;
+import static org.lwjgl.opengl.GL11.glColor3f;
+import static org.lwjgl.opengl.GL11.glEnd;
+import static org.lwjgl.opengl.GL11.glVertex3f;
+
+public final class RotatingCubeScene extends SceneTemplate {
 
     private static final float[][] CUBE_VERTICES = {
             {-1f, -1f, -1f}, {1f, -1f, -1f}, {1f, 1f, -1f}, {-1f, 1f, -1f},
@@ -23,13 +27,12 @@ public final class RotatingCubeScene implements Scene {
 
     private float angle;
 
-    @Override
-    public String id() {
-        return "scene.rotating-cube";
+    public RotatingCubeScene() {
+        super(SceneIds.ROTATING_CUBE, SceneType.THREE_D);
     }
 
     @Override
-    public void initialize(ResourceDisposer resources) {
+    public void initialize(Unloader resources) {
         angle = 0f;
     }
 
@@ -39,24 +42,25 @@ public final class RotatingCubeScene implements Scene {
     }
 
     @Override
-    public void render(Overlay overlay, Render textRender) {
+    public void render3D() {
         float[][] projected = new float[CUBE_VERTICES.length][3];
         for (int index = 0; index < CUBE_VERTICES.length; index++) {
             projected[index] = project(rotate(CUBE_VERTICES[index], angle));
         }
 
         int[] order = depthSortedTriangleOrder(projected);
+        glColor3f(1f, 1f, 1f);
+        glBegin(GL_TRIANGLES);
         for (int triangleIndex : order) {
             int[] triangle = TRIANGLES[triangleIndex];
             float[] a = projected[triangle[0]];
             float[] b = projected[triangle[1]];
             float[] c = projected[triangle[2]];
-            overlay.drawTriangle(a[0], a[1], b[0], b[1], c[0], c[1]);
+            glVertex3f(toNdcX(a[0]), toNdcY(a[1]), a[2] / 6f);
+            glVertex3f(toNdcX(b[0]), toNdcY(b[1]), b[2] / 6f);
+            glVertex3f(toNdcX(c[0]), toNdcY(c[1]), c[2] / 6f);
         }
-    }
-
-    @Override
-    public void destroy() {
+        glEnd();
     }
 
     private static float[] rotate(float[] vertex, float angle) {
@@ -102,5 +106,13 @@ public final class RotatingCubeScene implements Scene {
             sorted[index] = order[index];
         }
         return sorted;
+    }
+
+    private static float toNdcX(float x) {
+        return (x / 480f) - 1f;
+    }
+
+    private static float toNdcY(float y) {
+        return 1f - (y / 270f);
     }
 }

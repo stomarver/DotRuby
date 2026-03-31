@@ -1,4 +1,4 @@
-package engine.ui.text.font;
+package ui.text.font;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -9,7 +9,7 @@ public final class Regular {
 
     private static final int GLYPH_WIDTH = 6;
     private static final int GLYPH_HEIGHT = 8;
-    private static final int GLYPH_GAP_X = 1;
+    private static final int GLYPH_GAP_X = -1;
     private static final int GLYPH_GAP_Y = 1;
     private static final int ADVANCE_WIDE = 6;
     private static final int ADVANCE_EXTRA_WIDE = 7;

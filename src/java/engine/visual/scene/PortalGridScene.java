@@ -2,19 +2,24 @@ package engine.visual.scene;
 
 import engine.visual.Overlay;
 import engine.visual.Render;
-import engine.util.ResourceDisposer;
+import engine.util.res.Unloader;
 
-public final class PortalGridScene implements Scene {
+import static org.lwjgl.opengl.GL11.GL_TRIANGLES;
+import static org.lwjgl.opengl.GL11.glBegin;
+import static org.lwjgl.opengl.GL11.glColor3f;
+import static org.lwjgl.opengl.GL11.glEnd;
+import static org.lwjgl.opengl.GL11.glVertex3f;
+
+public final class PortalGridScene extends SceneTemplate {
 
     private float phase;
 
-    @Override
-    public String id() {
-        return "scene.portal-grid";
+    public PortalGridScene() {
+        super(SceneIds.PORTAL_GRID, SceneType.TWO_D_AND_THREE_D);
     }
 
     @Override
-    public void initialize(ResourceDisposer resources) {
+    public void initialize(Unloader resources) {
         phase = 0f;
     }
 
@@ -24,7 +29,18 @@ public final class PortalGridScene implements Scene {
     }
 
     @Override
-    public void render(Overlay overlay, Render textRender) {
+    public void render3D() {
+        float pulse = 0.35f + ((float) Math.sin(phase) * 0.15f);
+        glColor3f(0.4f, 0.8f, 1.0f);
+        glBegin(GL_TRIANGLES);
+        glVertex3f(0f, pulse, 0f);
+        glVertex3f(-pulse, -pulse, 0f);
+        glVertex3f(pulse, -pulse, 0f);
+        glEnd();
+    }
+
+    @Override
+    public void render2D(Overlay overlay, Render textRender) {
         textRender.drawText(overlay, "Prototype Portal Grid", 16f, 16f, 1f);
 
         int columns = 10;
@@ -45,7 +61,4 @@ public final class PortalGridScene implements Scene {
         }
     }
 
-    @Override
-    public void destroy() {
-    }
 }

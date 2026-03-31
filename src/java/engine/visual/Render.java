@@ -1,6 +1,6 @@
 package engine.visual;
 
-import engine.ui.text.font.Regular;
+import ui.text.font.Regular;
 
 import java.nio.file.Path;
 import java.util.List;

@@ -1,6 +1,6 @@
 package engine.input;
 
-import engine.util.RuntimePaths;
+import engine.util.path.RuntimePaths;
 import org.lwjgl.glfw.GLFW;
 
 import java.io.IOException;
@@ -14,7 +14,8 @@ import java.util.Map;
 
 public final class Config {
 
-    private static final Path DEFAULT_PATH = RuntimePaths.configPath("Input.txt");
+    private static final Path DEFAULT_PATH = RuntimePaths.configPath("Input.cfg");
+    private static final Path LEGACY_PATH = RuntimePaths.legacyConfigPath("Input.txt");
 
     public static Config defaults() {
         return new Config(true, true, false, 1024,
@@ -23,8 +24,9 @@ public final class Config {
     }
 
     public static Config loadDefault(boolean rawMouseInputEnabled) {
-        ensureDefaultConfig(DEFAULT_PATH, defaults().withRawMouseInput(rawMouseInputEnabled));
-        return load(DEFAULT_PATH, rawMouseInputEnabled);
+        Path path = resolveConfigPath(DEFAULT_PATH, LEGACY_PATH);
+        ensureDefaultConfig(path, defaults().withRawMouseInput(rawMouseInputEnabled));
+        return load(path, rawMouseInputEnabled);
     }
 
     public static Config load(Path path, boolean rawMouseInputEnabled) {
@@ -159,6 +161,16 @@ public final class Config {
         } catch (IOException exception) {
             throw new IllegalStateException("Unable to write default input config: " + path, exception);
         }
+    }
+
+    private static Path resolveConfigPath(Path defaultPath, Path legacyPath) {
+        if (Files.exists(defaultPath)) {
+            return defaultPath;
+        }
+        if (Files.exists(legacyPath)) {
+            return legacyPath;
+        }
+        return defaultPath;
     }
 
     private static String stripComment(String line) {

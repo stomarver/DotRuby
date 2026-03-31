@@ -2,7 +2,7 @@ package engine.visual.scene;
 
 import engine.visual.Overlay;
 import engine.visual.Render;
-import engine.util.ResourceDisposer;
+import engine.util.res.Unloader;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -11,7 +11,7 @@ public final class SceneManager {
 
     private final Map<String, Scene> scenes = new HashMap<>();
     private Scene activeScene;
-    private final ResourceDisposer activeSceneResources = new ResourceDisposer();
+    private final Unloader activeSceneResources = new Unloader();
 
     public void register(Scene scene) {
         scenes.put(scene.id(), scene);
@@ -40,10 +40,20 @@ public final class SceneManager {
         }
     }
 
-    public void render(Overlay overlay, Render textRender) {
-        if (activeScene != null) {
-            activeScene.render(overlay, textRender);
+    public void render3DPass() {
+        if (activeScene != null && activeScene.type().requires3D()) {
+            activeScene.render3D();
         }
+    }
+
+    public void render2DPass(Overlay overlay, Render textRender) {
+        if (activeScene != null && activeScene.type().requires2D()) {
+            activeScene.render2D(overlay, textRender);
+        }
+    }
+
+    public SceneType activeSceneType() {
+        return activeScene == null ? SceneType.TWO_D : activeScene.type();
     }
 
     public void destroy() {

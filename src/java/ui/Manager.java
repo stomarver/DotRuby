@@ -1,4 +1,4 @@
-package engine.ui;
+package ui;
 
 import engine.visual.Overlay;
 
@@ -20,8 +20,12 @@ public final class Manager {
         applyCursorLock(windowHandle, lockCursor);
     }
 
-    public void render(Overlay overlay, float borderThickness, float cursorWidth, float cursorHeight) {
-        visualManager.render(overlay);
+    public void render3D() {
+        visualManager.render3D();
+    }
+
+    public void render2D(Overlay overlay, float borderThickness, float cursorWidth, float cursorHeight) {
+        visualManager.render2D(overlay);
         selection.render(overlay, borderThickness);
         cursor.render(overlay, cursorWidth, cursorHeight);
     }
