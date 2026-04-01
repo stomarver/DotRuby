@@ -49,7 +49,7 @@ public final class Parse {
             char value = text.charAt(index);
             if (value == '\n') {
                 penX = 0;
-                penY += font.glyphHeight() + font.gapY();
+                penY += font.glyphHeight();
                 continue;
             }
             if (value == ' ') {
@@ -79,8 +79,8 @@ public final class Parse {
             int advance = font.advances().getOrDefault(value, font.glyphWidth());
             return new Glyph(
                     value,
-                    column * (font.glyphWidth() + font.gapX()),
-                    row * (font.glyphHeight() + font.gapY()),
+                    (column * font.glyphWidth()) + (column * font.gapX()),
+                    (row * font.glyphHeight()) + (row * font.gapY()),
                     font.glyphWidth(),
                     font.glyphHeight(),
                     advance
