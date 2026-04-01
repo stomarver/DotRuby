@@ -1,6 +1,6 @@
 package engine.visual;
 
-import ui.text.font.Regular;
+import ui.text.Parse;
 
 import java.nio.file.Path;
 import java.util.List;
@@ -9,14 +9,14 @@ import static org.lwjgl.opengl.GL11.glDeleteTextures;
 
 public final class Render {
 
-    private static final List<Path> TEXTURE_PATHS = List.of(
-            Path.of("src/asset/ui/font/regular.png"),
-            Path.of("src/main/resources/fonts/font.png")
+    private static final List<Path> FONT_DEFINITION_PATHS = List.of(
+            Path.of("src/java/ui/text/font/Regular"),
+            Path.of("src/main/resources/fonts/Regular")
     );
     private static final float BASE_SCALE = 2f;
 
-    private final Regular regularFont = new Regular();
     private final TextureLoader textureLoader = new TextureLoader();
+    private Parse.FontDefinition font;
     private int textureId;
     private int textureWidth;
     private int textureHeight;
@@ -26,7 +26,17 @@ public final class Render {
             return;
         }
 
-        TextureLoader.LoadedTexture loadedTexture = textureLoader.loadNearestRgbaTexture(TEXTURE_PATHS);
+        Path fontPath = existingPath(FONT_DEFINITION_PATHS);
+        if (fontPath == null) {
+            throw new IllegalStateException("Regular font definition is not found: " + FONT_DEFINITION_PATHS);
+        }
+        font = Parse.font(fontPath);
+
+        TextureLoader.LoadedTexture loadedTexture = textureLoader.loadNearestRgbaTexture(List.of(
+                Path.of(font.atlasPath()),
+                Path.of("src/asset/ui/font/regular.png"),
+                Path.of("src/main/resources/fonts/font.png")
+        ));
         textureId = loadedTexture.id();
         textureWidth = loadedTexture.width();
         textureHeight = loadedTexture.height();
@@ -43,10 +53,13 @@ public final class Render {
         if (value == null || value.isBlank()) {
             return;
         }
+        if (font == null) {
+            throw new IllegalStateException("Regular font definition is not loaded");
+        }
 
         float resolvedScale = Math.max(0.0001f, size) * BASE_SCALE;
-        List<Regular.Quad> quads = regularFont.parse(value);
-        for (Regular.Quad quad : quads) {
+        List<Parse.Quad> quads = Parse.text(font, value);
+        for (Parse.Quad quad : quads) {
             float minU = quad.glyph().atlasX() / (float) textureWidth;
             float minV = quad.glyph().atlasY() / (float) textureHeight;
             float maxU = (quad.glyph().atlasX() + quad.glyph().atlasWidth()) / (float) textureWidth;
@@ -71,5 +84,15 @@ public final class Render {
             glDeleteTextures(textureId);
             textureId = 0;
         }
+        font = null;
+    }
+
+    private static Path existingPath(List<Path> candidates) {
+        for (Path path : candidates) {
+            if (path != null && path.toFile().exists()) {
+                return path;
+            }
+        }
+        return null;
     }
 }
