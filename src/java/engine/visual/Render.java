@@ -74,7 +74,7 @@ public final class Render {
                     minV,
                     maxU,
                     maxV,
-                    true
+                    false
             );
         }
     }
