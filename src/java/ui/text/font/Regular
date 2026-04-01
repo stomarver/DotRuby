@@ -1,10 +1,10 @@
 atlas(assets/fonts/Regular.png) //путь к текстуре
-size(6x8) //размер символа по умолчанию
-gap(-1,1) //отступы между символами
-letter-spacing(0) //расстояние между символами которое учитывается отрисовщиком
-space-width(3) //длина пробела в пикселях
+size(6x8) //GLYPH_WIDTH x GLYPH_HEIGHT
+gap(1,1) //GLYPH_GAP_X, GLYPH_GAP_Y
+letter-spacing(0) //доп. расстояние рендерера
+space-width(7) //GLYPH_WIDTH + GLYPH_GAP_X
 
-rows = ( //массив символов с переносом строки как 'String[] ROWS'
+rows = (
     AaBbCcDdEeFfGgHhIi
     JjKkLlMmNnOoPpQqRr
     SsTtUuVvWwXxYyZz
@@ -14,13 +14,16 @@ rows = ( //массив символов с переносом строки ка
     ЬьЭэЮюЯя
 )
 
-advances = ( //символы с уникальной шириной
+advances = (
+    MmTVWwДЖжТтФфХЦцШшЪъ = 6
+    ЩщЫыЮю = 7
+    AaBbCcDdEeFGgHhJjKkLNnOoPpQqRrSsUuvXxYyZzАаБбВвГдЕеЗзИиКкЛлЬьНнОоПпРрСсУухЧчЭэЯя = 5
     Iftг = 4
     l = 3
     i = 2
 )
 
-diacritics = ( //пока пустышка, не требует реализации в коде.
+diacritics = (
     acute      atlas(120,5)   size(4x3)   attach(+1,-2)
     grave      atlas(125,5)   size(4x3)   attach(+1,-2)
     circumflex atlas(130,5)   size(4x3)   attach(+1,-2)
