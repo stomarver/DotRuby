@@ -226,12 +226,16 @@ public final class Parse {
     }
 
     private static int resolvedSlotWidth(FontDefinition font) {
+        if (font.advances().isEmpty()) {
+            return Math.max(1, font.glyphWidth());
+        }
+
         int maxAdvance = font.glyphWidth();
         for (GlyphSize advance : font.advances().values()) {
             if (advance != null) {
                 maxAdvance = Math.max(maxAdvance, advance.width());
             }
         }
-        return Math.max(1, maxAdvance);
+        return Math.max(1, maxAdvance + 1);
     }
 }
