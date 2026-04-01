@@ -79,11 +79,12 @@ public final class Parse {
             }
 
             int advance = font.advances().getOrDefault(value, font.glyphWidth());
+            int sampledWidth = Math.max(1, Math.min(advance, font.glyphWidth()));
             return new Glyph(
                     value,
                     font.edgeGapX() + (column * font.glyphWidth()) + (column * font.gapX()),
                     font.edgeGapY() + (row * font.glyphHeight()) + (row * font.gapY()),
-                    font.glyphWidth(),
+                    sampledWidth,
                     font.glyphHeight(),
                     advance
             );
