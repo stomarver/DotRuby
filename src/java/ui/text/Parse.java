@@ -65,7 +65,7 @@ public final class Parse {
                 continue;
             }
 
-            quads.add(new Quad(glyph, penX, penY));
+            quads.add(new Quad(glyph, penX, penY - glyph.atlasHeight()));
             penX += glyph.advanceWidth() + font.spacing();
         }
         return quads;
