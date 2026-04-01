@@ -12,6 +12,8 @@ import java.util.Map;
 public final class Parse {
 
     public record FontDefinition(String bitmapPath,
+                                 int slotWidth,
+                                 int slotHeight,
                                  int glyphWidth,
                                  int glyphHeight,
                                  int gapX,
@@ -81,8 +83,8 @@ public final class Parse {
             int advance = font.advances().getOrDefault(value, font.glyphWidth());
             return new Glyph(
                     value,
-                    font.edgeGapX() + (column * font.glyphWidth()) + (column * font.gapX()),
-                    font.edgeGapY() + (row * font.glyphHeight()) + (row * font.gapY()),
+                    font.edgeGapX() + (column * font.slotWidth()) + (column * font.gapX()),
+                    font.edgeGapY() + (row * font.slotHeight()) + (row * font.gapY()) + (font.slotHeight() - font.glyphHeight()),
                     advance,
                     font.glyphHeight(),
                     advance
@@ -93,6 +95,8 @@ public final class Parse {
 
     private static FontDefinition parseFont(List<String> rawLines) {
         String bitmap = "";
+        int slotWidth = 6;
+        int slotHeight = 8;
         int glyphWidth = 6;
         int glyphHeight = 8;
         int gapX = 0;
@@ -139,6 +143,10 @@ public final class Parse {
 
             if (line.startsWith("bitmap(")) {
                 bitmap = valueInParens(line);
+            } else if (line.startsWith("slot-size(")) {
+                int[] values = parsePair(valueInParens(line), "x");
+                slotWidth = values[0];
+                slotHeight = values[1];
             } else if (line.startsWith("glyph-size(")) {
                 int[] values = parsePair(valueInParens(line), "x");
                 glyphWidth = values[0];
@@ -160,6 +168,8 @@ public final class Parse {
 
         return new FontDefinition(
                 bitmap,
+                slotWidth,
+                slotHeight,
                 glyphWidth,
                 glyphHeight,
                 gapX,
