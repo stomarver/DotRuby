@@ -11,9 +11,6 @@ import java.util.Map;
 
 public final class Parse {
 
-    private static final int DEFAULT_SLOT_WIDTH = 6;
-    private static final int DEFAULT_SLOT_HEIGHT = 8;
-
     public record FontDefinition(String bitmapPath,
                                  int glyphWidth,
                                  int glyphHeight,
@@ -54,7 +51,7 @@ public final class Parse {
             char value = text.charAt(index);
             if (value == '\n') {
                 penX = 0;
-                penY += DEFAULT_SLOT_HEIGHT;
+                penY += font.glyphHeight();
                 continue;
             }
             if (value == ' ') {
@@ -64,7 +61,7 @@ public final class Parse {
 
             Glyph glyph = glyph(font, value);
             if (glyph == null) {
-                penX += DEFAULT_SLOT_WIDTH + font.spacing();
+                penX += font.glyphWidth() + font.spacing();
                 continue;
             }
 
@@ -82,12 +79,11 @@ public final class Parse {
             }
 
             int advance = font.advances().getOrDefault(value, font.glyphWidth());
-            int sampledWidth = Math.max(1, Math.min(advance, font.glyphWidth()));
             return new Glyph(
                     value,
-                    font.edgeGapX() + (column * DEFAULT_SLOT_WIDTH) + (column * font.gapX()),
-                    font.edgeGapY() + (row * DEFAULT_SLOT_HEIGHT) + (row * font.gapY()),
-                    sampledWidth,
+                    font.edgeGapX() + (column * font.glyphWidth()) + (column * font.gapX()),
+                    font.edgeGapY() + (row * font.glyphHeight()) + (row * font.gapY()),
+                    font.glyphWidth(),
                     font.glyphHeight(),
                     advance
             );
