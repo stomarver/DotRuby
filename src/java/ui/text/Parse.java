@@ -18,8 +18,8 @@ public final class Parse {
                                  int gapY,
                                  int edgeGapX,
                                  int edgeGapY,
+                                 int charSpacing,
                                  int spacing,
-                                 int glyphSpacing,
                                  String[] rows,
                                  Map<Character, Integer> advances) {
     }
@@ -55,18 +55,18 @@ public final class Parse {
                 continue;
             }
             if (value == ' ') {
-                penX += Math.max(1, font.glyphSpacing()) + font.spacing();
+                penX += Math.max(1, font.spacing()) + font.charSpacing();
                 continue;
             }
 
             Glyph glyph = glyph(font, value);
             if (glyph == null) {
-                penX += font.glyphWidth() + font.spacing();
+                penX += font.glyphWidth() + font.charSpacing();
                 continue;
             }
 
             quads.add(new Quad(glyph, penX, penY - glyph.atlasHeight()));
-            penX += glyph.advanceWidth() + font.spacing();
+            penX += glyph.advanceWidth() + font.charSpacing();
         }
         return quads;
     }
@@ -83,7 +83,7 @@ public final class Parse {
                     value,
                     font.edgeGapX() + (column * font.glyphWidth()) + (column * font.gapX()),
                     font.edgeGapY() + (row * font.glyphHeight()) + (row * font.gapY()),
-                    font.glyphWidth(),
+                    advance,
                     font.glyphHeight(),
                     advance
             );
@@ -99,8 +99,8 @@ public final class Parse {
         int gapY = 0;
         int edgeGapX = 0;
         int edgeGapY = 0;
-        int spacing = 0;
-        int glyphSpacing = 6;
+        int charSpacing = 0;
+        int spacing = 6;
         List<String> rows = new ArrayList<>();
         Map<Character, Integer> advances = new HashMap<>();
 
@@ -151,10 +151,10 @@ public final class Parse {
                 int[] values = parsePair(valueInParens(line), ",");
                 edgeGapX = values[0];
                 edgeGapY = values[1];
+            } else if (line.startsWith("char-spacing(") || line.startsWith("glyph-spacing(")) {
+                charSpacing = parseInt(valueInParens(line));
             } else if (line.startsWith("spacing(")) {
                 spacing = parseInt(valueInParens(line));
-            } else if (line.startsWith("glyph-spacing(")) {
-                glyphSpacing = parseInt(valueInParens(line));
             }
         }
 
@@ -166,8 +166,8 @@ public final class Parse {
                 gapY,
                 edgeGapX,
                 edgeGapY,
+                charSpacing,
                 spacing,
-                glyphSpacing,
                 rows.toArray(String[]::new),
                 Map.copyOf(advances)
         );

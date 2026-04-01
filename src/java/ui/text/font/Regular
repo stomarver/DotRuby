@@ -2,8 +2,8 @@ bitmap(assets/fonts/Regular.png) //бывший atlas
 glyph-size(6x8)
 glyph-gap(1,1) //бывший gap
 edge-gap(0,0) //отвечает за отступ от краёв изображения
-spacing(1) //бывший letter-spacing
-glyph-spacing(0) //бывший space-width
+char-spacing(1) //бывший letter-spacing
+spacing(0) //ширина пробела
 
 rows = (
     AaBbCcDdEeFfGgHhIi
