@@ -16,11 +16,11 @@ rows = (
 )
 
 advances = (
-    MmTVW = 5
-    AaBbCcDdEeFfGgHhJjKkLNnOoPpQqRrSsUuvXxYyZz = 4
-    Ift = 3
-    l = 2
-    i = 1
+    MmTVW = (5x8)
+    AaBbCcDdEeFfGgHhJjKkLNnOoPpQqRrSsUuvXxYyZz = (4x8)
+    Ift = (3x8)
+    l = (2x8)
+    i = (1x8)
 )
 
 diacritics = (

@@ -21,7 +21,10 @@ public final class Parse {
                                  int charSpacing,
                                  int spacing,
                                  String[] rows,
-                                 Map<Character, Integer> advances) {
+                                 Map<Character, GlyphSize> advances) {
+    }
+
+    public record GlyphSize(int width, int height) {
     }
 
     public record Glyph(char value, int atlasX, int atlasY, int atlasWidth, int atlasHeight, int advanceWidth) {
@@ -79,13 +82,14 @@ public final class Parse {
                 continue;
             }
 
-            int advance = font.advances().getOrDefault(value, font.glyphWidth());
+            GlyphSize size = font.advances().getOrDefault(value, new GlyphSize(font.glyphWidth(), font.glyphHeight()));
+            int advance = size.width();
             return new Glyph(
                     value,
                     font.edgeGapX() + (column * slotWidth) + (column * font.gapX()),
                     font.edgeGapY() + (row * font.glyphHeight()) + (row * font.gapY()),
-                    font.glyphWidth(),
-                    font.glyphHeight(),
+                    size.width(),
+                    size.height(),
                     advance
             );
         }
@@ -103,7 +107,7 @@ public final class Parse {
         int charSpacing = 0;
         int spacing = 6;
         List<String> rows = new ArrayList<>();
-        Map<Character, Integer> advances = new HashMap<>();
+        Map<Character, GlyphSize> advances = new HashMap<>();
 
         String section = "";
         for (String rawLine : rawLines) {
@@ -133,7 +137,7 @@ public final class Parse {
                 if (section.equals("rows")) {
                     rows.add(line);
                 } else if (section.equals("advances")) {
-                    parseAdvance(line, advances);
+                    parseAdvance(line, advances, glyphHeight);
                 }
                 continue;
             }
@@ -174,15 +178,15 @@ public final class Parse {
         );
     }
 
-    private static void parseAdvance(String line, Map<Character, Integer> advances) {
+    private static void parseAdvance(String line, Map<Character, GlyphSize> advances, int defaultHeight) {
         String[] parts = line.split("=", 2);
         if (parts.length != 2) {
             return;
         }
-        int width = parseInt(parts[1].trim());
+        GlyphSize glyphSize = parseGlyphSize(parts[1].trim(), defaultHeight);
         String symbols = parts[0].trim();
         for (int index = 0; index < symbols.length(); index++) {
-            advances.put(symbols.charAt(index), width);
+            advances.put(symbols.charAt(index), glyphSize);
         }
     }
 
@@ -212,11 +216,20 @@ public final class Parse {
         return Integer.parseInt(value.trim().toLowerCase(Locale.ROOT).replace("+", ""));
     }
 
+    private static GlyphSize parseGlyphSize(String value, int defaultHeight) {
+        String normalized = value.trim();
+        if (normalized.startsWith("(") && normalized.endsWith(")")) {
+            int[] values = parsePair(normalized.substring(1, normalized.length() - 1), "x");
+            return new GlyphSize(values[0], values[1]);
+        }
+        return new GlyphSize(parseInt(normalized), defaultHeight);
+    }
+
     private static int resolvedSlotWidth(FontDefinition font) {
         int maxAdvance = font.glyphWidth();
-        for (Integer advance : font.advances().values()) {
+        for (GlyphSize advance : font.advances().values()) {
             if (advance != null) {
-                maxAdvance = Math.max(maxAdvance, advance);
+                maxAdvance = Math.max(maxAdvance, advance.width());
             }
         }
         return Math.max(1, maxAdvance);
