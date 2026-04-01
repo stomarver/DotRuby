@@ -1,8 +1,9 @@
-atlas(assets/fonts/Regular.png) //путь к текстуре
-size(6x8) //GLYPH_WIDTH x GLYPH_HEIGHT
-gap(1,1) //GLYPH_GAP_X, GLYPH_GAP_Y
-letter-spacing(0) //доп. расстояние рендерера
-space-width(7) //GLYPH_WIDTH + GLYPH_GAP_X
+bitmap(assets/fonts/Regular.png) //бывший atlas
+glyph-size(6x8)
+glyph-gap(1,1) //бывший gap
+edge-gap(0,0) //отвечает за отступ от краёв изображения
+spacing(1) //бывший letter-spacing
+glyph-spacing(0) //бывший space-width
 
 rows = (
     AaBbCcDdEeFfGgHhIi
@@ -15,12 +16,11 @@ rows = (
 )
 
 advances = (
-    MmTVWwДЖжТтФфХЦцШшЪъ = 6
-    ЩщЫыЮю = 7
-    AaBbCcDdEeFGgHhJjKkLNnOoPpQqRrSsUuvXxYyZzАаБбВвГдЕеЗзИиКкЛлЬьНнОоПпРрСсУухЧчЭэЯя = 5
-    Iftг = 4
-    l = 3
-    i = 2
+    MmTVW = 5
+    AaBbCcDdEeFfGgHhJjKkLNnOoPpQqRrSsUuvXxYyZz = 4
+    Ift = 3
+    l = 2
+    i = 1
 )
 
 diacritics = (

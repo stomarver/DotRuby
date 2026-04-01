@@ -11,13 +11,15 @@ import java.util.Map;
 
 public final class Parse {
 
-    public record FontDefinition(String atlasPath,
+    public record FontDefinition(String bitmapPath,
                                  int glyphWidth,
                                  int glyphHeight,
                                  int gapX,
                                  int gapY,
-                                 int letterSpacing,
-                                 int spaceWidth,
+                                 int edgeGapX,
+                                 int edgeGapY,
+                                 int spacing,
+                                 int glyphSpacing,
                                  String[] rows,
                                  Map<Character, Integer> advances) {
     }
@@ -53,18 +55,18 @@ public final class Parse {
                 continue;
             }
             if (value == ' ') {
-                penX += Math.max(1, font.spaceWidth()) + font.letterSpacing();
+                penX += Math.max(1, font.glyphSpacing()) + font.spacing();
                 continue;
             }
 
             Glyph glyph = glyph(font, value);
             if (glyph == null) {
-                penX += font.glyphWidth() + font.letterSpacing();
+                penX += font.glyphWidth() + font.spacing();
                 continue;
             }
 
             quads.add(new Quad(glyph, penX, penY));
-            penX += glyph.advanceWidth() + font.letterSpacing();
+            penX += glyph.advanceWidth() + font.spacing();
         }
         return quads;
     }
@@ -79,8 +81,8 @@ public final class Parse {
             int advance = font.advances().getOrDefault(value, font.glyphWidth());
             return new Glyph(
                     value,
-                    (column * font.glyphWidth()) + (column * font.gapX()),
-                    (row * font.glyphHeight()) + (row * font.gapY()),
+                    font.edgeGapX() + (column * font.glyphWidth()) + (column * font.gapX()),
+                    font.edgeGapY() + (row * font.glyphHeight()) + (row * font.gapY()),
                     font.glyphWidth(),
                     font.glyphHeight(),
                     advance
@@ -90,13 +92,15 @@ public final class Parse {
     }
 
     private static FontDefinition parseFont(List<String> rawLines) {
-        String atlas = "";
+        String bitmap = "";
         int glyphWidth = 6;
         int glyphHeight = 8;
         int gapX = 0;
         int gapY = 0;
-        int letterSpacing = 0;
-        int spaceWidth = 6;
+        int edgeGapX = 0;
+        int edgeGapY = 0;
+        int spacing = 0;
+        int glyphSpacing = 6;
         List<String> rows = new ArrayList<>();
         Map<Character, Integer> advances = new HashMap<>();
 
@@ -133,31 +137,37 @@ public final class Parse {
                 continue;
             }
 
-            if (line.startsWith("atlas(")) {
-                atlas = valueInParens(line);
-            } else if (line.startsWith("size(")) {
+            if (line.startsWith("bitmap(")) {
+                bitmap = valueInParens(line);
+            } else if (line.startsWith("glyph-size(")) {
                 int[] values = parsePair(valueInParens(line), "x");
                 glyphWidth = values[0];
                 glyphHeight = values[1];
-            } else if (line.startsWith("gap(")) {
+            } else if (line.startsWith("glyph-gap(")) {
                 int[] values = parsePair(valueInParens(line), ",");
                 gapX = values[0];
                 gapY = values[1];
-            } else if (line.startsWith("letter-spacing(")) {
-                letterSpacing = parseInt(valueInParens(line));
-            } else if (line.startsWith("space-width(")) {
-                spaceWidth = parseInt(valueInParens(line));
+            } else if (line.startsWith("edge-gap(")) {
+                int[] values = parsePair(valueInParens(line), ",");
+                edgeGapX = values[0];
+                edgeGapY = values[1];
+            } else if (line.startsWith("spacing(")) {
+                spacing = parseInt(valueInParens(line));
+            } else if (line.startsWith("glyph-spacing(")) {
+                glyphSpacing = parseInt(valueInParens(line));
             }
         }
 
         return new FontDefinition(
-                atlas,
+                bitmap,
                 glyphWidth,
                 glyphHeight,
                 gapX,
                 gapY,
-                letterSpacing,
-                spaceWidth,
+                edgeGapX,
+                edgeGapY,
+                spacing,
+                glyphSpacing,
                 rows.toArray(String[]::new),
                 Map.copyOf(advances)
         );
