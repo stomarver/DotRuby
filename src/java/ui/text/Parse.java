@@ -72,6 +72,7 @@ public final class Parse {
     }
 
     public static Glyph glyph(FontDefinition font, char value) {
+        int slotWidth = resolvedSlotWidth(font);
         for (int row = 0; row < font.rows().length; row++) {
             int column = font.rows()[row].indexOf(value);
             if (column < 0) {
@@ -81,7 +82,7 @@ public final class Parse {
             int advance = font.advances().getOrDefault(value, font.glyphWidth());
             return new Glyph(
                     value,
-                    font.edgeGapX() + (column * font.glyphWidth()) + (column * font.gapX()),
+                    font.edgeGapX() + (column * slotWidth) + (column * font.gapX()),
                     font.edgeGapY() + (row * font.glyphHeight()) + (row * font.gapY()),
                     font.glyphWidth(),
                     font.glyphHeight(),
@@ -209,5 +210,15 @@ public final class Parse {
 
     private static int parseInt(String value) {
         return Integer.parseInt(value.trim().toLowerCase(Locale.ROOT).replace("+", ""));
+    }
+
+    private static int resolvedSlotWidth(FontDefinition font) {
+        int maxAdvance = font.glyphWidth();
+        for (Integer advance : font.advances().values()) {
+            if (advance != null) {
+                maxAdvance = Math.max(maxAdvance, advance);
+            }
+        }
+        return Math.max(1, maxAdvance + Math.max(0, font.charSpacing()));
     }
 }
