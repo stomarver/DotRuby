@@ -219,6 +219,6 @@ public final class Parse {
                 maxAdvance = Math.max(maxAdvance, advance);
             }
         }
-        return Math.max(1, maxAdvance + Math.max(0, font.charSpacing()));
+        return Math.max(1, maxAdvance);
     }
 }
