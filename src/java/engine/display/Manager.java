@@ -1,7 +1,7 @@
 package engine.display;
 
 import engine.visual.Overlay;
-import engine.visual.utils.BackgroundGradient;
+import engine.util.shader.BackgroundGradient;
 import engine.display.gl.Mesh;
 import org.lwjgl.glfw.GLFWErrorCallback;
 import org.lwjgl.opengl.GL;
@@ -289,7 +289,7 @@ public class Manager {
     public void clearFrame() {
         glViewport(0, 0, getFramebufferWidth(), getFramebufferHeight());
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-        backgroundGradient.render(getFramebufferWidth(), getFramebufferHeight(), (float) glfwGetTime());
+        backgroundGradient.renderFullscreen(getFramebufferWidth(), getFramebufferHeight(), (float) glfwGetTime());
         applyRenderViewport();
     }
 
