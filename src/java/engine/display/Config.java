@@ -14,15 +14,23 @@ public final class Config {
 
     private static final Path DEFAULT_PATH = RuntimePaths.configPath("Display.cfg");
     private static final Path LEGACY_PATH = RuntimePaths.legacyConfigPath("Display.txt");
+    private static final Path LOCAL_ASSET_PATH = Path.of("src/asset/config/Display.cfg");
+    private static final Path LOCAL_LEGACY_PATH = Path.of("src/java/config/Display.txt");
 
     public static Config defaults() {
         return new Config("DotRuby", 960, 540, false, Mode.WINDOWED, Fullscreen.BORDERLESS, false, true, VSync.DOUBLE_BUFFERED, true, 2, 0.0f, 0.0f, 1.0f, 1.0f);
     }
 
     public static Config loadDefault() {
-        Path path = resolveConfigPath(DEFAULT_PATH, LEGACY_PATH);
-        ensureDefaultConfig(path, defaults());
-        return load(path);
+        Path resolvedPath = resolveConfigPath(LOCAL_ASSET_PATH, LOCAL_LEGACY_PATH, DEFAULT_PATH, LEGACY_PATH);
+        if (resolvedPath == null) {
+            throw new IllegalStateException("Unable to resolve display config path");
+        }
+
+        if (!Files.exists(resolvedPath)) {
+            ensureDefaultConfig(resolvedPath, defaults());
+        }
+        return load(resolvedPath);
     }
 
     public static Config load(Path path) {
@@ -191,14 +199,13 @@ public final class Config {
         }
     }
 
-    private static Path resolveConfigPath(Path defaultPath, Path legacyPath) {
-        if (Files.exists(defaultPath)) {
-            return defaultPath;
+    private static Path resolveConfigPath(Path... paths) {
+        for (Path path : paths) {
+            if (path != null && Files.exists(path)) {
+                return path;
+            }
         }
-        if (Files.exists(legacyPath)) {
-            return legacyPath;
-        }
-        return defaultPath;
+        return paths.length == 0 ? null : paths[0];
     }
 
     private static String stripComment(String line) {
