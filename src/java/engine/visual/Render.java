@@ -10,6 +10,7 @@ import static org.lwjgl.opengl.GL11.glDeleteTextures;
 public final class Render {
 
     private static final List<Path> FONT_DEFINITION_PATHS = List.of(
+            Path.of("src/asset/ui/font/Regular.fnt"),
             Path.of("src/java/ui/text/font/Regular"),
             Path.of("src/main/resources/fonts/Regular")
     );
