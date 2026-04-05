@@ -13,22 +13,16 @@ import java.util.Map;
 public final class Config {
 
     private static final Path DEFAULT_PATH = RuntimePaths.configPath("Display.cfg");
-    private static final Path LOCAL_ASSET_PATH = Path.of("src/asset/config/Display.cfg");
 
     public static Config defaults() {
         return new Config("DotRuby", 960, 540, false, Mode.WINDOWED, Fullscreen.BORDERLESS, false, true, VSync.DOUBLE_BUFFERED, true, 2, 0.0f, 0.0f, 1.0f, 1.0f);
     }
 
     public static Config loadDefault() {
-        Path resolvedPath = resolveConfigPath(LOCAL_ASSET_PATH, DEFAULT_PATH);
-        if (resolvedPath == null) {
-            throw new IllegalStateException("Unable to resolve display config path");
+        if (!Files.exists(DEFAULT_PATH)) {
+            ensureDefaultConfig(DEFAULT_PATH, defaults());
         }
-
-        if (!Files.exists(resolvedPath)) {
-            ensureDefaultConfig(resolvedPath, defaults());
-        }
-        return load(resolvedPath);
+        return load(DEFAULT_PATH);
     }
 
     public static Config load(Path path) {
@@ -195,15 +189,6 @@ public final class Config {
         } catch (IOException exception) {
             throw new IllegalStateException("Unable to write default display config: " + path, exception);
         }
-    }
-
-    private static Path resolveConfigPath(Path... paths) {
-        for (Path path : paths) {
-            if (path != null && Files.exists(path)) {
-                return path;
-            }
-        }
-        return paths.length == 0 ? null : paths[0];
     }
 
     private static String stripComment(String line) {
