@@ -11,6 +11,11 @@ public final class Prompt extends SceneTemplate {
 
     @Override
     public void render2D(Overlay overlay, Render textRender) {
-        textRender.drawText(overlay, "Press L for Log", 16f, 16f, 1f);
+        textRender.drawText(overlay,
+                "AaBbCcDdEeFfGgHhIiJjKkLlMmNnOoPpQqRrSsTtUuVvWwXxYyZz\n" +
+                "АаБбВвГгДдЕеЖжЗзИиКкЛлМмНнОоПпРрСсТтУуФфХхЦцЧчШшЩщЪъЫыЬьЭэЮюЯя\n" +
+                "\n" +
+                "Press L for Log",
+                16f, 16f, 1f);
     }
 }

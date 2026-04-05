@@ -34,7 +34,7 @@ public final class Render {
 
         TextureLoader.LoadedTexture loadedTexture = textureLoader.loadNearestRgbaTexture(List.of(
                 Path.of(font.bitmapPath()),
-                Path.of("src/asset/ui/font/regular.png"),
+                Path.of("src/asset/ui/font/Regular.png"),
                 Path.of("src/main/resources/fonts/font.png")
         ));
         textureId = loadedTexture.id();

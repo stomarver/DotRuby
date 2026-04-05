@@ -1,11 +1,12 @@
-bitmap(assets/fonts/Regular.png) //бывший atlas
-glyph-size(6x8)
-glyph-gap(1,1) //бывший gap
-edge-gap(0,0) //отвечает за отступ от краёв изображения
-char-spacing(1) //бывший letter-spacing
-spacing(0) //ширина пробела
+atlas(assets/fonts/Regular.png) //атлас со всеми символами
+glyph-size(6x8) //размер парсируемой области по умолчанию
+glyph-gap(1,1) //отступ между буквами
+edge-gap(0,0) //отступ от краёв изображения
+char-spacing(1,1) //доп расстояние между буквами при рендере
+glyph-baseline(0) //смещение текста вниз (полезно для выравнивания по базовой линии)
+spacing(0) //ширина пробела (теперь может быть 0 или отрицательной)
 
-rows = (
+rows = (//порядок букв с переносом строки из текстуры
     AaBbCcDdEeFfGgHhIi
     JjKkLlMmNnOoPpQqRr
     SsTtUuVvWwXxYyZz
@@ -15,14 +16,15 @@ rows = (
     ЬьЭэЮюЯя
 )
 
-advances = (
-    MmTVW = (5x8)
-    Ift = (3x8)
+advances = ( //уникальные размеры
+    MmTVWwДЖжМмТтФфЦцШшЪъ = (5x8)
+    AaBbCcDdEeFGgHhJjKkLNnOoPpQqRrSsUuvXxYyZzАаБбВвГдЕеЗзИиКкЛлНнОоПпРрСсУуХхЧчЬьЭэЯя = (4x8)
+    fItг = (3x8)
     l = (2x8)
     i = (1x8)
 )
 
-diacritics = (
+diacritics = ( //пустышка
     acute      atlas(120,5)   size(4x3)   attach(+1,-2)
     grave      atlas(125,5)   size(4x3)   attach(+1,-2)
     circumflex atlas(130,5)   size(4x3)   attach(+1,-2)

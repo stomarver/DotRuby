@@ -18,8 +18,10 @@ public final class Parse {
                                  int gapY,
                                  int edgeGapX,
                                  int edgeGapY,
-                                 int charSpacing,
+                                 int charSpacingX,
+                                 int charSpacingY,
                                  int spacing,
+                                 int glyphBaseline, // Смещение глифа вниз относительно penY
                                  String[] rows,
                                  Map<Character, GlyphSize> advances) {
     }
@@ -52,60 +54,89 @@ public final class Parse {
 
         for (int index = 0; index < text.length(); index++) {
             char value = text.charAt(index);
+
             if (value == '\n') {
                 penX = 0;
-                penY += font.glyphHeight();
+                // penY сдвигается на высоту слота + межстрочный отступ.
+                // Baseline влияет только на рисование, а не на высоту строки сетки.
+                penY += font.glyphHeight() + font.charSpacingY();
                 continue;
             }
+
             if (value == ' ') {
-                penX += Math.max(1, font.spacing()) + font.charSpacing();
+                // ИСПРАВЛЕНИЕ BUG: убрали Math.max(1, ...).
+                // Теперь spacing(0) честно даёт 0 ширины, а spacing(-1) - наезд.
+                penX += font.spacing() + font.charSpacingX();
                 continue;
             }
 
             Glyph glyph = glyph(font, value);
             if (glyph == null) {
-                penX += font.glyphWidth() + font.charSpacing();
+                penX += font.glyphWidth() + font.charSpacingX();
                 continue;
             }
 
-            quads.add(new Quad(glyph, penX, penY - glyph.atlasHeight()));
-            penX += glyph.advanceWidth() + font.charSpacing();
+            // ИСПРАВЛЕНИЕ FEATURE: добавляем glyphBaseline.
+            // glyphBaseline позволяет сместить все буквы вниз (например, для привязки к базовой линии),
+            // не меняя логику переноса строк и сетки.
+            quads.add(new Quad(glyph, penX, penY + font.glyphBaseline()));
+
+            penX += glyph.advanceWidth() + font.charSpacingX();
         }
         return quads;
     }
 
     public static Glyph glyph(FontDefinition font, char value) {
-        int slotWidth = resolvedSlotWidth(font);
+        // Размер слота в атласе (фиксированный!)
+        int slotWidth = font.glyphWidth();
+        int slotHeight = font.glyphHeight();
+
         for (int row = 0; row < font.rows().length; row++) {
             int column = font.rows()[row].indexOf(value);
             if (column < 0) {
                 continue;
             }
 
-            GlyphSize size = font.advances().getOrDefault(value, new GlyphSize(font.glyphWidth(), font.glyphHeight()));
-            int advance = size.width();
+            // Позиция слота в атласе по фиксированной сетке:
+            // edge + column * (slot + gap)
+            int atlasX = font.edgeGapX() + column * (slotWidth + font.gapX());
+            int atlasY = font.edgeGapY() + row * (slotHeight + font.gapY());
+
+            // Реальный размер глифа (может быть меньше слота)
+            GlyphSize size = font.advances().getOrDefault(
+                    value,
+                    new GlyphSize(slotWidth, slotHeight)
+            );
+
+            // Защита от выхода за границы слота (если в конфиге ошибка)
+            int drawWidth = Math.min(size.width(), slotWidth);
+            int drawHeight = Math.min(size.height(), slotHeight);
+
             return new Glyph(
                     value,
-                    font.edgeGapX() + (column * slotWidth) + (column * font.gapX()),
-                    font.edgeGapY() + (row * font.glyphHeight()) + (row * font.gapY()),
-                    size.width(),
-                    size.height(),
-                    advance
+                    atlasX,
+                    atlasY,
+                    drawWidth,
+                    drawHeight,
+                    size.width() // advance
             );
         }
         return null;
     }
 
     private static FontDefinition parseFont(List<String> rawLines) {
-        String bitmap = "";
+        String atlas = "";
         int glyphWidth = 6;
         int glyphHeight = 8;
         int gapX = 0;
         int gapY = 0;
         int edgeGapX = 0;
         int edgeGapY = 0;
-        int charSpacing = 0;
-        int spacing = 6;
+        int charSpacingX = 0;
+        int charSpacingY = 0;
+        int spacing = 3; // Значение по умолчанию
+        int glyphBaseline = 0; // Значение по умолчанию (0 = выравнивание по верху)
+
         List<String> rows = new ArrayList<>();
         Map<Character, GlyphSize> advances = new HashMap<>();
 
@@ -142,8 +173,8 @@ public final class Parse {
                 continue;
             }
 
-            if (line.startsWith("bitmap(")) {
-                bitmap = valueInParens(line);
+            if (line.startsWith("atlas(")) {
+                atlas = valueInParens(line);
             } else if (line.startsWith("glyph-size(")) {
                 int[] values = parsePair(valueInParens(line), "x");
                 glyphWidth = values[0];
@@ -157,22 +188,34 @@ public final class Parse {
                 edgeGapX = values[0];
                 edgeGapY = values[1];
             } else if (line.startsWith("char-spacing(") || line.startsWith("glyph-spacing(")) {
-                charSpacing = parseInt(valueInParens(line));
+                String value = valueInParens(line);
+                if (value.contains(",")) {
+                    int[] values = parsePair(value, ",");
+                    charSpacingX = values[0];
+                    charSpacingY = values[1];
+                } else {
+                    charSpacingX = parseInt(value);
+                    charSpacingY = 0;
+                }
+            } else if (line.startsWith("glyph-baseline(")) {
+                glyphBaseline = parseInt(valueInParens(line));
             } else if (line.startsWith("spacing(")) {
                 spacing = parseInt(valueInParens(line));
             }
         }
 
         return new FontDefinition(
-                bitmap,
+                atlas,
                 glyphWidth,
                 glyphHeight,
                 gapX,
                 gapY,
                 edgeGapX,
                 edgeGapY,
-                charSpacing,
+                charSpacingX,
+                charSpacingY,
                 spacing,
+                glyphBaseline,
                 rows.toArray(String[]::new),
                 Map.copyOf(advances)
         );
@@ -223,19 +266,5 @@ public final class Parse {
             return new GlyphSize(values[0], values[1]);
         }
         return new GlyphSize(parseInt(normalized), defaultHeight);
-    }
-
-    private static int resolvedSlotWidth(FontDefinition font) {
-        if (font.advances().isEmpty()) {
-            return Math.max(1, font.glyphWidth());
-        }
-
-        int maxAdvance = font.glyphWidth();
-        for (GlyphSize advance : font.advances().values()) {
-            if (advance != null) {
-                maxAdvance = Math.max(maxAdvance, advance.width());
-            }
-        }
-        return Math.max(1, maxAdvance + 1);
     }
 }
