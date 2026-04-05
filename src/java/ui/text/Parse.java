@@ -41,7 +41,7 @@ public final class Parse {
     public static FontDefinition font(Path path) {
         try {
             List<String> lines = Files.readAllLines(path);
-            return parseFont(lines);
+            return parseFont(lines, path);
         } catch (IOException exception) {
             throw new IllegalStateException("Unable to read font definition: " + path, exception);
         }
@@ -124,8 +124,8 @@ public final class Parse {
         return null;
     }
 
-    private static FontDefinition parseFont(List<String> rawLines) {
-        String atlas = "";
+    private static FontDefinition parseFont(List<String> rawLines, Path definitionPath) {
+        String atlas = siblingBitmapPath(definitionPath);
         int glyphWidth = 6;
         int glyphHeight = 8;
         int gapX = 0;
@@ -173,9 +173,7 @@ public final class Parse {
                 continue;
             }
 
-            if (line.startsWith("atlas(")) {
-                atlas = valueInParens(line);
-            } else if (line.startsWith("glyph-size(")) {
+            if (line.startsWith("glyph-size(")) {
                 int[] values = parsePair(valueInParens(line), "x");
                 glyphWidth = values[0];
                 glyphHeight = values[1];
@@ -219,6 +217,21 @@ public final class Parse {
                 rows.toArray(String[]::new),
                 Map.copyOf(advances)
         );
+    }
+
+    private static String siblingBitmapPath(Path definitionPath) {
+        if (definitionPath == null) {
+            return "";
+        }
+
+        String fileName = definitionPath.getFileName() == null
+                ? ""
+                : definitionPath.getFileName().toString();
+        int extension = fileName.lastIndexOf('.');
+        String baseName = extension >= 0 ? fileName.substring(0, extension) : fileName;
+        Path directory = definitionPath.getParent();
+        Path bitmapPath = (directory == null ? Path.of(baseName + ".png") : directory.resolve(baseName + ".png"));
+        return bitmapPath.toString();
     }
 
     private static void parseAdvance(String line, Map<Character, GlyphSize> advances, int defaultHeight) {
