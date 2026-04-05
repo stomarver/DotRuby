@@ -1,6 +1,7 @@
 package engine.display;
 
 import engine.visual.Overlay;
+import engine.visual.utils.BackgroundGradient;
 import engine.display.gl.Mesh;
 import org.lwjgl.glfw.GLFWErrorCallback;
 import org.lwjgl.opengl.GL;
@@ -30,6 +31,7 @@ import static org.lwjgl.glfw.GLFW.glfwShowWindow;
 import static org.lwjgl.glfw.GLFW.glfwSwapBuffers;
 import static org.lwjgl.glfw.GLFW.glfwSwapInterval;
 import static org.lwjgl.glfw.GLFW.glfwTerminate;
+import static org.lwjgl.glfw.GLFW.glfwGetTime;
 import static org.lwjgl.glfw.GLFW.glfwWindowHint;
 import static org.lwjgl.glfw.GLFW.glfwWindowShouldClose;
 import static org.lwjgl.opengl.GL11.GL_COLOR_BUFFER_BIT;
@@ -46,6 +48,7 @@ public class Manager {
     private final Config config;
     private final ui.Manager uiManager = new ui.Manager();
     private final Overlay overlay = new Overlay();
+    private final BackgroundGradient backgroundGradient = new BackgroundGradient();
     private final Mesh mesh = new Mesh();
 
     private long windowHandle;
@@ -110,6 +113,7 @@ public class Manager {
         rememberWindowedBounds(Monitor.primary(config.getWidth(), config.getHeight()));
 
         GL.createCapabilities();
+        backgroundGradient.init();
         overlay.init();
 
         glClearColor(config.getClearR(), config.getClearG(), config.getClearB(), config.getClearA());
@@ -285,6 +289,7 @@ public class Manager {
     public void clearFrame() {
         glViewport(0, 0, getFramebufferWidth(), getFramebufferHeight());
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+        backgroundGradient.render(getFramebufferWidth(), getFramebufferHeight(), (float) glfwGetTime());
         applyRenderViewport();
     }
 
@@ -380,6 +385,7 @@ public class Manager {
     }
 
     public void destroyWindow() {
+        backgroundGradient.destroy();
         overlay.destroy();
         uiManager.destroy();
         glfwFreeCallbacks(windowHandle);
