@@ -69,8 +69,8 @@ public final class Manager {
                                      float virtualY,
                                      float physicalPixelsPerVirtualX,
                                      float physicalPixelsPerVirtualY,
-                                     int virtualWidth,
-                                     int virtualHeight) {
+                                     float virtualWidth,
+                                     float virtualHeight) {
         if (consumeIgnoredCursorSync()) {
             cursor.resetMotionTracking();
             return;
@@ -92,7 +92,7 @@ public final class Manager {
         pushEvent(new Event(Event.Type.CURSOR_MOVED, (float) cursor.getX(), (float) cursor.getY()));
     }
 
-    public void preserveCursorGridPosition(int virtualWidth, int virtualHeight) {
+    public void preserveCursorGridPosition(float virtualWidth, float virtualHeight) {
         ignoreNextCursorSync = true;
         cursor.resetMotionTracking();
         cursor.setClampedPosition(cursor.getX(), cursor.getY(), virtualWidth, virtualHeight);

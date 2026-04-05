@@ -68,7 +68,7 @@ public class Cursor {
         this.y = y;
     }
 
-    public void setClampedPosition(double x, double y, int virtualWidth, int virtualHeight) {
+    public void setClampedPosition(double x, double y, float virtualWidth, float virtualHeight) {
         this.x = clampX(x, virtualWidth);
         this.y = clampY(y, virtualHeight);
     }
@@ -77,8 +77,8 @@ public class Cursor {
                                        double physicalY,
                                        float physicalPixelsPerVirtualX,
                                        float physicalPixelsPerVirtualY,
-                                       int virtualWidth,
-                                       int virtualHeight) {
+                                       float virtualWidth,
+                                       float virtualHeight) {
         if (!physicalTrackingInitialized) {
             lastPhysicalX = physicalX;
             lastPhysicalY = physicalY;
@@ -166,12 +166,12 @@ public class Cursor {
         }
     }
 
-    private double clampX(double value, int virtualWidth) {
+    private double clampX(double value, float virtualWidth) {
         double maxX = Math.max(0, virtualWidth - 1);
         return Math.max(0, Math.min(value, maxX));
     }
 
-    private double clampY(double value, int virtualHeight) {
+    private double clampY(double value, float virtualHeight) {
         double maxY = Math.max(0, virtualHeight);
         return Math.max(0, Math.min(value, maxY));
     }

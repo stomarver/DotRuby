@@ -110,7 +110,7 @@ public final class Overlay {
         discardBlackLocation = glGetUniformLocation(programId, "uDiscardBlack");
     }
 
-    public void begin(int virtualWidth, int virtualHeight) {
+    public void begin(float virtualWidth, float virtualHeight) {
         if (programId == 0) {
             throw new IllegalStateException("Overlay is not initialized");
         }

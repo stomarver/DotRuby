@@ -16,7 +16,7 @@ public final class Config {
     private static final Path LEGACY_PATH = RuntimePaths.legacyConfigPath("Display.txt");
 
     public static Config defaults() {
-        return new Config("DotRuby", 960, 540, false, Mode.WINDOWED, Fullscreen.BORDERLESS, false, true, VSync.DOUBLE_BUFFERED, true, 0.0f, 0.0f, 1.0f, 1.0f);
+        return new Config("DotRuby", 960, 540, false, Mode.WINDOWED, Fullscreen.BORDERLESS, false, true, VSync.DOUBLE_BUFFERED, true, 2, 0.0f, 0.0f, 1.0f, 1.0f);
     }
 
     public static Config loadDefault() {
@@ -39,6 +39,7 @@ public final class Config {
                 parseBoolean(values.get("lock_cursor"), defaults.isLockCursor()),
                 parseVSync(values.get("vsync"), defaults.getVSync()),
                 parseBoolean(values.get("centering"), defaults.isCentering()),
+                parseVirtualScale(values.get("virtual_scale"), defaults.getVirtualScale()),
                 defaults.getClearR(),
                 defaults.getClearG(),
                 defaults.getClearB(),
@@ -56,6 +57,7 @@ public final class Config {
     private final boolean lockCursor;
     private final VSync vSync;
     private final boolean centering;
+    private final int virtualScale;
     private final float clearR;
     private final float clearG;
     private final float clearB;
@@ -71,6 +73,7 @@ public final class Config {
                   boolean lockCursor,
                   VSync vSync,
                   boolean centering,
+                  int virtualScale,
                   float clearR,
                   float clearG,
                   float clearB,
@@ -85,6 +88,7 @@ public final class Config {
         this.lockCursor = lockCursor;
         this.vSync = vSync == null ? VSync.DOUBLE_BUFFERED : vSync;
         this.centering = centering;
+        this.virtualScale = clampVirtualScale(virtualScale);
         this.clearR = clearR;
         this.clearG = clearG;
         this.clearB = clearB;
@@ -129,6 +133,10 @@ public final class Config {
 
     public boolean isCentering() {
         return centering;
+    }
+
+    public int getVirtualScale() {
+        return virtualScale;
     }
 
     public float getClearR() {
@@ -223,6 +231,22 @@ public final class Config {
         return VSync.valueOf(value.trim().toUpperCase(Locale.ROOT));
     }
 
+    private static int parseVirtualScale(String value, int fallback) {
+        if (value == null || value.isBlank()) {
+            return fallback;
+        }
+
+        try {
+            return clampVirtualScale(Integer.parseInt(value.trim()));
+        } catch (NumberFormatException ignored) {
+            return fallback;
+        }
+    }
+
+    private static int clampVirtualScale(int value) {
+        return Math.max(1, Math.min(4, value));
+    }
+
     private String toConfigFile() {
         return """
                 window_mode=%s
@@ -231,6 +255,7 @@ public final class Config {
                 vsync=%s
                 centering=%s
                 lock_cursor=%s
-                """.formatted(windowMode, fullscreen, rawInputEnabled, vSync, centering, lockCursor);
+                virtual_scale=%d
+                """.formatted(windowMode, fullscreen, rawInputEnabled, vSync, centering, lockCursor, virtualScale);
     }
 }

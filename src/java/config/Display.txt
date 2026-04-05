@@ -5,3 +5,5 @@ fullscreen_type=BORDERLESS
 raw_input=false
 vsync=DOUBLE_BUFFERED
 centering=true
+lock_cursor=true
+virtual_scale=2
