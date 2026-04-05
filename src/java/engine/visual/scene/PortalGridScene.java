@@ -2,7 +2,7 @@ package engine.visual.scene;
 
 import engine.visual.Overlay;
 import engine.visual.Render;
-import engine.util.res.Unloader;
+import engine.util.resource.Unloader;
 
 import static org.lwjgl.opengl.GL11.GL_TRIANGLES;
 import static org.lwjgl.opengl.GL11.glBegin;

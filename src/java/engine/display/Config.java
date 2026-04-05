@@ -13,16 +13,14 @@ import java.util.Map;
 public final class Config {
 
     private static final Path DEFAULT_PATH = RuntimePaths.configPath("Display.cfg");
-    private static final Path LEGACY_PATH = RuntimePaths.legacyConfigPath("Display.txt");
     private static final Path LOCAL_ASSET_PATH = Path.of("src/asset/config/Display.cfg");
-    private static final Path LOCAL_LEGACY_PATH = Path.of("src/java/config/Display.txt");
 
     public static Config defaults() {
         return new Config("DotRuby", 960, 540, false, Mode.WINDOWED, Fullscreen.BORDERLESS, false, true, VSync.DOUBLE_BUFFERED, true, 2, 0.0f, 0.0f, 1.0f, 1.0f);
     }
 
     public static Config loadDefault() {
-        Path resolvedPath = resolveConfigPath(LOCAL_ASSET_PATH, LOCAL_LEGACY_PATH, DEFAULT_PATH, LEGACY_PATH);
+        Path resolvedPath = resolveConfigPath(LOCAL_ASSET_PATH, DEFAULT_PATH);
         if (resolvedPath == null) {
             throw new IllegalStateException("Unable to resolve display config path");
         }

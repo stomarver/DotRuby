@@ -1,4 +1,6 @@
-package engine.util.sys;
+package engine.util.system;
+
+import engine.util.path.RuntimePaths;
 
 import java.io.IOException;
 import java.nio.file.Files;
@@ -17,7 +19,13 @@ import static org.lwjgl.glfw.GLFW.glfwGetPlatform;
 
 public final class Detect {
 
+    private static final Path ENV_LOG_PATH = RuntimePaths.logPath("env.log");
+
     private Detect() {
+    }
+
+    public static void updateEnvLog() {
+        write(ENV_LOG_PATH, describeEnvironment());
     }
 
     public static boolean isLinux() {
@@ -73,6 +81,28 @@ public final class Detect {
         return value == null || value.isBlank() ? "<unset>" : value;
     }
 
+    private static String describeEnvironment() {
+        StringBuilder log = new StringBuilder();
+        appendLine(log, "distro", distroLabel());
+        if (isLinux()) {
+            appendLine(log, "kernel", System.getProperty("os.version", "<unset>"));
+            appendLine(log, "desktop", env("XDG_CURRENT_DESKTOP"));
+            appendLine(log, "sessionType", env("XDG_SESSION_TYPE"));
+        }
+        appendLine(log, "platform", glfwPlatformName());
+        appendLine(log, "javaVersion", System.getProperty("java.version", "<unset>"));
+        return log.toString();
+    }
+
+    private static String distroLabel() {
+        if (isLinux()) {
+            return linuxDistro();
+        }
+        String osName = System.getProperty("os.name", "<unknown>");
+        String osVersion = System.getProperty("os.version", "");
+        return osVersion.isBlank() ? osName : osName + " " + osVersion;
+    }
+
     private static int glfwPlatform() {
         try {
             return glfwGetPlatform();
@@ -93,6 +123,22 @@ public final class Detect {
             values.put(parts[0].trim(), unquote(parts[1].trim()));
         }
         return values;
+    }
+
+    private static void appendLine(StringBuilder log, String key, String value) {
+        log.append(String.format("%-11s", key))
+                .append(" = ")
+                .append(value)
+                .append('\n');
+    }
+
+    private static void write(Path path, String body) {
+        try {
+            Files.createDirectories(path.getParent());
+            Files.writeString(path, body);
+        } catch (IOException exception) {
+            System.err.println("[engine.util.system.Detect] failed to write " + path + ": " + exception.getMessage());
+        }
     }
 
     private static String unquote(String value) {

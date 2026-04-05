@@ -1,6 +1,6 @@
 package engine.visual;
 
-import engine.visual.gpu.Shader;
+import engine.visual.shader.Shader;
 
 import static org.lwjgl.opengl.GL11.GL_BLEND;
 import static org.lwjgl.opengl.GL11.GL_DEPTH_TEST;

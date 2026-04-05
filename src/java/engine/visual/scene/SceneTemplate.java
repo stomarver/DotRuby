@@ -1,6 +1,6 @@
 package engine.visual.scene;
 
-import engine.util.res.Unloader;
+import engine.util.resource.Unloader;
 import engine.visual.Overlay;
 import engine.visual.Render;
 

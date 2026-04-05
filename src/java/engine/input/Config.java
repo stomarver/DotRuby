@@ -15,7 +15,6 @@ import java.util.Map;
 public final class Config {
 
     private static final Path DEFAULT_PATH = RuntimePaths.configPath("Input.cfg");
-    private static final Path LEGACY_PATH = RuntimePaths.legacyConfigPath("Input.txt");
 
     public static Config defaults() {
         return new Config(true, true, false, 1024,
@@ -24,7 +23,7 @@ public final class Config {
     }
 
     public static Config loadDefault(boolean rawMouseInputEnabled) {
-        Path path = resolveConfigPath(DEFAULT_PATH, LEGACY_PATH);
+        Path path = resolveConfigPath(DEFAULT_PATH);
         ensureDefaultConfig(path, defaults().withRawMouseInput(rawMouseInputEnabled));
         return load(path, rawMouseInputEnabled);
     }
@@ -163,13 +162,7 @@ public final class Config {
         }
     }
 
-    private static Path resolveConfigPath(Path defaultPath, Path legacyPath) {
-        if (Files.exists(defaultPath)) {
-            return defaultPath;
-        }
-        if (Files.exists(legacyPath)) {
-            return legacyPath;
-        }
+    private static Path resolveConfigPath(Path defaultPath) {
         return defaultPath;
     }
 

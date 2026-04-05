@@ -2,7 +2,7 @@ package engine.visual.scene;
 
 import engine.visual.Overlay;
 import engine.visual.Render;
-import engine.util.res.Unloader;
+import engine.util.resource.Unloader;
 
 import java.util.HashMap;
 import java.util.Map;

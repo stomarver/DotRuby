@@ -1,4 +1,4 @@
-package engine.visual.gpu;
+package engine.visual.shader;
 
 import static org.lwjgl.opengl.GL20.GL_COMPILE_STATUS;
 import static org.lwjgl.opengl.GL20.GL_FRAGMENT_SHADER;
