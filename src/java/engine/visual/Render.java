@@ -15,6 +15,9 @@ public final class Render {
             Path.of("src/main/resources/fonts/Regular")
     );
     private static final float BASE_SCALE = 1f;
+    private static final float SHADOW_OFFSET_X = 1f;
+    private static final float SHADOW_OFFSET_Y = 1f;
+    private static final float SHADOW_ALPHA = 0.5f;
 
     private final TextureLoader textureLoader = new TextureLoader();
     private Parse.FontDefinition font;
@@ -65,12 +68,34 @@ public final class Render {
             float minV = quad.glyph().atlasY() / (float) textureHeight;
             float maxU = (quad.glyph().atlasX() + quad.glyph().atlasWidth()) / (float) textureWidth;
             float maxV = (quad.glyph().atlasY() + quad.glyph().atlasHeight()) / (float) textureHeight;
+
+            float drawX = x + (quad.drawX() * resolvedScale);
+            float drawY = y + (quad.drawY() * resolvedScale);
+            float drawWidth = quad.glyph().atlasWidth() * resolvedScale;
+            float drawHeight = quad.glyph().atlasHeight() * resolvedScale;
+
+            overlay.drawTexturedQuadRegionTint(
+                    textureId,
+                    drawX + SHADOW_OFFSET_X,
+                    drawY + SHADOW_OFFSET_Y,
+                    drawWidth,
+                    drawHeight,
+                    minU,
+                    minV,
+                    maxU,
+                    maxV,
+                    0f,
+                    0f,
+                    0f,
+                    SHADOW_ALPHA,
+                    false
+            );
             overlay.drawTexturedQuadRegion(
                     textureId,
-                    x + (quad.drawX() * resolvedScale),
-                    y + (quad.drawY() * resolvedScale),
-                    quad.glyph().atlasWidth() * resolvedScale,
-                    quad.glyph().atlasHeight() * resolvedScale,
+                    drawX,
+                    drawY,
+                    drawWidth,
+                    drawHeight,
                     minU,
                     minV,
                     maxU,

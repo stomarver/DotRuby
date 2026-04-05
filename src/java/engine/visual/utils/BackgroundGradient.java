@@ -55,12 +55,12 @@ public final class BackgroundGradient {
                 vec2 uv = gl_FragCoord.xy / max(uResolution, vec2(1.0));
 
                 float vertical = uv.y;
-                vertical += 0.06 * sin(uTime * 0.45 + uv.x * 5.5);
-                vertical += 0.03 * sin(uTime * 0.25 + uv.x * 11.0 + uv.y * 4.0);
+                vertical += 0.08 * sin(uTime * 1.20 + uv.x * 7.5);
+                vertical += 0.04 * sin(uTime * 0.85 + uv.x * 13.0 + uv.y * 5.0);
                 vertical = clamp(vertical, 0.0, 1.0);
 
                 vec3 color = palette(vertical);
-                float pulse = 0.93 + 0.07 * sin(uTime * 0.55 + uv.y * 7.5);
+                float pulse = 0.90 + 0.10 * sin(uTime * 1.40 + uv.y * 8.5);
                 color *= pulse;
 
                 fragColor = vec4(color, 1.0);

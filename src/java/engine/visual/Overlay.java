@@ -138,9 +138,26 @@ public final class Overlay {
                                        float maxU,
                                        float maxV,
                                        boolean discardBlack) {
+        drawTexturedQuadRegionTint(textureId, x, y, width, height, minU, minV, maxU, maxV, 1f, 1f, 1f, 1f, discardBlack);
+    }
+
+    public void drawTexturedQuadRegionTint(int textureId,
+                                           float x,
+                                           float y,
+                                           float width,
+                                           float height,
+                                           float minU,
+                                           float minV,
+                                           float maxU,
+                                           float maxV,
+                                           float r,
+                                           float g,
+                                           float b,
+                                           float a,
+                                           boolean discardBlack) {
         ensureStarted();
         glBindTexture(GL_TEXTURE_2D, textureId);
-        glUniform4f(colorLocation, 1f, 1f, 1f, 1f);
+        glUniform4f(colorLocation, r, g, b, a);
         glUniform1i(useTextureLocation, 1);
         glUniform1i(discardBlackLocation, discardBlack ? 1 : 0);
         uploadQuad(x, y, x + width, y + height, minU, minV, maxU, maxV);
