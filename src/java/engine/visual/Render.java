@@ -14,7 +14,7 @@ public final class Render {
             Path.of("src/java/ui/text/font/Regular"),
             Path.of("src/main/resources/fonts/Regular")
     );
-    private static final float BASE_SCALE = 2f;
+    private static final float BASE_SCALE = 1f;
 
     private final TextureLoader textureLoader = new TextureLoader();
     private Parse.FontDefinition font;
