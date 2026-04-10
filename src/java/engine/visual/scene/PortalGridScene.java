@@ -4,15 +4,10 @@ import engine.visual.Overlay;
 import engine.visual.Render;
 import engine.util.resource.Unloader;
 
-import static org.lwjgl.opengl.GL11.GL_TRIANGLES;
-import static org.lwjgl.opengl.GL11.glBegin;
-import static org.lwjgl.opengl.GL11.glColor3f;
-import static org.lwjgl.opengl.GL11.glEnd;
-import static org.lwjgl.opengl.GL11.glVertex3f;
-
 public final class PortalGridScene extends SceneTemplate {
 
     private float phase;
+    private final TriangleRenderer3D triangleRenderer = new TriangleRenderer3D();
 
     public PortalGridScene() {
         super(SceneIds.PORTAL_GRID, SceneType.TWO_D_AND_THREE_D);
@@ -21,6 +16,8 @@ public final class PortalGridScene extends SceneTemplate {
     @Override
     public void initialize(Unloader resources) {
         phase = 0f;
+        triangleRenderer.init();
+        resources.track(triangleRenderer::destroy);
     }
 
     @Override
@@ -31,12 +28,11 @@ public final class PortalGridScene extends SceneTemplate {
     @Override
     public void render3D() {
         float pulse = 0.35f + ((float) Math.sin(phase) * 0.15f);
-        glColor3f(0.4f, 0.8f, 1.0f);
-        glBegin(GL_TRIANGLES);
-        glVertex3f(0f, pulse, 0f);
-        glVertex3f(-pulse, -pulse, 0f);
-        glVertex3f(pulse, -pulse, 0f);
-        glEnd();
+        triangleRenderer.draw(new float[] {
+                0f, pulse, 0f, 0.4f, 0.8f, 1.0f,
+                -pulse, -pulse, 0f, 0.4f, 0.8f, 1.0f,
+                pulse, -pulse, 0f, 0.4f, 0.8f, 1.0f
+        });
     }
 
     @Override

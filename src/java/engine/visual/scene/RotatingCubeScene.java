@@ -4,12 +4,6 @@ import engine.util.resource.Unloader;
 
 import java.util.Arrays;
 
-import static org.lwjgl.opengl.GL11.GL_TRIANGLES;
-import static org.lwjgl.opengl.GL11.glBegin;
-import static org.lwjgl.opengl.GL11.glColor3f;
-import static org.lwjgl.opengl.GL11.glEnd;
-import static org.lwjgl.opengl.GL11.glVertex3f;
-
 public final class RotatingCubeScene extends SceneTemplate {
 
     private static final float[][] CUBE_VERTICES = {
@@ -26,6 +20,7 @@ public final class RotatingCubeScene extends SceneTemplate {
     };
 
     private float angle;
+    private final TriangleRenderer3D triangleRenderer = new TriangleRenderer3D();
 
     public RotatingCubeScene() {
         super(SceneIds.ROTATING_CUBE, SceneType.THREE_D);
@@ -34,6 +29,8 @@ public final class RotatingCubeScene extends SceneTemplate {
     @Override
     public void initialize(Unloader resources) {
         angle = 0f;
+        triangleRenderer.init();
+        resources.track(triangleRenderer::destroy);
     }
 
     @Override
@@ -49,18 +46,18 @@ public final class RotatingCubeScene extends SceneTemplate {
         }
 
         int[] order = depthSortedTriangleOrder(projected);
-        glColor3f(1f, 1f, 1f);
-        glBegin(GL_TRIANGLES);
+        float[] mesh = new float[order.length * 3 * 6];
+        int offset = 0;
         for (int triangleIndex : order) {
             int[] triangle = TRIANGLES[triangleIndex];
             float[] a = projected[triangle[0]];
             float[] b = projected[triangle[1]];
             float[] c = projected[triangle[2]];
-            glVertex3f(toNdcX(a[0]), toNdcY(a[1]), a[2] / 6f);
-            glVertex3f(toNdcX(b[0]), toNdcY(b[1]), b[2] / 6f);
-            glVertex3f(toNdcX(c[0]), toNdcY(c[1]), c[2] / 6f);
+            offset = putVertex(mesh, offset, toNdcX(a[0]), toNdcY(a[1]), a[2] / 6f, 1f, 1f, 1f);
+            offset = putVertex(mesh, offset, toNdcX(b[0]), toNdcY(b[1]), b[2] / 6f, 1f, 1f, 1f);
+            offset = putVertex(mesh, offset, toNdcX(c[0]), toNdcY(c[1]), c[2] / 6f, 1f, 1f, 1f);
         }
-        glEnd();
+        triangleRenderer.draw(mesh);
     }
 
     private static float[] rotate(float[] vertex, float angle) {
@@ -114,5 +111,22 @@ public final class RotatingCubeScene extends SceneTemplate {
 
     private static float toNdcY(float y) {
         return 1f - (y / 270f);
+    }
+
+    private static int putVertex(float[] target,
+                                 int offset,
+                                 float x,
+                                 float y,
+                                 float z,
+                                 float r,
+                                 float g,
+                                 float b) {
+        target[offset] = x;
+        target[offset + 1] = y;
+        target[offset + 2] = z;
+        target[offset + 3] = r;
+        target[offset + 4] = g;
+        target[offset + 5] = b;
+        return offset + 6;
     }
 }

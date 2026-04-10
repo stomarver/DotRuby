@@ -11,6 +11,11 @@ import static org.lwjgl.glfw.GLFW.GLFW_AUTO_ICONIFY;
 import static org.lwjgl.glfw.GLFW.GLFW_DECORATED;
 import static org.lwjgl.glfw.GLFW.GLFW_FALSE;
 import static org.lwjgl.glfw.GLFW.GLFW_FOCUS_ON_SHOW;
+import static org.lwjgl.glfw.GLFW.GLFW_OPENGL_CORE_PROFILE;
+import static org.lwjgl.glfw.GLFW.GLFW_OPENGL_FORWARD_COMPAT;
+import static org.lwjgl.glfw.GLFW.GLFW_OPENGL_PROFILE;
+import static org.lwjgl.glfw.GLFW.GLFW_CONTEXT_VERSION_MAJOR;
+import static org.lwjgl.glfw.GLFW.GLFW_CONTEXT_VERSION_MINOR;
 import static org.lwjgl.glfw.GLFW.GLFW_RESIZABLE;
 import static org.lwjgl.glfw.GLFW.GLFW_TRUE;
 import static org.lwjgl.glfw.GLFW.GLFW_VISIBLE;
@@ -98,6 +103,10 @@ public class Manager {
         glfwWindowHint(GLFW_RESIZABLE, config.isResizable() ? GLFW_TRUE : GLFW_FALSE);
         glfwWindowHint(GLFW_FOCUS_ON_SHOW, GLFW_TRUE);
         glfwWindowHint(GLFW_DECORATED, GLFW_FALSE);
+        glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
+        glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
+        glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
+        glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GLFW_TRUE);
 
         windowHandle = glfwCreateWindow(config.getWidth(), config.getHeight(), config.getTitle(), NULL, NULL);
         if (windowHandle == NULL) {

@@ -6,7 +6,7 @@ public class Window {
     private final engine.input.Manager inputManager;
 
     public Window() {
-        this(Config.loadDefault(), engine.input.Config.loadDefault(Config.loadDefault().isRawInputEnabled()));
+        this(Config.loadDefault());
     }
 
     public Window(Config displayConfig) {
