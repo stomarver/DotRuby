@@ -24,8 +24,8 @@ public final class Manager {
         visualManager.render3D();
     }
 
-    public void render2D(Overlay overlay, float borderThickness, float cursorWidth, float cursorHeight) {
-        visualManager.render2D(overlay);
+    public void render2D(Overlay overlay, float borderThickness, float cursorWidth, float cursorHeight, float configuredVirtualScale) {
+        visualManager.render2D(overlay, configuredVirtualScale);
         selection.render(overlay, borderThickness);
         cursor.render(overlay, cursorWidth, cursorHeight);
     }

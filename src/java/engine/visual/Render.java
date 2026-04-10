@@ -18,6 +18,27 @@ public final class Render {
     private static final float SHADOW_OFFSET_X = 1f;
     private static final float SHADOW_OFFSET_Y = 1f;
     private static final float SHADOW_ALPHA = 0.5f;
+    private float configuredVirtualScale = 1f;
+
+    public enum ScaleMode {
+        STANDARD,
+        FIXED,
+        RELATIVE
+    }
+
+    public record TextScale(ScaleMode mode, float value) {
+        public static TextScale standard() {
+            return new TextScale(ScaleMode.STANDARD, 0f);
+        }
+
+        public static TextScale fixed(float fixedScale) {
+            return new TextScale(ScaleMode.FIXED, fixedScale);
+        }
+
+        public static TextScale relative(float relativeOffset) {
+            return new TextScale(ScaleMode.RELATIVE, relativeOffset);
+        }
+    }
 
     private final TextureLoader textureLoader = new TextureLoader();
     private Parse.FontDefinition font;
@@ -47,10 +68,14 @@ public final class Render {
     }
 
     public void drawText(Overlay overlay, String value, float x, float y) {
-        drawText(overlay, value, x, y, 1f);
+        drawText(overlay, value, x, y, 1f, TextScale.standard());
     }
 
     public void drawText(Overlay overlay, String value, float x, float y, float size) {
+        drawText(overlay, value, x, y, size, TextScale.standard());
+    }
+
+    public void drawText(Overlay overlay, String value, float x, float y, float size, TextScale textScale) {
         if (textureId == 0) {
             throw new IllegalStateException("Regular font texture is not loaded");
         }
@@ -61,7 +86,7 @@ public final class Render {
             throw new IllegalStateException("Regular font definition is not loaded");
         }
 
-        float resolvedScale = Math.max(0.0001f, size) * BASE_SCALE;
+        float resolvedScale = Math.max(0.0001f, size) * BASE_SCALE * resolveScaleMultiplier(textScale);
         List<Parse.Quad> quads = Parse.text(font, value);
         for (Parse.Quad quad : quads) {
             float minU = quad.glyph().atlasX() / (float) textureWidth;
@@ -111,6 +136,22 @@ public final class Render {
             textureId = 0;
         }
         font = null;
+    }
+
+    public void setConfiguredVirtualScale(float configuredVirtualScale) {
+        this.configuredVirtualScale = Math.max(0.0001f, configuredVirtualScale);
+    }
+
+    private float resolveScaleMultiplier(TextScale textScale) {
+        TextScale resolved = textScale == null ? TextScale.standard() : textScale;
+        float configScale = Math.max(0.0001f, configuredVirtualScale);
+
+        float physicalTarget = switch (resolved.mode()) {
+            case FIXED -> Math.max(0.0001f, resolved.value());
+            case RELATIVE -> Math.max(0.0001f, configScale + resolved.value());
+            case STANDARD -> configScale;
+        };
+        return physicalTarget / configScale;
     }
 
     private static Path existingPath(List<Path> candidates) {

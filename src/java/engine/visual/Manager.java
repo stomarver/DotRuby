@@ -37,7 +37,8 @@ public final class Manager {
         sceneManager.render3DPass();
     }
 
-    public void render2D(Overlay overlay) {
+    public void render2D(Overlay overlay, float configuredVirtualScale) {
+        textRender.setConfiguredVirtualScale(configuredVirtualScale);
         sceneManager.render2DPass(overlay, textRender);
     }
 

@@ -309,7 +309,8 @@ public class Manager {
                 overlay,
                 getVirtualUnitsForPhysicalPixels(2f),
                 getVirtualUnitsForPhysicalPixelsExact(getCursor().getTextureWidth()),
-                getVirtualUnitsForPhysicalPixelsExact(getCursor().getTextureHeight())
+                getVirtualUnitsForPhysicalPixelsExact(getCursor().getTextureHeight()),
+                getUiScaleToPhysicalPixelsExact()
         );
         end2DPass();
         glfwSwapBuffers(windowHandle);
