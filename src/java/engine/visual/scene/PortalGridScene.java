@@ -116,7 +116,10 @@ public final class PortalGridScene extends SceneTemplate {
         glUniform1i(glGetUniformLocation(litProgram, "uAmbientOnly"), ambientOnly ? 1 : 0);
         glUniform1i(glGetUniformLocation(litProgram, "uUseCsm"), useCsm ? 1 : 0);
         glUniform3f(glGetUniformLocation(litProgram, "uCascades"), 8f, 25f, 60f);
-        for (int i = 0; i < 3; i++) { glActiveTexture(GL_TEXTURE0 + i); glBindTexture(GL_TEXTURE_2D, shadowTextures[i]); glUniform1i(glGetUniformLocation(litProgram, "uShadow[" + i + "]"), i); }
+        for (int i = 0; i < 3; i++) { glActiveTexture(GL_TEXTURE0 + i); glBindTexture(GL_TEXTURE_2D, shadowTextures[i]); }
+        glUniform1i(glGetUniformLocation(litProgram, "uShadow0"), 0);
+        glUniform1i(glGetUniformLocation(litProgram, "uShadow1"), 1);
+        glUniform1i(glGetUniformLocation(litProgram, "uShadow2"), 2);
         drawGeometry();
     }
 
@@ -166,7 +169,9 @@ in float vViewDepth;
 uniform vec3 uLightPos;
 uniform int uAmbientOnly;
 uniform int uUseCsm;
-uniform sampler2D uShadow[3];
+uniform sampler2D uShadow0;
+uniform sampler2D uShadow1;
+uniform sampler2D uShadow2;
 uniform mat4 uLightMvp[3];
 uniform vec3 uCascades;
 out vec4 fragColor;
@@ -176,7 +181,7 @@ float shadowSample(int idx){
     vec2 uv=ndc.xy*0.5+0.5;
     if(uv.x<0||uv.x>1||uv.y<0||uv.y>1) return 1.0;
     float depth=ndc.z*0.5+0.5;
-    float map=texture(uShadow[idx], uv).r;
+    float map = idx == 0 ? texture(uShadow0, uv).r : (idx == 1 ? texture(uShadow1, uv).r : texture(uShadow2, uv).r);
     return depth-0.0015 > map ? 0.2 : 1.0;
 }
 void main(){
