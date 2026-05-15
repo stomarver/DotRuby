@@ -25,7 +25,7 @@ import static org.lwjgl.system.MemoryUtil.memFree;
 
 public final class PortalGridScene extends SceneTemplate {
 
-    private static final int SHADOW_MAP_SIZE = 1024;
+    private static final int SHADOW_MAP_SIZE = 4096;
     private static final float CAMERA_NEAR = 0.1f;
     private static final float CAMERA_FAR = 100f;
 
@@ -157,9 +157,10 @@ public final class PortalGridScene extends SceneTemplate {
     }
 
     private void renderStencilDarkeningPass(Matrix4f viewProj, Vector3f lightPos) {
+        // Doom3/Quake4 style: ambient already rendered, then build stencil volumes with z-fail, then additive lit on stencil==0.
         glEnable(GL_STENCIL_TEST);
-        glStencilMask(0xFF);
         glClear(GL_STENCIL_BUFFER_BIT);
+        glStencilMask(0xFF);
         glStencilFunc(GL_ALWAYS, 0, 0xFF);
 
         glColorMask(false, false, false, false);
@@ -169,19 +170,24 @@ public final class PortalGridScene extends SceneTemplate {
         glUseProgram(darkenProgram);
         setMat4(darkenProgram, "uViewProj", viewProj);
         glUniform3f(glGetUniformLocation(darkenProgram, "uLightPos"), lightPos.x, lightPos.y, lightPos.z);
-        glUniform1f(glGetUniformLocation(darkenProgram, "uExtrude"), 35f);
+        glUniform1f(glGetUniformLocation(darkenProgram, "uExtrude"), 45f);
 
+        // z-fail stencil ops (Carmack's reverse style)
         glCullFace(GL_FRONT);
-        glStencilOpSeparate(GL_FRONT, GL_KEEP, GL_INCR_WRAP, GL_KEEP);
-        glStencilOpSeparate(GL_BACK, GL_KEEP, GL_DECR_WRAP, GL_KEEP);
+        glStencilOp(GL_KEEP, GL_DECR_WRAP, GL_KEEP);
         drawGeometry();
 
+        glCullFace(GL_BACK);
+        glStencilOp(GL_KEEP, GL_INCR_WRAP, GL_KEEP);
+        drawGeometry();
+
+        // darken only shadowed pixels
         glColorMask(true, true, true, true);
         glDepthMask(true);
         glDisable(GL_CULL_FACE);
-
         glStencilFunc(GL_NOTEQUAL, 0, 0xFF);
         glStencilOp(GL_KEEP, GL_KEEP, GL_KEEP);
+
         glEnable(GL_BLEND);
         glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
@@ -197,6 +203,8 @@ public final class PortalGridScene extends SceneTemplate {
 
     private void buildLightCascades(Vector3f lightPos) {
         Matrix4f lightView = new Matrix4f().lookAt(lightPos, new Vector3f(0f, 0f, 0f), new Vector3f(0f, 1f, 0f));
+        Matrix4f lightGridRotate = new Matrix4f().rotateZ((float) Math.toRadians(90f));
+        lightView.mul(lightGridRotate);
         float[] extents = {20f, 34f, 54f};
         float[] fars = {25f, 50f, 100f};
 
