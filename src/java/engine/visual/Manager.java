@@ -3,8 +3,14 @@ package engine.visual;
 import engine.visual.scene.Prompt;
 import engine.visual.scene.PortalGridScene;
 import engine.visual.scene.RotatingCubeScene;
+import engine.visual.scene.ShadowScene;
 import engine.visual.scene.SceneIds;
 import engine.visual.scene.SceneManager;
+import engine.visual.scene.SceneBinding;
+import engine.visual.scene.SceneBindings;
+
+import java.util.HashMap;
+import java.util.Map;
 
 public final class Manager {
 
@@ -12,24 +18,33 @@ public final class Manager {
     private final PerformanceOverlay performanceOverlay = new PerformanceOverlay();
     private final SceneManager sceneManager = new SceneManager();
     private boolean textRenderLoaded;
+    private final Map<Integer, String> sceneByHotkey = new HashMap<>();
 
     public void initialize() {
         sceneManager.register(new Prompt());
         sceneManager.register(new RotatingCubeScene());
         sceneManager.register(new PortalGridScene());
+        sceneManager.register(new ShadowScene());
+        loadSceneBindings();
         sceneManager.activate(SceneIds.LOG_PROMPT);
         syncSceneResources();
     }
 
     public void activateSceneByHotkey(int sceneHotkey) {
-        switch (sceneHotkey) {
-            case 1 -> sceneManager.activate(SceneIds.LOG_PROMPT);
-            case 2 -> sceneManager.activate(SceneIds.ROTATING_CUBE);
-            case 3 -> sceneManager.activate(SceneIds.PORTAL_GRID);
-            default -> {
+        String sceneId = sceneByHotkey.get(sceneHotkey);
+        if (sceneId != null) {
+            sceneManager.activate(sceneId);
+            syncSceneResources();
+        }
+    }
+
+    private void loadSceneBindings() {
+        sceneByHotkey.clear();
+        for (SceneBinding binding : SceneBindings.load()) {
+            if (binding.hotkey() > 0) {
+                sceneByHotkey.put(binding.hotkey(), binding.id());
             }
         }
-        syncSceneResources();
     }
 
     public void render3D() {

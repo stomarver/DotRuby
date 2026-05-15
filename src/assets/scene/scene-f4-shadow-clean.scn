@@ -1,0 +1,3 @@
+id=scene.shadow-clean
+hotkey=F4
+description=Clean OpenGL shader pipeline scene
