@@ -1,3 +1,0 @@
-id=scene.portal-grid
-hotkey=F3
-description=Prototype portal grid

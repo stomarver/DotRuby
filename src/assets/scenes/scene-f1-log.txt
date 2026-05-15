@@ -1,3 +1,0 @@
-id=scene.log-prompt
-hotkey=F1
-description=Press L for Log
