@@ -5,6 +5,7 @@ import engine.visual.scene.PortalGridScene;
 import engine.visual.scene.RotatingCubeScene;
 import engine.visual.scene.SceneIds;
 import engine.visual.scene.SceneManager;
+import engine.visual.scene.ShadowPrototypeScene;
 import engine.visual.scene.SceneType;
 
 public final class Manager {
@@ -17,6 +18,7 @@ public final class Manager {
         sceneManager.register(new Prompt());
         sceneManager.register(new RotatingCubeScene());
         sceneManager.register(new PortalGridScene());
+        sceneManager.register(new ShadowPrototypeScene());
         sceneManager.activate(SceneIds.LOG_PROMPT);
         syncSceneResources();
     }
@@ -26,6 +28,7 @@ public final class Manager {
             case 1 -> sceneManager.activate(SceneIds.LOG_PROMPT);
             case 2 -> sceneManager.activate(SceneIds.ROTATING_CUBE);
             case 3 -> sceneManager.activate(SceneIds.PORTAL_GRID);
+            case 4 -> sceneManager.activate(SceneIds.SHADOW_PROTOTYPE);
             default -> {
             }
         }

@@ -7,6 +7,7 @@ import static org.lwjgl.glfw.GLFW.GLFW_KEY_F1;
 import static org.lwjgl.glfw.GLFW.GLFW_KEY_F2;
 import static org.lwjgl.glfw.GLFW.GLFW_KEY_F3;
 import static org.lwjgl.glfw.GLFW.GLFW_KEY_L;
+import static org.lwjgl.glfw.GLFW.GLFW_KEY_M;
 import static org.lwjgl.glfw.GLFW.GLFW_PRESS;
 import static org.lwjgl.glfw.GLFW.GLFW_RAW_MOUSE_MOTION;
 import static org.lwjgl.glfw.GLFW.GLFW_RELEASE;
@@ -47,6 +48,8 @@ public final class Bind {
                         displayManager.getUiManager().activateScene(2);
                     } else if (key == GLFW_KEY_F3) {
                         displayManager.getUiManager().activateScene(3);
+                    } else if (key == GLFW_KEY_M) {
+                        displayManager.getUiManager().activateScene(4);
                     }
                 }
             });
