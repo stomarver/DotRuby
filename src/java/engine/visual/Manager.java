@@ -1,8 +1,8 @@
 package engine.visual;
 
-import engine.visual.scene.Prompt;
-import engine.visual.scene.PortalGridScene;
-import engine.visual.scene.RotatingCubeScene;
+import engine.visual.scene.temp.Prompt;
+import engine.visual.scene.temp.PortalGridScene;
+import engine.visual.scene.temp.RotatingCubeScene;
 import engine.visual.scene.SceneIds;
 import engine.visual.scene.SceneManager;
 import engine.visual.scene.SceneType;
@@ -43,7 +43,7 @@ public final class Manager {
     }
 
     public void toggleLightingMode() {
-        if (sceneManager.activeSceneType().requires3D() && sceneManager.getActiveScene() instanceof engine.visual.scene.PortalGridScene portalGridScene) {
+        if (sceneManager.activeSceneType().requires3D() && sceneManager.getActiveScene() instanceof engine.visual.scene.temp.PortalGridScene portalGridScene) {
             portalGridScene.toggleLightingMode();
         }
     }

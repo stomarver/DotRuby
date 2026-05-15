@@ -19,7 +19,7 @@ import static org.lwjgl.opengl.GL30.glBindVertexArray;
 import static org.lwjgl.opengl.GL30.glDeleteVertexArrays;
 import static org.lwjgl.opengl.GL30.glGenVertexArrays;
 
-final class TriangleRenderer3D {
+public final class TriangleRenderer3D {
 
     private static final String VERTEX_SHADER = """
             #version 330 core
@@ -49,7 +49,7 @@ final class TriangleRenderer3D {
     private int vaoId;
     private int vboId;
 
-    void init() {
+    public void init() {
         if (programId != 0) {
             return;
         }
@@ -69,7 +69,7 @@ final class TriangleRenderer3D {
         glBindVertexArray(0);
     }
 
-    void draw(float[] positionAndColorInterleaved) {
+    public void draw(float[] positionAndColorInterleaved) {
         if (programId == 0 || vaoId == 0 || vboId == 0) {
             throw new IllegalStateException("TriangleRenderer3D is not initialized");
         }
@@ -87,7 +87,7 @@ final class TriangleRenderer3D {
         glUseProgram(0);
     }
 
-    void destroy() {
+    public void destroy() {
         if (vboId != 0) {
             glDeleteBuffers(vboId);
             vboId = 0;

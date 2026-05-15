@@ -1,4 +1,8 @@
-package engine.visual.scene;
+package engine.visual.scene.temp;
+
+import engine.visual.scene.SceneIds;
+import engine.visual.scene.SceneTemplate;
+import engine.visual.scene.SceneType;
 
 import engine.visual.Overlay;
 import engine.visual.Render;

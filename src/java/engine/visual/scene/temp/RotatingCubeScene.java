@@ -1,6 +1,11 @@
-package engine.visual.scene;
+package engine.visual.scene.temp;
+
+import engine.visual.scene.SceneIds;
+import engine.visual.scene.SceneTemplate;
+import engine.visual.scene.SceneType;
 
 import engine.util.resource.Unloader;
+import engine.visual.scene.TriangleRenderer3D;
 
 import java.util.Arrays;
 

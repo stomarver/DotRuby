@@ -1,4 +1,8 @@
-package engine.visual.scene;
+package engine.visual.scene.temp;
+
+import engine.visual.scene.SceneIds;
+import engine.visual.scene.SceneTemplate;
+import engine.visual.scene.SceneType;
 
 import engine.util.resource.Unloader;
 import engine.visual.Overlay;
@@ -64,10 +68,10 @@ public final class PortalGridScene extends SceneTemplate {
     }
 
     @Override public void render2D(Overlay overlay, Render textRender) {
-        textRender.drawText(overlay, "Prototype Portal Grid", 16f, 16f, 2f);
-        textRender.drawText(overlay, "F - switch lighting mode", 16f, 48f, 1.5f);
-        textRender.drawText(overlay, "Mode: " + lightingMode.label, 16f, 76f, 1.5f);
-        textRender.drawText(overlay, "Geometry: cubes + spheres + plane + isolated quad + isolated triangle", 16f, 104f, 1.5f);
+        textRender.drawText(overlay, "Prototype Portal Grid", 16f, 16f, 3f);
+        textRender.drawText(overlay, "F - switch lighting mode", 16f, 48f, 2f);
+        textRender.drawText(overlay, "Mode: " + lightingMode.label, 16f, 76f, 2f);
+        textRender.drawText(overlay, "Geometry: cubes + spheres + plane + isolated quad + isolated triangle", 16f, 104f, 2f);
     }
 
     public void toggleLightingMode() { lightingMode = lightingMode == LightingMode.STENCIL_VOLUMES ? LightingMode.CASCADED_SHADOW_MAPPING : LightingMode.STENCIL_VOLUMES; }
