@@ -52,6 +52,10 @@ public final class SceneManager {
         }
     }
 
+    public Scene getActiveScene() {
+        return activeScene;
+    }
+
     public SceneType activeSceneType() {
         return activeScene == null ? SceneType.TWO_D : activeScene.type();
     }

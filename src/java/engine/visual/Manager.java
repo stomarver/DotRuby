@@ -42,6 +42,12 @@ public final class Manager {
         sceneManager.render2DPass(overlay, textRender);
     }
 
+    public void toggleLightingMode() {
+        if (sceneManager.activeSceneType().requires3D() && sceneManager.getActiveScene() instanceof engine.visual.scene.PortalGridScene portalGridScene) {
+            portalGridScene.toggleLightingMode();
+        }
+    }
+
     public void destroy() {
         sceneManager.destroy();
         if (textRenderLoaded) {
@@ -63,3 +69,5 @@ public final class Manager {
         }
     }
 }
+
+

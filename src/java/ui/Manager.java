@@ -34,6 +34,10 @@ public final class Manager {
         visualManager.activateSceneByHotkey(sceneHotkey);
     }
 
+    public void toggleLightingMode() {
+        visualManager.toggleLightingMode();
+    }
+
     public Cursor getCursor() {
         return cursor;
     }
