@@ -23,7 +23,7 @@ import static org.lwjgl.system.MemoryUtil.memFree;
 
 public final class PortalGridScene extends SceneTemplate {
     private static final float NEAR = 0.1f;
-    private static final float FAR = 80f;
+    private static final float FAR = 140f;
     private static final float AMBIENT = 0.2f;
 
     private enum LightingMode { STENCIL_VOLUMES("Stencil Volumes"), SHADOW_MAPS("ShadowMaps"); private final String label; LightingMode(String l){label=l;} }
