@@ -9,7 +9,7 @@ final class GeometryFactory {
 
     static float[] buildDemoGeometry() {
         List<Float> out = new ArrayList<>();
-        addRoom(out, 12.0f, 12.0f);
+        addRoom(out, 14.0f, 14.0f);
         addCube(out, -3f, 1f, -1f, 2f, 0.9f, 0.3f, 0.2f);
         addCube(out, 2.7f, 1.4f, -2.2f, 2.8f, 0.2f, 0.8f, 0.4f);
         addSphere(out, 0f, 2.1f, 2.2f, 1.4f, 16, 10, 0.3f, 0.6f, 1f);
@@ -30,14 +30,14 @@ final class GeometryFactory {
         tri(out, x0,y0,z0, x1,y0,z1, x0,y0,z1, 0.25f,0.25f,0.28f, 0f,1f,0f);
         tri(out, x0,y1,z0, x1,y1,z1, x1,y1,z0, 0.16f,0.16f,0.18f, 0f,-1f,0f);
         tri(out, x0,y1,z0, x0,y1,z1, x1,y1,z1, 0.16f,0.16f,0.18f, 0f,-1f,0f);
-        tri(out, x1,y0,z0, x1,y1,z0, x1,y1,z1, 0.22f,0.22f,0.26f, -1f,0f,0f);
-        tri(out, x1,y0,z0, x1,y1,z1, x1,y0,z1, 0.22f,0.22f,0.26f, -1f,0f,0f);
-        tri(out, x0,y0,z0, x0,y1,z1, x0,y1,z0, 0.22f,0.22f,0.26f, 1f,0f,0f);
-        tri(out, x0,y0,z0, x0,y0,z1, x0,y1,z1, 0.22f,0.22f,0.26f, 1f,0f,0f);
-        tri(out, x0,y0,z1, x1,y1,z1, x0,y1,z1, 0.2f,0.2f,0.24f, 0f,0f,-1f);
-        tri(out, x0,y0,z1, x1,y0,z1, x1,y1,z1, 0.2f,0.2f,0.24f, 0f,0f,-1f);
-        tri(out, x0,y0,z0, x0,y1,z0, x1,y1,z0, 0.2f,0.2f,0.24f, 0f,0f,1f);
-        tri(out, x0,y0,z0, x1,y1,z0, x1,y0,z0, 0.2f,0.2f,0.24f, 0f,0f,1f);
+        tri(out, x1,y0,z0, x1,y1,z0, x1,y1,z1, 0.45f,0.18f,0.18f, -1f,0f,0f);
+        tri(out, x1,y0,z0, x1,y1,z1, x1,y0,z1, 0.45f,0.18f,0.18f, -1f,0f,0f);
+        tri(out, x0,y0,z0, x0,y1,z1, x0,y1,z0, 0.18f,0.45f,0.18f, 1f,0f,0f);
+        tri(out, x0,y0,z0, x0,y0,z1, x0,y1,z1, 0.18f,0.45f,0.18f, 1f,0f,0f);
+        tri(out, x0,y0,z1, x1,y1,z1, x0,y1,z1, 0.18f,0.18f,0.45f, 0f,0f,-1f);
+        tri(out, x0,y0,z1, x1,y0,z1, x1,y1,z1, 0.18f,0.18f,0.45f, 0f,0f,-1f);
+        tri(out, x0,y0,z0, x0,y1,z0, x1,y1,z0, 0.45f,0.45f,0.18f, 0f,0f,1f);
+        tri(out, x0,y0,z0, x1,y1,z0, x1,y0,z0, 0.45f,0.45f,0.18f, 0f,0f,1f);
     }
 
     private static void addPlane(List<Float> out, float x0, float y0, float z0, float x1, float y1, float z1, float r, float g, float b) {
