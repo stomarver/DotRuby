@@ -28,8 +28,8 @@ public final class PortalGridScene extends SceneTemplate {
     private static final float[] CASCADES = {10f, 25f, 55f};
 
     private enum LightingMode {
-        STENCIL_VOLUMES("Stencil shadows"),
-        CASCADED_SHADOW_MAPPING("Cascaded shadow mapping");
+        STENCIL_VOLUMES("Stencil Volumes"),
+        CASCADED_SHADOW_MAPPING("CSM");
         private final String label;
         LightingMode(String label) { this.label = label; }
     }
@@ -87,7 +87,6 @@ public final class PortalGridScene extends SceneTemplate {
         textRender.drawText(overlay, "Prototype Portal Grid", 16f, 16f, 3f);
         textRender.drawText(overlay, "F - switch lighting mode", 16f, 48f, 2f);
         textRender.drawText(overlay, "Mode: " + mode.label, 16f, 76f, 2f);
-        textRender.drawText(overlay, "Geometry: cubes + spheres + plane + isolated quad + isolated triangle", 16f, 104f, 2f);
     }
 
     public void toggleLightingMode() { mode = mode == LightingMode.STENCIL_VOLUMES ? LightingMode.CASCADED_SHADOW_MAPPING : LightingMode.STENCIL_VOLUMES; }
@@ -130,50 +129,50 @@ public final class PortalGridScene extends SceneTemplate {
     }
 
     private void renderPlanarStencilShadow(Matrix4f vp, Vector3f lightPos) {
-        // Stable stencil pipeline: mark receiving plane and draw projected geometry darkening into it.
+        // Doom3/Quake4-style shadow volume stencil pass (z-fail variant with two-sided operations).
         glEnable(GL_STENCIL_TEST);
         glClear(GL_STENCIL_BUFFER_BIT);
         glStencilMask(0xFF);
-        glStencilFunc(GL_ALWAYS, 1, 0xFF);
-        glStencilOp(GL_KEEP, GL_KEEP, GL_REPLACE);
+        glStencilFunc(GL_ALWAYS, 0, 0xFF);
 
-        // mark plane using first 2 triangles of geometry buffer
         glColorMask(false, false, false, false);
         glDepthMask(false);
+        glEnable(GL_CULL_FACE);
+
         glUseProgram(flatProgram);
         setMat4(flatProgram, "uMvp", vp);
         glUniform4f(glGetUniformLocation(flatProgram, "uColor"), 0f, 0f, 0f, 0f);
-        glBindVertexArray(vao);
-        glDrawArrays(GL_TRIANGLES, 0, 6);
+
+        glUniform4f(glGetUniformLocation(flatProgram, "uShadowExtrude"), lightPos.x, lightPos.y, lightPos.z, 40f);
+
+        // back faces increment on z-fail
+        glCullFace(GL_FRONT);
+        glStencilOp(GL_KEEP, GL_INCR_WRAP, GL_KEEP);
+        draw();
+
+        // front faces decrement on z-fail
+        glCullFace(GL_BACK);
+        glStencilOp(GL_KEEP, GL_DECR_WRAP, GL_KEEP);
+        draw();
 
         glColorMask(true, true, true, true);
         glDepthMask(true);
-        glStencilFunc(GL_EQUAL, 1, 0xFF);
+        glDisable(GL_CULL_FACE);
+
+        // darken only shadowed pixels
+        glStencilFunc(GL_NOTEQUAL, 0, 0xFF);
         glStencilOp(GL_KEEP, GL_KEEP, GL_KEEP);
-
-        Matrix4f shadowMat = planarShadowMatrix(new Vector3f(0f, 1f, 0f), 0f, lightPos);
-        Matrix4f shadowMvp = new Matrix4f(vp).mul(shadowMat);
-
         glEnable(GL_BLEND);
         glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+
         glUseProgram(flatProgram);
-        setMat4(flatProgram, "uMvp", shadowMvp);
-        glUniform4f(glGetUniformLocation(flatProgram, "uColor"), 0f, 0f, 0f, 0.5f);
+        setMat4(flatProgram, "uMvp", vp);
+        glUniform4f(glGetUniformLocation(flatProgram, "uColor"), 0f, 0f, 0f, 0.42f);
+        glUniform4f(glGetUniformLocation(flatProgram, "uShadowExtrude"), 0f, 0f, 0f, 0f);
         draw();
+
         glDisable(GL_BLEND);
         glDisable(GL_STENCIL_TEST);
-    }
-
-    private Matrix4f planarShadowMatrix(Vector3f n, float d, Vector3f l) {
-        float a = n.x, b = n.y, c = n.z;
-        float lx = l.x, ly = l.y, lz = l.z;
-        float dot = a * lx + b * ly + c * lz + d;
-        Matrix4f m = new Matrix4f();
-        m.m00(dot - lx * a); m.m01(-lx * b); m.m02(-lx * c); m.m03(-lx * d);
-        m.m10(-ly * a); m.m11(dot - ly * b); m.m12(-ly * c); m.m13(-ly * d);
-        m.m20(-lz * a); m.m21(-lz * b); m.m22(dot - lz * c); m.m23(-lz * d);
-        m.m30(-a); m.m31(-b); m.m32(-c); m.m33(dot - d);
-        return m;
     }
 
     private void buildCascades(Vector3f lightPos) {
@@ -270,7 +269,17 @@ void main(){ float amb=0.2; vec3 n=normalize(vNormal); vec3 l=normalize(uLightPo
 """;
     private static final String DEPTH_VS = """
 #version 330 core
-layout (location=0) in vec3 aPos; uniform mat4 uMvp; void main(){ gl_Position=uMvp*vec4(aPos,1.0); }
+layout (location=0) in vec3 aPos;
+uniform mat4 uMvp;
+uniform vec4 uShadowExtrude;
+void main(){
+    vec3 p = aPos;
+    if (uShadowExtrude.w > 0.0) {
+        vec3 dir = normalize(aPos - uShadowExtrude.xyz);
+        p = aPos + dir * uShadowExtrude.w;
+    }
+    gl_Position=uMvp*vec4(p,1.0);
+}
 """;
     private static final String DEPTH_FS = """
 #version 330 core
@@ -278,7 +287,17 @@ void main(){}
 """;
     private static final String FLAT_VS = """
 #version 330 core
-layout (location=0) in vec3 aPos; uniform mat4 uMvp; void main(){ gl_Position=uMvp*vec4(aPos,1.0); }
+layout (location=0) in vec3 aPos;
+uniform mat4 uMvp;
+uniform vec4 uShadowExtrude;
+void main(){
+    vec3 p = aPos;
+    if (uShadowExtrude.w > 0.0) {
+        vec3 dir = normalize(aPos - uShadowExtrude.xyz);
+        p = aPos + dir * uShadowExtrude.w;
+    }
+    gl_Position=uMvp*vec4(p,1.0);
+}
 """;
     private static final String FLAT_FS = """
 #version 330 core
