@@ -85,8 +85,7 @@ public final class PortalGridScene extends SceneTemplate {
 
     @Override public void render2D(Overlay overlay, Render textRender) {
         textRender.drawText(overlay, "Prototype Portal Grid", 16f, 16f, 3f);
-        textRender.drawText(overlay, "F - switch lighting mode", 16f, 48f, 2f);
-        textRender.drawText(overlay, "Mode: " + mode.label, 16f, 76f, 2f);
+        textRender.drawText(overlay, "(F) Mode: " + mode.label, 16f, 48f, 2f);
     }
 
     public void toggleLightingMode() { mode = mode == LightingMode.STENCIL_VOLUMES ? LightingMode.CASCADED_SHADOW_MAPPING : LightingMode.STENCIL_VOLUMES; }
@@ -129,7 +128,6 @@ public final class PortalGridScene extends SceneTemplate {
     }
 
     private void renderPlanarStencilShadow(Matrix4f vp, Vector3f lightPos) {
-        // Doom3/Quake4-style shadow volume stencil pass (z-fail variant with two-sided operations).
         glEnable(GL_STENCIL_TEST);
         glClear(GL_STENCIL_BUFFER_BIT);
         glStencilMask(0xFF);
@@ -138,19 +136,18 @@ public final class PortalGridScene extends SceneTemplate {
         glColorMask(false, false, false, false);
         glDepthMask(false);
         glEnable(GL_CULL_FACE);
+        glDepthFunc(GL_LEQUAL);
 
         glUseProgram(flatProgram);
         setMat4(flatProgram, "uMvp", vp);
         glUniform4f(glGetUniformLocation(flatProgram, "uColor"), 0f, 0f, 0f, 0f);
+        glUniform4f(glGetUniformLocation(flatProgram, "uShadowExtrude"), lightPos.x, lightPos.y, lightPos.z, 80f);
 
-        glUniform4f(glGetUniformLocation(flatProgram, "uShadowExtrude"), lightPos.x, lightPos.y, lightPos.z, 40f);
-
-        // back faces increment on z-fail
+        // Carmack's reverse style: back ++ on z-fail, front -- on z-fail
         glCullFace(GL_FRONT);
         glStencilOp(GL_KEEP, GL_INCR_WRAP, GL_KEEP);
         draw();
 
-        // front faces decrement on z-fail
         glCullFace(GL_BACK);
         glStencilOp(GL_KEEP, GL_DECR_WRAP, GL_KEEP);
         draw();
@@ -159,7 +156,6 @@ public final class PortalGridScene extends SceneTemplate {
         glDepthMask(true);
         glDisable(GL_CULL_FACE);
 
-        // darken only shadowed pixels
         glStencilFunc(GL_NOTEQUAL, 0, 0xFF);
         glStencilOp(GL_KEEP, GL_KEEP, GL_KEEP);
         glEnable(GL_BLEND);
@@ -167,12 +163,13 @@ public final class PortalGridScene extends SceneTemplate {
 
         glUseProgram(flatProgram);
         setMat4(flatProgram, "uMvp", vp);
-        glUniform4f(glGetUniformLocation(flatProgram, "uColor"), 0f, 0f, 0f, 0.42f);
+        glUniform4f(glGetUniformLocation(flatProgram, "uColor"), 0f, 0f, 0f, 0.55f);
         glUniform4f(glGetUniformLocation(flatProgram, "uShadowExtrude"), 0f, 0f, 0f, 0f);
         draw();
 
         glDisable(GL_BLEND);
         glDisable(GL_STENCIL_TEST);
+        glDepthFunc(GL_LEQUAL);
     }
 
     private void buildCascades(Vector3f lightPos) {
