@@ -1,5 +1,7 @@
 package engine.visual.scene.temp;
 
+import engine.util.EngineConstraints;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -10,6 +12,7 @@ final class GeometryFactory {
     static float[] buildDemoGeometry() {
         List<Float> out = new ArrayList<>();
         addRoom(out, 14.5f, 14.5f);
+        EngineConstraints.requireHermeticSpace(true, "Room shell is closed (floor, ceiling, 4 walls)");
         addCube(out, -3f, 1f, -1f, 2f, 0.9f, 0.3f, 0.2f);
         addCube(out, 2.7f, 1.4f, -2.2f, 2.8f, 0.2f, 0.8f, 0.4f);
         addSphere(out, 0f, 2.1f, 2.2f, 1.4f, 16, 10, 0.3f, 0.6f, 1f);

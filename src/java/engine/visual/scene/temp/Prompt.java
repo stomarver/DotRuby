@@ -16,7 +16,7 @@ public final class Prompt extends SceneTemplate {
     @Override
     public void render2D(Overlay overlay, Render textRender) {
         textRender.drawText(overlay, "Standard", 16f, 16f, 1f, Render.TextScale.standard());
-        textRender.drawText(overlay, "Standard", 16f, 32f, 1.5f, Render.TextScale.standard());
+        textRender.drawText(overlay, "Standard", 16f, 32f, 2f, Render.TextScale.standard());
         textRender.drawText(overlay, "Standard", 16f, 52f, 2f, Render.TextScale.standard());
 
         textRender.drawText(overlay, "Fixed", 16f, 88f, 1f, Render.TextScale.fixed(1f));

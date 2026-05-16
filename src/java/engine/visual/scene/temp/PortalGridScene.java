@@ -85,10 +85,9 @@ public final class PortalGridScene extends SceneTemplate {
     }
 
     @Override public void render2D(Overlay overlay, Render textRender) {
-        textRender.drawText(overlay, "Prototype Portal Grid (lamp center)", 16f, 16f, 3f);
-        textRender.drawText(overlay, "(F) Mode: " + mode.label, 16f, 48f, 2f);
-        textRender.drawText(overlay, "(G) Toggle Bulb rotation", 16f, 76f, 2f);
-        textRender.drawText(overlay, "(H) Toggle Bulb vertical", 16f, 104f, 2f);
+        textRender.drawText(overlay, "(F) Mode: " + mode.label, 16f, 16f, 2f);
+        textRender.drawText(overlay, "(G) Toggle Bulb rotation", 16f, 44f, 2f);
+        textRender.drawText(overlay, "(H) Toggle Bulb vertical", 16f, 72f, 2f);
     }
 
     public void toggleLightingMode() { mode = mode == LightingMode.STENCIL_VOLUMES ? LightingMode.SHADOW_MAPS : LightingMode.STENCIL_VOLUMES; }

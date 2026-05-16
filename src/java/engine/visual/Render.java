@@ -1,5 +1,6 @@
 package engine.visual;
 
+import engine.util.EngineConstraints;
 import ui.text.Parse;
 
 import java.nio.file.Path;
@@ -86,6 +87,10 @@ public final class Render {
             throw new IllegalStateException("Regular font definition is not loaded");
         }
 
+        EngineConstraints.requireIntegerScale(size, "Render.drawText(size)");
+        if (textScale != null && textScale.mode() != ScaleMode.STANDARD) {
+            EngineConstraints.requireIntegerScale(textScale.value(), "Render.drawText(textScale)");
+        }
         float resolvedScale = Math.max(0.0001f, size) * BASE_SCALE * resolveScaleMultiplier(textScale);
         List<Parse.Quad> quads = Parse.text(font, value);
         for (Parse.Quad quad : quads) {
