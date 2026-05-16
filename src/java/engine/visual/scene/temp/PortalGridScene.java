@@ -117,6 +117,8 @@ public final class PortalGridScene extends SceneTemplate {
         glEnable(GL_CULL_FACE);
         glCullFace(GL_FRONT);
         glUseProgram(depthProgram);
+        glUniform3f(glGetUniformLocation(depthProgram, "uLightPos"), 0f, 7f, 0f);
+        glUniform1f(glGetUniformLocation(depthProgram, "uFar"), FAR);
         for (int i = 0; i < 6; i++) {
             shadowMaps.beginDepthPass(i);
             setMat4(depthProgram, "uMvp", lightVP[i]);
@@ -132,6 +134,7 @@ public final class PortalGridScene extends SceneTemplate {
         setMat4(litProgram, "uView", view);
         glUniform3f(glGetUniformLocation(litProgram, "uLightPos"), lightPos.x, lightPos.y, lightPos.z);
         glUniform3f(glGetUniformLocation(litProgram, "uLampPos"), lightPos.x, lightPos.y, lightPos.z);
+        glUniform1f(glGetUniformLocation(litProgram, "uFar"), FAR);
         glUniform1i(glGetUniformLocation(litProgram, "uUseShadow"), useShadows ? 1 : 0);
         glUniform1i(glGetUniformLocation(litProgram, "uAmbientOnly"), ambientOnly ? 1 : 0);
         glUniform1f(glGetUniformLocation(litProgram, "uAmbient"), AMBIENT);
@@ -175,25 +178,25 @@ void main(){ gl_Position=uViewProj*vec4(aPos,1.0); vColor=aColor; vPos=aPos; vNo
     private static final String LIT_FS = """
 #version 330 core
 in vec3 vColor; in vec3 vPos; in vec3 vNormal;
-uniform vec3 uLightPos; uniform vec3 uLampPos; uniform int uUseShadow; uniform int uAmbientOnly; uniform float uAmbient; uniform samplerCube uShadow;
+uniform vec3 uLightPos; uniform vec3 uLampPos; uniform float uFar; uniform int uUseShadow; uniform int uAmbientOnly; uniform float uAmbient; uniform samplerCube uShadow;
 out vec4 fragColor;
-float shadowFactor(){ vec3 L = vPos - uLampPos; float current = length(L) / 80.0; float closest = texture(uShadow, normalize(L)).r; return current - 0.0015 > closest ? 0.35 : 1.0; }
+float shadowFactor(){ vec3 L = vPos - uLampPos; float current = length(L) / uFar; float closest = texture(uShadow, normalize(L)).r; return current - 0.003 > closest ? 0.35 : 1.0; }
 void main(){ if(uAmbientOnly==1){fragColor=vec4(vColor*uAmbient,1.0); return;} float diff=max(dot(normalize(vNormal),normalize(uLightPos-vPos)),0.0); float sh=uUseShadow==1?shadowFactor():1.0; fragColor=vec4(vColor*(uAmbient+diff*sh),1.0);} 
 """;
     private static final String DEPTH_VS = """
 #version 330 core
-layout (location=0) in vec3 aPos; uniform mat4 uMvp; void main(){ gl_Position=uMvp*vec4(aPos,1.0);} 
+layout (location=0) in vec3 aPos; uniform mat4 uMvp; out vec3 vWorldPos; void main(){ vWorldPos=aPos; gl_Position=uMvp*vec4(aPos,1.0);} 
 """;
     private static final String DEPTH_FS = """
 #version 330 core
-void main(){}
+in vec3 vWorldPos; uniform vec3 uLightPos; uniform float uFar; void main(){ float dist = length(vWorldPos - uLightPos); gl_FragDepth = dist / uFar; }
 """;
     private static final String VOLUME_VS = """
 #version 330 core
-layout (location=0) in vec3 aPos; uniform mat4 uMvp; void main(){ gl_Position=uMvp*vec4(aPos,1.0);} 
+layout (location=0) in vec3 aPos; uniform mat4 uMvp; out vec3 vWorldPos; void main(){ vWorldPos=aPos; gl_Position=uMvp*vec4(aPos,1.0);} 
 """;
     private static final String VOLUME_FS = """
 #version 330 core
-void main(){}
+in vec3 vWorldPos; uniform vec3 uLightPos; uniform float uFar; void main(){ float dist = length(vWorldPos - uLightPos); gl_FragDepth = dist / uFar; }
 """;
 }
