@@ -7,11 +7,13 @@ import static org.lwjgl.opengl.GL11.*;
 import static org.lwjgl.opengl.GL13.*;
 import static org.lwjgl.opengl.GL14.GL_TEXTURE_COMPARE_MODE;
 import static org.lwjgl.opengl.GL30.*;
+import static org.lwjgl.opengl.GL11.glGetIntegerv;
 
 public final class ShadowMaps {
     private final int size;
     private int fbo;
     private int depthCubeTex;
+    private final int[] previousViewport = new int[4];
     private final Matrix4f[] lightViewProj = {
             new Matrix4f(), new Matrix4f(), new Matrix4f(),
             new Matrix4f(), new Matrix4f(), new Matrix4f()
@@ -47,6 +49,7 @@ public final class ShadowMaps {
     }
 
     public void beginDepthPass(int face) {
+        glGetIntegerv(GL_VIEWPORT, previousViewport);
         glViewport(0, 0, size, size);
         glBindFramebuffer(GL_FRAMEBUFFER, fbo);
         glFramebufferTexture2D(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_TEXTURE_CUBE_MAP_POSITIVE_X + face, depthCubeTex, 0);
@@ -57,7 +60,7 @@ public final class ShadowMaps {
     public void endDepthPass() {
         glColorMask(true, true, true, true);
         glBindFramebuffer(GL_FRAMEBUFFER, 0);
-        glViewport(0, 0, 960, 540);
+        glViewport(previousViewport[0], previousViewport[1], previousViewport[2], previousViewport[3]);
     }
 
     public void bindDepthTexture(int unit) {

@@ -123,7 +123,7 @@ public final class PortalGridScene extends SceneTemplate {
         glCullFace(GL_FRONT); glStencilOp(GL_KEEP, GL_DECR_WRAP, GL_KEEP); glDrawArrays(GL_TRIANGLES,0,volumeVertexCount);
         glCullFace(GL_BACK); glStencilOp(GL_KEEP, GL_INCR_WRAP, GL_KEEP); glDrawArrays(GL_TRIANGLES,0,volumeVertexCount);
 
-        glDisable(GL_CULL_FACE);
+
         glColorMask(true,true,true,true);
         glDepthMask(true);
         glStencilFunc(GL_EQUAL, 0, 0xFF);
@@ -133,8 +133,7 @@ public final class PortalGridScene extends SceneTemplate {
     }
 
     private void renderShadowDepth() {
-        glEnable(GL_CULL_FACE);
-        glCullFace(GL_FRONT);
+
         glUseProgram(depthProgram);
         glUniform3f(glGetUniformLocation(depthProgram, "uLightPos"), 0f, 7f, 0f);
         glUniform1f(glGetUniformLocation(depthProgram, "uFar"), FAR);
@@ -144,7 +143,7 @@ public final class PortalGridScene extends SceneTemplate {
             drawScene();
             shadowMaps.endDepthPass();
         }
-        glDisable(GL_CULL_FACE);
+
     }
 
     private void renderLit(Matrix4f vp, Matrix4f view, Vector3f lightPos, boolean useShadows, boolean ambientOnly) {
@@ -202,7 +201,7 @@ out vec4 fragColor;
 float shadowFactor(){
     vec3 ldir = normalize(uLampPos - vPos);
     float ndotl = max(dot(normalize(vNormal), ldir), 0.0);
-    float bias = max(0.0020 * (1.0 - ndotl), 0.0008);
+    float bias = max(0.005 * (1.0 - ndotl), 0.001);
     vec3 L = vPos - uLampPos;
     float current = length(L) / uFar;
     if (current >= 1.0) return 1.0;
