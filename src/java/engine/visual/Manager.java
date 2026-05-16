@@ -48,6 +48,12 @@ public final class Manager {
         }
     }
 
+    public void toggleBulbRotation() {
+        if (sceneManager.activeSceneType().requires3D() && sceneManager.getActiveScene() instanceof engine.visual.scene.temp.PortalGridScene portalGridScene) {
+            portalGridScene.toggleBulbRotation();
+        }
+    }
+
     public void destroy() {
         sceneManager.destroy();
         if (textRenderLoaded) {

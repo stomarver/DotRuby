@@ -38,6 +38,10 @@ public final class Manager {
         visualManager.toggleLightingMode();
     }
 
+    public void toggleBulbRotation() {
+        visualManager.toggleBulbRotation();
+    }
+
     public Cursor getCursor() {
         return cursor;
     }

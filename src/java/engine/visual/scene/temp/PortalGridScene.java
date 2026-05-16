@@ -34,6 +34,7 @@ public final class PortalGridScene extends SceneTemplate {
     private final Matrix4f[] lightVP = {new Matrix4f(),new Matrix4f(),new Matrix4f(),new Matrix4f(),new Matrix4f(),new Matrix4f()};
 
     private float phase;
+    private boolean bulbRotateEnabled;
     private LightingMode mode = LightingMode.STENCIL_VOLUMES;
     private float[] sceneVertices;
     private int vao, vbo, vertexCount;
@@ -43,6 +44,7 @@ public final class PortalGridScene extends SceneTemplate {
     public PortalGridScene() { super(SceneIds.PORTAL_GRID, SceneType.TWO_D_AND_THREE_D); }
 
     @Override public void initialize(Unloader resources) {
+        bulbRotateEnabled = false;
         litProgram = shader.program(LIT_VS, LIT_FS);
         depthProgram = shader.program(DEPTH_VS, DEPTH_FS);
         volumeProgram = shader.program(VOLUME_VS, VOLUME_FS);
@@ -60,7 +62,9 @@ public final class PortalGridScene extends SceneTemplate {
         Matrix4f projection = new Matrix4f().perspective((float)Math.toRadians(60f), 16f/9f, NEAR, FAR);
         Matrix4f view = new Matrix4f().lookAt(eye, new Vector3f(0f, 3f, 0f), new Vector3f(0f,1f,0f));
         Matrix4f vp = new Matrix4f(projection).mul(view);
-        Vector3f lightPos = new Vector3f(0f, 7f, 0f);
+        Vector3f lightPos = bulbRotateEnabled
+                ? new Vector3f((float)Math.cos(phase * 0.9f) * 8f, 7f, (float)Math.sin(phase * 0.9f) * 8f)
+                : new Vector3f(0f, 7f, 0f);
 
         Matrix4f[] mats = shadowMaps.buildLightViewProj(lightPos, 0.4f, FAR);
         for (int i=0;i<6;i++) lightVP[i].set(mats[i]);
@@ -78,9 +82,14 @@ public final class PortalGridScene extends SceneTemplate {
     @Override public void render2D(Overlay overlay, Render textRender) {
         textRender.drawText(overlay, "Prototype Portal Grid (lamp center)", 16f, 16f, 3f);
         textRender.drawText(overlay, "(F) Mode: " + mode.label, 16f, 48f, 2f);
+        textRender.drawText(overlay, "(G) Toggle Bulb rotation", 16f, 76f, 2f);
     }
 
     public void toggleLightingMode() { mode = mode == LightingMode.STENCIL_VOLUMES ? LightingMode.SHADOW_MAPS : LightingMode.STENCIL_VOLUMES; }
+
+    public void toggleBulbRotation() {
+        bulbRotateEnabled = !bulbRotateEnabled;
+    }
 
     private void renderStencilVolumes(Matrix4f vp, Matrix4f view, Vector3f lightPos) {
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
