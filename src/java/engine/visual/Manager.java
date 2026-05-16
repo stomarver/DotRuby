@@ -54,6 +54,12 @@ public final class Manager {
         }
     }
 
+    public void toggleBulbVerticalMotion() {
+        if (sceneManager.activeSceneType().requires3D() && sceneManager.getActiveScene() instanceof engine.visual.scene.temp.PortalGridScene portalGridScene) {
+            portalGridScene.toggleBulbVerticalMotion();
+        }
+    }
+
     public void destroy() {
         sceneManager.destroy();
         if (textRenderLoaded) {

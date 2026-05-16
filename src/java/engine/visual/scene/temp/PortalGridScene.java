@@ -23,7 +23,7 @@ import static org.lwjgl.system.MemoryUtil.memFree;
 
 public final class PortalGridScene extends SceneTemplate {
     private static final float NEAR = 0.1f;
-    private static final float FAR = 140f;
+    private static final float FAR = 2000f;
     private static final float AMBIENT = 0.2f;
 
     private enum LightingMode { STENCIL_VOLUMES("Stencil Volumes"), SHADOW_MAPS("ShadowMaps"); private final String label; LightingMode(String l){label=l;} }
@@ -35,6 +35,7 @@ public final class PortalGridScene extends SceneTemplate {
 
     private float phase;
     private boolean bulbRotateEnabled;
+    private boolean bulbVerticalEnabled;
     private LightingMode mode = LightingMode.STENCIL_VOLUMES;
     private float[] sceneVertices;
     private int vao, vbo, vertexCount;
@@ -45,6 +46,7 @@ public final class PortalGridScene extends SceneTemplate {
 
     @Override public void initialize(Unloader resources) {
         bulbRotateEnabled = false;
+        bulbVerticalEnabled = false;
         litProgram = shader.program(LIT_VS, LIT_FS);
         depthProgram = shader.program(DEPTH_VS, DEPTH_FS);
         volumeProgram = shader.program(VOLUME_VS, VOLUME_FS);
@@ -62,9 +64,12 @@ public final class PortalGridScene extends SceneTemplate {
         Matrix4f projection = new Matrix4f().perspective((float)Math.toRadians(60f), 16f/9f, NEAR, FAR);
         Matrix4f view = new Matrix4f().lookAt(eye, new Vector3f(0f, 3f, 0f), new Vector3f(0f,1f,0f));
         Matrix4f vp = new Matrix4f(projection).mul(view);
+        float baseY = 7f;
+        float eased = (1f - (float)Math.cos(phase * 0.8f)) * 0.5f;
+        float yOffset = bulbVerticalEnabled ? (-5f + eased * 10f) : 0f;
         Vector3f lightPos = bulbRotateEnabled
-                ? new Vector3f((float)Math.cos(phase * 0.9f) * 8f, 7f, (float)Math.sin(phase * 0.9f) * 8f)
-                : new Vector3f(0f, 7f, 0f);
+                ? new Vector3f((float)Math.cos(phase * 0.9f) * 8f, baseY + yOffset, (float)Math.sin(phase * 0.9f) * 8f)
+                : new Vector3f(0f, baseY + yOffset, 0f);
 
         Matrix4f[] mats = shadowMaps.buildLightViewProj(lightPos, 0.4f, FAR);
         for (int i=0;i<6;i++) lightVP[i].set(mats[i]);
@@ -83,12 +88,17 @@ public final class PortalGridScene extends SceneTemplate {
         textRender.drawText(overlay, "Prototype Portal Grid (lamp center)", 16f, 16f, 3f);
         textRender.drawText(overlay, "(F) Mode: " + mode.label, 16f, 48f, 2f);
         textRender.drawText(overlay, "(G) Toggle Bulb rotation", 16f, 76f, 2f);
+        textRender.drawText(overlay, "(H) Toggle Bulb vertical", 16f, 104f, 2f);
     }
 
     public void toggleLightingMode() { mode = mode == LightingMode.STENCIL_VOLUMES ? LightingMode.SHADOW_MAPS : LightingMode.STENCIL_VOLUMES; }
 
     public void toggleBulbRotation() {
         bulbRotateEnabled = !bulbRotateEnabled;
+    }
+
+    public void toggleBulbVerticalMotion() {
+        bulbVerticalEnabled = !bulbVerticalEnabled;
     }
 
     private void renderStencilVolumes(Matrix4f vp, Matrix4f view, Vector3f lightPos) {
@@ -189,7 +199,23 @@ void main(){ gl_Position=uViewProj*vec4(aPos,1.0); vColor=aColor; vPos=aPos; vNo
 in vec3 vColor; in vec3 vPos; in vec3 vNormal;
 uniform vec3 uLightPos; uniform vec3 uLampPos; uniform float uFar; uniform int uUseShadow; uniform int uAmbientOnly; uniform float uAmbient; uniform samplerCube uShadow;
 out vec4 fragColor;
-float shadowFactor(){ vec3 L = vPos - uLampPos; float current = length(L) / uFar; float closest = texture(uShadow, normalize(L)).r; return current - 0.003 > closest ? 0.35 : 1.0; }
+float shadowFactor(){
+    vec3 ldir = normalize(uLampPos - vPos);
+    float ndotl = max(dot(normalize(vNormal), ldir), 0.0);
+    float bias = max(0.0015 * (1.0 - ndotl), 0.0005);
+    vec3 L = vPos - uLampPos;
+    float current = length(L) / uFar;
+    vec3 dir = normalize(L);
+    float shadow = 0.0;
+    float step = 0.0035;
+    vec3 offs[8] = vec3[](vec3(1,1,1),vec3(-1,1,1),vec3(1,-1,1),vec3(-1,-1,1),vec3(1,1,-1),vec3(-1,1,-1),vec3(1,-1,-1),vec3(-1,-1,-1));
+    for (int i=0;i<8;i++){
+        float closest = texture(uShadow, normalize(dir + offs[i]*step)).r;
+        shadow += (current - bias > closest) ? 1.0 : 0.0;
+    }
+    float occ = shadow / 8.0;
+    return 1.0 - occ * 0.65;
+}
 void main(){ if(uAmbientOnly==1){fragColor=vec4(vColor*uAmbient,1.0); return;} float diff=max(dot(normalize(vNormal),normalize(uLightPos-vPos)),0.0); float sh=uUseShadow==1?shadowFactor():1.0; fragColor=vec4(vColor*(uAmbient+diff*sh),1.0);} 
 """;
     private static final String DEPTH_VS = """

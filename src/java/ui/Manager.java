@@ -42,6 +42,10 @@ public final class Manager {
         visualManager.toggleBulbRotation();
     }
 
+    public void toggleBulbVerticalMotion() {
+        visualManager.toggleBulbVerticalMotion();
+    }
+
     public Cursor getCursor() {
         return cursor;
     }
