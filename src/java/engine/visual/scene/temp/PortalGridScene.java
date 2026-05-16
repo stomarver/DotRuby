@@ -67,7 +67,7 @@ public final class PortalGridScene extends SceneTemplate {
 
     @Override public void render3D() {
         glEnable(GL_DEPTH_TEST);
-        glDepthFunc(GL_LEQUAL);
+        glDepthFunc(GL_LESS);
 
         Vector3f eye = new Vector3f((float)Math.sin(phase * 0.25f) * 11f, 7f, (float)Math.cos(phase * 0.25f) * 11f);
         Matrix4f projection = new Matrix4f().perspective((float)Math.toRadians(60f), 16f / 9f, NEAR, FAR);
@@ -115,12 +115,13 @@ public final class PortalGridScene extends SceneTemplate {
         setMat4(volumeProgram, "uMvp", vp);
         glBindVertexArray(volumeVao);
 
+        // Carmack's Reverse (z-fail): front faces decrement, back faces increment
         glCullFace(GL_FRONT);
-        glStencilOp(GL_KEEP, GL_INCR_WRAP, GL_KEEP);
+        glStencilOp(GL_KEEP, GL_DECR_WRAP, GL_KEEP);
         glDrawArrays(GL_TRIANGLES, 0, volumeVertexCount);
 
         glCullFace(GL_BACK);
-        glStencilOp(GL_KEEP, GL_DECR_WRAP, GL_KEEP);
+        glStencilOp(GL_KEEP, GL_INCR_WRAP, GL_KEEP);
         glDrawArrays(GL_TRIANGLES, 0, volumeVertexCount);
 
         // Stage 3: light only where stencil == 0
@@ -129,7 +130,10 @@ public final class PortalGridScene extends SceneTemplate {
         glDisable(GL_CULL_FACE);
         glStencilFunc(GL_EQUAL, 0, 0xFF);
         glStencilOp(GL_KEEP, GL_KEEP, GL_KEEP);
+        glEnable(GL_POLYGON_OFFSET_FILL);
+        glPolygonOffset(-1.0f, -1.0f);
         renderLit(vp, view, lightPos, false, false);
+        glDisable(GL_POLYGON_OFFSET_FILL);
         glDisable(GL_STENCIL_TEST);
     }
 
