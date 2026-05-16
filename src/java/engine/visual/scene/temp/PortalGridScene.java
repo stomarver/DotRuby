@@ -73,7 +73,7 @@ public final class PortalGridScene extends SceneTemplate {
         Matrix4f projection = new Matrix4f().perspective((float)Math.toRadians(60f), 16f / 9f, NEAR, FAR);
         Matrix4f view = new Matrix4f().lookAt(eye, new Vector3f(0f, 1.5f, 0f), new Vector3f(0f, 1f, 0f));
         Matrix4f viewProj = new Matrix4f(projection).mul(view);
-        Vector3f lightPos = new Vector3f(8f, 10f, 6f);
+        Vector3f lightPos = new Vector3f(0f, 6.8f, 0f);
 
         buildCascades(lightPos);
         renderShadowDepth();
@@ -89,7 +89,7 @@ public final class PortalGridScene extends SceneTemplate {
     }
 
     @Override public void render2D(Overlay overlay, Render textRender) {
-        textRender.drawText(overlay, "Prototype Portal Grid", 16f, 16f, 3f);
+        textRender.drawText(overlay, "Prototype Portal Grid (point lamp)", 16f, 16f, 3f);
         textRender.drawText(overlay, "(F) Mode: " + mode.label, 16f, 48f, 2f);
     }
 
@@ -244,11 +244,16 @@ public final class PortalGridScene extends SceneTemplate {
     private static void addTri(List<Vector3f> out, Vector3f a, Vector3f b, Vector3f c){out.add(a);out.add(b);out.add(c);}    
 
     private void buildCascades(Vector3f lightPos) {
-        Matrix4f lv = new Matrix4f().lookAt(lightPos, new Vector3f(0f, 0f, 0f), new Vector3f(0f, 1f, 0f));
-        float[] ext = {18f, 32f, 48f};
-        float[] far = {24f, 50f, 90f};
+        Vector3f[] targets = {
+                new Vector3f(0f, 0f, 0f),
+                new Vector3f(4f, 1f, 4f),
+                new Vector3f(-4f, 1f, -4f)
+        };
+        float[] near = {0.4f, 0.4f, 0.4f};
+        float[] far = {18f, 36f, 72f};
         for (int i = 0; i < 3; i++) {
-            Matrix4f lp = new Matrix4f().ortho(-ext[i], ext[i], -ext[i], ext[i], 1f, far[i]);
+            Matrix4f lv = new Matrix4f().lookAt(lightPos, targets[i], new Vector3f(0f, 1f, 0f));
+            Matrix4f lp = new Matrix4f().perspective((float) Math.toRadians(115f), 1f, near[i], far[i]);
             lightVP[i].set(lp).mul(lv);
         }
     }
