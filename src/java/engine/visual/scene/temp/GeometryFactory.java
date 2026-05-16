@@ -9,7 +9,7 @@ final class GeometryFactory {
 
     static float[] buildDemoGeometry() {
         List<Float> out = new ArrayList<>();
-        addRoom(out, 14.0f, 14.0f);
+        addRoom(out, 14.5f, 14.5f);
         addCube(out, -3f, 1f, -1f, 2f, 0.9f, 0.3f, 0.2f);
         addCube(out, 2.7f, 1.4f, -2.2f, 2.8f, 0.2f, 0.8f, 0.4f);
         addSphere(out, 0f, 2.1f, 2.2f, 1.4f, 16, 10, 0.3f, 0.6f, 1f);
@@ -21,42 +21,36 @@ final class GeometryFactory {
         return data;
     }
 
-
     private static void addRoom(List<Float> out, float halfSize, float height) {
         float x0 = -halfSize, x1 = halfSize;
         float z0 = -halfSize, z1 = halfSize;
         float y0 = 0f, y1 = height;
-        tri(out, x0,y0,z0, x1,y0,z0, x1,y0,z1, 0.25f,0.25f,0.28f, 0f,1f,0f);
-        tri(out, x0,y0,z0, x1,y0,z1, x0,y0,z1, 0.25f,0.25f,0.28f, 0f,1f,0f);
-        tri(out, x0,y1,z0, x1,y1,z1, x1,y1,z0, 0.16f,0.16f,0.18f, 0f,-1f,0f);
-        tri(out, x0,y1,z0, x0,y1,z1, x1,y1,z1, 0.16f,0.16f,0.18f, 0f,-1f,0f);
-        tri(out, x1,y0,z0, x1,y1,z0, x1,y1,z1, 0.45f,0.18f,0.18f, -1f,0f,0f);
-        tri(out, x1,y0,z0, x1,y1,z1, x1,y0,z1, 0.45f,0.18f,0.18f, -1f,0f,0f);
-        tri(out, x0,y0,z0, x0,y1,z1, x0,y1,z0, 0.18f,0.45f,0.18f, 1f,0f,0f);
-        tri(out, x0,y0,z0, x0,y0,z1, x0,y1,z1, 0.18f,0.45f,0.18f, 1f,0f,0f);
-        tri(out, x0,y0,z1, x1,y1,z1, x0,y1,z1, 0.18f,0.18f,0.45f, 0f,0f,-1f);
-        tri(out, x0,y0,z1, x1,y0,z1, x1,y1,z1, 0.18f,0.18f,0.45f, 0f,0f,-1f);
-        tri(out, x0,y0,z0, x0,y1,z0, x1,y1,z0, 0.45f,0.45f,0.18f, 0f,0f,1f);
-        tri(out, x0,y0,z0, x1,y1,z0, x1,y0,z0, 0.45f,0.45f,0.18f, 0f,0f,1f);
-    }
+        float rf = 96f / 255f, gf = 0f, bf = 0f; // floor/ceiling red
+        float rn = 0f, gn = 96f / 255f, bn = 0f; // north/south green
+        float rw = 0f, gw = 0f, bw = 96f / 255f; // west/east blue
 
-    private static void addPlane(List<Float> out, float x0, float y0, float z0, float x1, float y1, float z1, float r, float g, float b) {
-        tri(out, x0,y0,z0, x1,y1,z0, x1,y1,z1, r,g,b, 0f,1f,0f);
-        tri(out, x0,y0,z0, x1,y1,z1, x0,y0,z1, r,g,b, 0f,1f,0f);
+        tri(out, x0,y0,z0, x1,y0,z0, x1,y0,z1, rf,gf,bf, 0f,1f,0f);
+        tri(out, x0,y0,z0, x1,y0,z1, x0,y0,z1, rf,gf,bf, 0f,1f,0f);
+        tri(out, x0,y1,z0, x1,y1,z1, x1,y1,z0, rf,gf,bf, 0f,-1f,0f);
+        tri(out, x0,y1,z0, x0,y1,z1, x1,y1,z1, rf,gf,bf, 0f,-1f,0f);
+
+        tri(out, x1,y0,z0, x1,y1,z0, x1,y1,z1, rw,gw,bw, -1f,0f,0f);
+        tri(out, x1,y0,z0, x1,y1,z1, x1,y0,z1, rw,gw,bw, -1f,0f,0f);
+        tri(out, x0,y0,z0, x0,y1,z1, x0,y1,z0, rw,gw,bw, 1f,0f,0f);
+        tri(out, x0,y0,z0, x0,y0,z1, x0,y1,z1, rw,gw,bw, 1f,0f,0f);
+
+        tri(out, x0,y0,z1, x1,y1,z1, x0,y1,z1, rn,gn,bn, 0f,0f,-1f);
+        tri(out, x0,y0,z1, x1,y0,z1, x1,y1,z1, rn,gn,bn, 0f,0f,-1f);
+        tri(out, x0,y0,z0, x0,y1,z0, x1,y1,z0, rn,gn,bn, 0f,0f,1f);
+        tri(out, x0,y0,z0, x1,y1,z0, x1,y0,z0, rn,gn,bn, 0f,0f,1f);
     }
 
     private static void addCube(List<Float> out, float cx, float cy, float cz, float s, float r, float g, float b) { float h=s*0.5f;
-        // +Z
         tri(out,cx-h,cy-h,cz+h,cx+h,cy-h,cz+h,cx+h,cy+h,cz+h,r,g,b,0,0,1); tri(out,cx-h,cy-h,cz+h,cx+h,cy+h,cz+h,cx-h,cy+h,cz+h,r,g,b,0,0,1);
-        // -Z
         tri(out,cx-h,cy-h,cz-h,cx+h,cy+h,cz-h,cx+h,cy-h,cz-h,r,g,b,0,0,-1); tri(out,cx-h,cy-h,cz-h,cx-h,cy+h,cz-h,cx+h,cy+h,cz-h,r,g,b,0,0,-1);
-        // +X
         tri(out,cx+h,cy-h,cz-h,cx+h,cy+h,cz-h,cx+h,cy+h,cz+h,r,g,b,1,0,0); tri(out,cx+h,cy-h,cz-h,cx+h,cy+h,cz+h,cx+h,cy-h,cz+h,r,g,b,1,0,0);
-        // -X
         tri(out,cx-h,cy-h,cz-h,cx-h,cy+h,cz+h,cx-h,cy+h,cz-h,r,g,b,-1,0,0); tri(out,cx-h,cy-h,cz-h,cx-h,cy-h,cz+h,cx-h,cy+h,cz+h,r,g,b,-1,0,0);
-        // +Y
         tri(out,cx-h,cy+h,cz-h,cx-h,cy+h,cz+h,cx+h,cy+h,cz+h,r,g,b,0,1,0); tri(out,cx-h,cy+h,cz-h,cx+h,cy+h,cz+h,cx+h,cy+h,cz-h,r,g,b,0,1,0);
-        // -Y
         tri(out,cx-h,cy-h,cz-h,cx+h,cy-h,cz+h,cx-h,cy-h,cz+h,r,g,b,0,-1,0); tri(out,cx-h,cy-h,cz-h,cx+h,cy-h,cz-h,cx+h,cy-h,cz+h,r,g,b,0,-1,0);
     }
 

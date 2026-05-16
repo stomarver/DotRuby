@@ -30,7 +30,7 @@ public final class PortalGridScene extends SceneTemplate {
 
     private final Shader shader = new Shader();
     private final ShadowMaps shadowMaps = new ShadowMaps(4096);
-    private final StencilShadows stencilShadows = new StencilShadows(220f);
+    private final StencilShadows stencilShadows = new StencilShadows(240f);
     private final Matrix4f[] lightVP = {new Matrix4f(),new Matrix4f(),new Matrix4f(),new Matrix4f(),new Matrix4f(),new Matrix4f()};
 
     private float phase;
@@ -55,14 +55,15 @@ public final class PortalGridScene extends SceneTemplate {
     @Override public void update(float deltaSeconds) { phase += deltaSeconds; }
 
     @Override public void render3D() {
+        glEnable(GL_DEPTH_TEST);
         Vector3f eye = new Vector3f((float)Math.sin(phase * 0.2f) * 13f, 8f, (float)Math.cos(phase * 0.2f) * 13f);
         Matrix4f projection = new Matrix4f().perspective((float)Math.toRadians(60f), 16f/9f, NEAR, FAR);
         Matrix4f view = new Matrix4f().lookAt(eye, new Vector3f(0f, 3f, 0f), new Vector3f(0f,1f,0f));
         Matrix4f vp = new Matrix4f(projection).mul(view);
         Vector3f lightPos = new Vector3f(0f, 7f, 0f);
 
-        Matrix4f[] lightMats = shadowMaps.buildLightViewProj(lightPos, 0.4f, FAR);
-        for (int i = 0; i < 6; i++) lightVP[i].set(lightMats[i]);
+        Matrix4f[] mats = shadowMaps.buildLightViewProj(lightPos, 0.4f, FAR);
+        for (int i=0;i<6;i++) lightVP[i].set(mats[i]);
         renderShadowDepth();
 
         if (mode == LightingMode.SHADOW_MAPS) {
@@ -75,7 +76,7 @@ public final class PortalGridScene extends SceneTemplate {
     }
 
     @Override public void render2D(Overlay overlay, Render textRender) {
-        textRender.drawText(overlay, "Prototype Portal Grid (lamp in cube)", 16f, 16f, 3f);
+        textRender.drawText(overlay, "Prototype Portal Grid (lamp center)", 16f, 16f, 3f);
         textRender.drawText(overlay, "(F) Mode: " + mode.label, 16f, 48f, 2f);
     }
 
@@ -129,9 +130,8 @@ public final class PortalGridScene extends SceneTemplate {
         glUseProgram(litProgram);
         setMat4(litProgram, "uViewProj", vp);
         setMat4(litProgram, "uView", view);
-        setMat4(litProgram, "uLightVP0", lightVP[0]);
-        glUniform3f(glGetUniformLocation(litProgram, "uLampPos"), lightPos.x, lightPos.y, lightPos.z);
         glUniform3f(glGetUniformLocation(litProgram, "uLightPos"), lightPos.x, lightPos.y, lightPos.z);
+        glUniform3f(glGetUniformLocation(litProgram, "uLampPos"), lightPos.x, lightPos.y, lightPos.z);
         glUniform1i(glGetUniformLocation(litProgram, "uUseShadow"), useShadows ? 1 : 0);
         glUniform1i(glGetUniformLocation(litProgram, "uAmbientOnly"), ambientOnly ? 1 : 0);
         glUniform1f(glGetUniformLocation(litProgram, "uAmbient"), AMBIENT);
@@ -175,9 +175,9 @@ void main(){ gl_Position=uViewProj*vec4(aPos,1.0); vColor=aColor; vPos=aPos; vNo
     private static final String LIT_FS = """
 #version 330 core
 in vec3 vColor; in vec3 vPos; in vec3 vNormal;
-uniform vec3 uLightPos; uniform vec3 uLampPos; uniform int uUseShadow; uniform int uAmbientOnly; uniform float uAmbient; uniform mat4 uLightVP0; uniform samplerCube uShadow;
+uniform vec3 uLightPos; uniform vec3 uLampPos; uniform int uUseShadow; uniform int uAmbientOnly; uniform float uAmbient; uniform samplerCube uShadow;
 out vec4 fragColor;
-float shadowFactor(){ vec3 L = vPos - uLampPos; float current = length(L) / 80.0; float closest = texture(uShadow, normalize(L)).r; return current - 0.002 > closest ? 0.35 : 1.0; }
+float shadowFactor(){ vec3 L = vPos - uLampPos; float current = length(L) / 80.0; float closest = texture(uShadow, normalize(L)).r; return current - 0.0015 > closest ? 0.35 : 1.0; }
 void main(){ if(uAmbientOnly==1){fragColor=vec4(vColor*uAmbient,1.0); return;} float diff=max(dot(normalize(vNormal),normalize(uLightPos-vPos)),0.0); float sh=uUseShadow==1?shadowFactor():1.0; fragColor=vec4(vColor*(uAmbient+diff*sh),1.0);} 
 """;
     private static final String DEPTH_VS = """
