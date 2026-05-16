@@ -23,7 +23,7 @@ import static org.lwjgl.system.MemoryUtil.memFree;
 
 public final class PortalGridScene extends SceneTemplate {
     private static final float NEAR = 0.1f;
-    private static final float FAR = 2000f;
+    private static final float FAR = 200f;
     private static final float AMBIENT = 0.2f;
 
     private enum LightingMode { STENCIL_VOLUMES("Stencil Volumes"), SHADOW_MAPS("ShadowMaps"); private final String label; LightingMode(String l){label=l;} }
@@ -202,19 +202,12 @@ out vec4 fragColor;
 float shadowFactor(){
     vec3 ldir = normalize(uLampPos - vPos);
     float ndotl = max(dot(normalize(vNormal), ldir), 0.0);
-    float bias = max(0.0015 * (1.0 - ndotl), 0.0005);
+    float bias = max(0.0020 * (1.0 - ndotl), 0.0008);
     vec3 L = vPos - uLampPos;
     float current = length(L) / uFar;
-    vec3 dir = normalize(L);
-    float shadow = 0.0;
-    float step = 0.0035;
-    vec3 offs[8] = vec3[](vec3(1,1,1),vec3(-1,1,1),vec3(1,-1,1),vec3(-1,-1,1),vec3(1,1,-1),vec3(-1,1,-1),vec3(1,-1,-1),vec3(-1,-1,-1));
-    for (int i=0;i<8;i++){
-        float closest = texture(uShadow, normalize(dir + offs[i]*step)).r;
-        shadow += (current - bias > closest) ? 1.0 : 0.0;
-    }
-    float occ = shadow / 8.0;
-    return 1.0 - occ * 0.65;
+    if (current >= 1.0) return 1.0;
+    float closest = texture(uShadow, normalize(L)).r;
+    return (current - bias > closest) ? 0.35 : 1.0;
 }
 void main(){ if(uAmbientOnly==1){fragColor=vec4(vColor*uAmbient,1.0); return;} float diff=max(dot(normalize(vNormal),normalize(uLightPos-vPos)),0.0); float sh=uUseShadow==1?shadowFactor():1.0; fragColor=vec4(vColor*(uAmbient+diff*sh),1.0);} 
 """;
