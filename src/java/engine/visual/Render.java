@@ -17,7 +17,7 @@ public final class Render {
             Path.of("src/main/resources/fonts/Regular")
     );
     private static final float BASE_SCALE = 1f;
-    private static final float SHADOW_OFFSET_PHYSICAL_PIXELS = 1f;
+    private static final float SHADOW_OFFSET_VIRTUAL_PIXELS = 1f;
     private static final float SHADOW_ALPHA = 0.5f;
     private float configuredVirtualScale = 1f;
 
@@ -97,7 +97,7 @@ public final class Render {
             EngineConstraints.requireIntegerScale(textScale.value(), "Render.drawText(textScale)");
         }
         float resolvedScale = Math.max(0.0001f, size) * BASE_SCALE * resolveScaleMultiplier(textScale);
-        float shadowOffsetVirtual = getShadowOffsetVirtualUnits(resolvedScale);
+        float shadowOffsetVirtual = SHADOW_OFFSET_VIRTUAL_PIXELS;
         List<Parse.Quad> quads = Parse.text(font, value);
         for (Parse.Quad quad : quads) {
             float minU = quad.glyph().atlasX() / (float) textureWidth;
@@ -163,15 +163,6 @@ public final class Render {
             case STANDARD -> Math.max(0.0001f, resolved.value());
         };
         return physicalTarget / configScale;
-    }
-
-    private float getShadowOffsetVirtualUnits(float resolvedScale) {
-        float uiScaleToPhysical = Math.max(0.0001f, configuredVirtualScale);
-        int adaptiveOffsetPhysical = Math.max(1, Math.round(resolvedScale));
-        int physicalPixels = adaptiveOffsetPhysical == 1
-                ? 1
-                : adaptiveOffsetPhysical + Math.round(SHADOW_OFFSET_PHYSICAL_PIXELS);
-        return physicalPixels / uiScaleToPhysical;
     }
 
     private static Path existingPath(List<Path> candidates) {
