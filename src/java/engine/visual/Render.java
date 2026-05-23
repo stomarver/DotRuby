@@ -17,6 +17,7 @@ public final class Render {
             Path.of("src/main/resources/fonts/Regular")
     );
     private static final float BASE_SCALE = 1f;
+    private static final float MIN_TEXT_SCALE = 2f;
     private static final float SHADOW_ALPHA = 0.5f;
     private float configuredVirtualScale = 1f;
 
@@ -73,7 +74,7 @@ public final class Render {
     }
 
     public void drawText(Overlay overlay, String value, float x, float y) {
-        drawText(overlay, value, x, y, 1f, TextScale.standard());
+        drawText(overlay, value, x, y, MIN_TEXT_SCALE, TextScale.standard());
     }
 
     public void drawText(Overlay overlay, String value, float x, float y, float size) {
@@ -92,6 +93,9 @@ public final class Render {
         }
 
         EngineConstraints.requireIntegerScale(size, "Render.drawText(size)");
+        if (size < MIN_TEXT_SCALE) {
+            throw new IllegalStateException("Engine constraint violation: text scale below 2 is forbidden in Render.drawText(size): " + size);
+        }
         if (textScale != null) {
             EngineConstraints.requireIntegerScale(textScale.value(), "Render.drawText(textScale)");
         }
@@ -160,6 +164,10 @@ public final class Render {
             case FIXED -> configScale;
             case RELATIVE -> Math.max(0.0001f, configScale + resolved.value());
             case STANDARD -> Math.max(0.0001f, resolved.value());
+        };
+
+        if (physicalTarget < MIN_TEXT_SCALE) {
+            throw new IllegalStateException("Engine constraint violation: resolved text scale below 2 is forbidden: " + physicalTarget);
         };
         return physicalTarget / configScale;
     }
