@@ -70,10 +70,12 @@ public class Cursor {
     }
 
     public void setClampedPosition(double x, double y, float virtualWidth, float virtualHeight) {
-        EngineConstraints.requirePixelAligned(x, "Cursor.setClampedPosition(x)");
-        EngineConstraints.requirePixelAligned(y, "Cursor.setClampedPosition(y)");
-        this.x = clampX(x, virtualWidth);
-        this.y = clampY(y, virtualHeight);
+        double snappedX = Math.rint(x);
+        double snappedY = Math.rint(y);
+        EngineConstraints.requirePixelAligned(snappedX, "Cursor.setClampedPosition(x)");
+        EngineConstraints.requirePixelAligned(snappedY, "Cursor.setClampedPosition(y)");
+        this.x = clampX(snappedX, virtualWidth);
+        this.y = clampY(snappedY, virtualHeight);
     }
 
     public void updateCapturedPosition(double physicalX,
@@ -96,7 +98,9 @@ public class Cursor {
 
         double scaleX = Math.max(physicalPixelsPerVirtualX, 0.0001f);
         double scaleY = Math.max(physicalPixelsPerVirtualY, 0.0001f);
-        setClampedPosition(x + (deltaX / scaleX), y + (deltaY / scaleY), virtualWidth, virtualHeight);
+        double nextX = Math.rint(x + (deltaX / scaleX));
+        double nextY = Math.rint(y + (deltaY / scaleY));
+        setClampedPosition(nextX, nextY, virtualWidth, virtualHeight);
     }
 
     public void resetMotionTracking() {
