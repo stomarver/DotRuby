@@ -60,7 +60,6 @@ public class Manager {
     private Mode mode;
     private Fullscreen fullscreen;
     private VSync vSync;
-    private final int virtualScale;
 
     private final int virtualWidth;
     private final int virtualHeight;
@@ -82,7 +81,6 @@ public class Manager {
         this.mode = config.getWindowMode();
         this.fullscreen = config.getFullscreen();
         this.vSync = config.getVSync();
-        this.virtualScale = config.getVirtualScale();
         this.virtualWidth = config.getWidth();
         this.virtualHeight = config.getHeight();
         this.framebufferWidth = virtualWidth;

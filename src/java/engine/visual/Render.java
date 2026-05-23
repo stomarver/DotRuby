@@ -40,10 +40,6 @@ public final class Render {
             return new TextScale(ScaleMode.FIXED, 0f);
         }
 
-        public static TextScale fixed(float ignoredScale) {
-            return fixed();
-        }
-
         public static TextScale relative(float relativeOffset) {
             return new TextScale(ScaleMode.RELATIVE, relativeOffset);
         }
@@ -96,7 +92,7 @@ public final class Render {
         }
 
         EngineConstraints.requireIntegerScale(size, "Render.drawText(size)");
-        if (textScale != null && textScale.mode() != ScaleMode.STANDARD) {
+        if (textScale != null) {
             EngineConstraints.requireIntegerScale(textScale.value(), "Render.drawText(textScale)");
         }
         float resolvedScale = Math.max(0.0001f, size) * BASE_SCALE * resolveScaleMultiplier(textScale);

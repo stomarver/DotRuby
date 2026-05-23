@@ -17,8 +17,8 @@ public final class Selection {
         active = true;
         startX = x;
         startY = y;
-        EngineConstraints.requirePixelAligned(x, "Selection.update(x)");
-        EngineConstraints.requirePixelAligned(y, "Selection.update(y)");
+        EngineConstraints.requirePixelAligned(x, "Selection.begin(x)");
+        EngineConstraints.requirePixelAligned(y, "Selection.begin(y)");
         endX = x;
         endY = y;
     }
@@ -27,8 +27,8 @@ public final class Selection {
         if (!active) {
             return;
         }
-        EngineConstraints.requirePixelAligned(x, "Selection.update(x)");
-        EngineConstraints.requirePixelAligned(y, "Selection.update(y)");
+        EngineConstraints.requirePixelAligned(x, "Selection.begin(x)");
+        EngineConstraints.requirePixelAligned(y, "Selection.begin(y)");
         endX = x;
         endY = y;
     }
@@ -49,7 +49,8 @@ public final class Selection {
         if (maxX <= minX || maxY <= minY) {
             return;
         }
-        float thickness = Math.max(0.1f, borderThickness);
+        EngineConstraints.requireIntegerScale(borderThickness, "Selection.render(borderThickness)");
+        float thickness = Math.max(1f, borderThickness);
         overlay.drawOutlineRect(minX, minY, maxX, maxY, thickness);
     }
 }
