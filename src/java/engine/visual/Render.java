@@ -98,7 +98,7 @@ public final class Render {
         if (textScale != null) {
             EngineConstraints.requireIntegerScale(textScale.value(), "Render.drawText(textScale)");
         }
-        float resolvedScale = Math.max(0.0001f, size) * BASE_SCALE * resolveScaleMultiplier(textScale);
+        float resolvedScale = toPhysicalScale(Math.max(0.1f, size)) * BASE_SCALE * resolveScaleMultiplier(textScale);
         float shadowOffsetVirtual = resolvedScale;
         List<Parse.Quad> quads = Parse.text(font, value);
         for (Parse.Quad quad : quads) {
@@ -157,16 +157,17 @@ public final class Render {
 
     private float resolveScaleMultiplier(TextScale textScale) {
         TextScale resolved = textScale == null ? TextScale.standard() : textScale;
-        float configScale = Math.max(0.0001f, configuredVirtualScale);
+        float configLogicalScale = Math.max(0.0001f, configuredVirtualScale);
+        float configPhysicalScale = toPhysicalScale(configLogicalScale);
 
         float logicalTarget = switch (resolved.mode()) {
-            case FIXED -> configScale;
-            case RELATIVE -> Math.max(0.0001f, configScale + resolved.value());
+            case FIXED -> configLogicalScale;
+            case RELATIVE -> Math.max(0.0001f, configLogicalScale + resolved.value());
             case STANDARD -> Math.max(0.0001f, resolved.value());
         };
 
         float physicalTarget = toPhysicalScale(logicalTarget);
-        return physicalTarget / configScale;
+        return physicalTarget / configPhysicalScale;
     }
 
     private float toPhysicalScale(float logicalScale) {
