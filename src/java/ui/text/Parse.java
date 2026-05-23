@@ -1,6 +1,10 @@
 package ui.text;
 
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.BufferedReader;
+import java.io.InputStreamReader;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
@@ -47,6 +51,27 @@ public final class Parse {
         }
     }
 
+
+    public static FontDefinition font(List<String> resourcePaths) {
+        for (String resourcePath : resourcePaths) {
+            if (resourcePath == null || resourcePath.isBlank()) {
+                continue;
+            }
+            String normalized = resourcePath.startsWith("/") ? resourcePath : "/" + resourcePath;
+            try (InputStream stream = Parse.class.getResourceAsStream(normalized)) {
+                if (stream == null) {
+                    continue;
+                }
+                try (BufferedReader reader = new BufferedReader(new InputStreamReader(stream, StandardCharsets.UTF_8))) {
+                    List<String> lines = reader.lines().toList();
+                    return parseFont(lines, Path.of(normalized));
+                }
+            } catch (IOException exception) {
+                throw new IllegalStateException("Unable to read font definition resource: " + normalized, exception);
+            }
+        }
+        throw new IllegalStateException("Unable to read font definition resources: " + resourcePaths);
+    }
     public static List<Quad> text(FontDefinition font, String text) {
         List<Quad> quads = new ArrayList<>();
         int penX = 0;

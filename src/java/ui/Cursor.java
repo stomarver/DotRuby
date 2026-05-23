@@ -6,6 +6,7 @@ import engine.visual.TextureLoader;
 
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.List;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -21,6 +22,7 @@ import static org.lwjgl.opengl.GL11.glDisable;
 public class Cursor {
 
     private static final Path TEXTURE_PATH = Path.of("src/asset/ui/cursor/classic.png");
+    private static final List<String> TEXTURE_RESOURCES = List.of("ui/cursor/classic.png");
 
     public enum State {
         NORMAL(GLFW_CURSOR_NORMAL),
@@ -140,14 +142,16 @@ public class Cursor {
     }
 
     public void loadTexture() {
-        if (!Files.exists(TEXTURE_PATH)) {
-            throw new IllegalStateException("Cursor texture is missing: " + TEXTURE_PATH);
-        }
         if (textureId != 0) {
             return;
         }
 
-        TextureLoader.LoadedTexture loadedTexture = textureLoader.loadNearestRgbaTexture(TEXTURE_PATH);
+        TextureLoader.LoadedTexture loadedTexture;
+        if (Files.exists(TEXTURE_PATH)) {
+            loadedTexture = textureLoader.loadNearestRgbaTexture(TEXTURE_PATH);
+        } else {
+            loadedTexture = textureLoader.loadNearestRgbaTextureByResource(TEXTURE_RESOURCES);
+        }
         textureId = loadedTexture.id();
         textureWidth = loadedTexture.width();
         textureHeight = loadedTexture.height();

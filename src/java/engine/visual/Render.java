@@ -4,6 +4,7 @@ import engine.util.EngineConstraints;
 import ui.text.Parse;
 
 import java.nio.file.Path;
+import java.util.Optional;
 import java.util.List;
 
 import static org.lwjgl.opengl.GL11.glDeleteTextures;
@@ -56,16 +57,17 @@ public final class Render {
         }
 
         Path fontPath = existingPath(FONT_DEFINITION_PATHS);
-        if (fontPath == null) {
-            throw new IllegalStateException("Regular font definition is not found: " + FONT_DEFINITION_PATHS);
+        if (fontPath != null) {
+            font = Parse.font(fontPath);
+        } else {
+            font = Parse.font(List.of("ui/font/Regular.fnt"));
         }
-        font = Parse.font(fontPath);
 
         TextureLoader.LoadedTexture loadedTexture = textureLoader.loadNearestRgbaTexture(List.of(
                 Path.of(font.bitmapPath()),
                 Path.of("src/asset/ui/font/Regular.png"),
                 Path.of("src/main/resources/fonts/font.png")
-        ));
+        ), List.of("ui/font/Regular.png"));
         textureId = loadedTexture.id();
         textureWidth = loadedTexture.width();
         textureHeight = loadedTexture.height();
