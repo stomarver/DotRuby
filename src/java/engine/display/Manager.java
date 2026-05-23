@@ -74,6 +74,7 @@ public class Manager {
     private int windowedY;
     private int windowedWidth;
     private int windowedHeight;
+    private boolean hasWindowedBounds;
     private boolean forceVirtualResolution = true;
 
     public Manager(Config config) {
@@ -90,6 +91,7 @@ public class Manager {
         this.physicalHeight = virtualHeight;
         this.windowedWidth = virtualWidth;
         this.windowedHeight = virtualHeight;
+        this.hasWindowedBounds = false;
     }
 
     public long createWindow() {
@@ -521,7 +523,7 @@ public class Manager {
         if (!Monitor.supportsWindowPositioning()) {
             return 0;
         }
-        if (windowedWidth > 0 || windowedHeight > 0) {
+        if (hasWindowedBounds) {
             return windowedX;
         }
         if (!config.isCentering()) {
@@ -534,7 +536,7 @@ public class Manager {
         if (!Monitor.supportsWindowPositioning()) {
             return 0;
         }
-        if (windowedWidth > 0 || windowedHeight > 0) {
+        if (hasWindowedBounds) {
             return windowedY;
         }
         if (!config.isCentering()) {
@@ -544,17 +546,11 @@ public class Manager {
     }
 
     private int windowedWidth(Monitor monitor) {
-        if (windowedWidth > 0) {
-            return windowedWidth;
-        }
-        return config.isCentering() ? Math.min(config.getWidth(), monitor.getWidth()) : config.getWidth();
+        return Math.max(1, Math.min(windowedWidth, monitor.getWidth()));
     }
 
     private int windowedHeight(Monitor monitor) {
-        if (windowedHeight > 0) {
-            return windowedHeight;
-        }
-        return config.isCentering() ? Math.min(config.getHeight(), monitor.getHeight()) : config.getHeight();
+        return Math.max(1, Math.min(windowedHeight, monitor.getHeight()));
     }
 
     private void rememberWindowedBounds(Monitor monitor) {
@@ -567,6 +563,7 @@ public class Manager {
         if (!Monitor.supportsWindowPositioning()) {
             windowedX = 0;
             windowedY = 0;
+            hasWindowedBounds = true;
             return;
         }
 
@@ -576,9 +573,11 @@ public class Manager {
         if (x[0] == 0 && y[0] == 0 && config.isCentering()) {
             windowedX = monitor.centeredX(windowedWidth);
             windowedY = monitor.centeredY(windowedHeight);
+            hasWindowedBounds = true;
             return;
         }
         windowedX = x[0];
         windowedY = y[0];
+        hasWindowedBounds = true;
     }
 }
