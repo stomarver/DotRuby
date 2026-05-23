@@ -29,11 +29,19 @@ public final class Render {
 
     public record TextScale(ScaleMode mode, float value) {
         public static TextScale standard() {
-            return new TextScale(ScaleMode.STANDARD, 0f);
+            return standard(1f);
         }
 
-        public static TextScale fixed(float fixedScale) {
-            return new TextScale(ScaleMode.FIXED, fixedScale);
+        public static TextScale standard(float standardScale) {
+            return new TextScale(ScaleMode.STANDARD, standardScale);
+        }
+
+        public static TextScale fixed() {
+            return new TextScale(ScaleMode.FIXED, 0f);
+        }
+
+        public static TextScale fixed(float ignoredScale) {
+            return fixed();
         }
 
         public static TextScale relative(float relativeOffset) {
@@ -152,9 +160,9 @@ public final class Render {
         float configScale = Math.max(0.0001f, configuredVirtualScale);
 
         float physicalTarget = switch (resolved.mode()) {
-            case FIXED -> Math.max(0.0001f, resolved.value());
+            case FIXED -> configScale;
             case RELATIVE -> Math.max(0.0001f, configScale + resolved.value());
-            case STANDARD -> configScale;
+            case STANDARD -> Math.max(0.0001f, resolved.value());
         };
         return physicalTarget / configScale;
     }

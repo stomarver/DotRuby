@@ -20,14 +20,14 @@ public final class Prompt extends SceneTemplate {
         textRender.drawText(overlay, "- UTF-8 safe string pipeline", 16f, 96f, 2f, Render.TextScale.standard());
 
         textRender.drawText(overlay, "STANDARD MODE", 16f, 136f, 2f, Render.TextScale.standard());
-        textRender.drawText(overlay, "Scale 1", 32f, 160f, 1f, Render.TextScale.standard());
-        textRender.drawText(overlay, "Scale 2", 32f, 180f, 2f, Render.TextScale.standard());
-        textRender.drawText(overlay, "Scale 3", 32f, 212f, 3f, Render.TextScale.standard());
+        textRender.drawText(overlay, "Scale 1", 32f, 160f, 1f, Render.TextScale.standard(1f));
+        textRender.drawText(overlay, "Scale 2", 32f, 180f, 1f, Render.TextScale.standard(2f));
+        textRender.drawText(overlay, "Scale 3", 32f, 212f, 1f, Render.TextScale.standard(3f));
 
         textRender.drawText(overlay, "FIXED MODE", 360f, 136f, 2f, Render.TextScale.standard());
-        textRender.drawText(overlay, "Fixed 1", 376f, 160f, 1f, Render.TextScale.fixed(1f));
-        textRender.drawText(overlay, "Fixed 2", 376f, 180f, 1f, Render.TextScale.fixed(2f));
-        textRender.drawText(overlay, "Fixed 3", 376f, 212f, 1f, Render.TextScale.fixed(3f));
+        textRender.drawText(overlay, "Fixed 1", 376f, 160f, 1f, Render.TextScale.fixed());
+        textRender.drawText(overlay, "Fixed 2", 376f, 180f, 2f, Render.TextScale.fixed());
+        textRender.drawText(overlay, "Fixed 3", 376f, 212f, 3f, Render.TextScale.fixed());
 
         textRender.drawText(overlay, "RELATIVE MODE", 680f, 136f, 2f, Render.TextScale.standard());
         textRender.drawText(overlay, "Relative -1", 696f, 160f, 1f, Render.TextScale.relative(-1f));
