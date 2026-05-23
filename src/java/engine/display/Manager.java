@@ -207,13 +207,13 @@ public class Manager {
 
     public float getUiScaleToPhysicalPixels() {
         return forceVirtualResolution
-                ? virtualScale
+                ? getAppliedScaleX()
                 : (framebufferWidth / (float) virtualWidth);
     }
 
     public float getUiScaleToPhysicalPixelsExact() {
         return forceVirtualResolution
-                ? virtualScale
+                ? getAppliedScaleX()
                 : (framebufferWidth / (float) virtualWidth);
     }
 
@@ -229,36 +229,36 @@ public class Manager {
 
     public float getPhysicalPixelsPerVirtualUnitXExact() {
         return forceVirtualResolution
-                ? virtualScale
+                ? getAppliedScaleX()
                 : (framebufferWidth / (float) virtualWidth);
     }
 
     public float getPhysicalPixelsPerVirtualUnitYExact() {
         return forceVirtualResolution
-                ? virtualScale
+                ? getAppliedScaleY()
                 : (framebufferHeight / (float) virtualHeight);
     }
 
     public float toVirtualX(double physicalScreenX) {
-        float scale = forceVirtualResolution ? virtualScale : (framebufferWidth / (float) virtualWidth);
+        float scale = forceVirtualResolution ? getAppliedScaleX() : (framebufferWidth / (float) virtualWidth);
         float offsetX = forceVirtualResolution ? physicalX : 0f;
         return (float) ((physicalScreenX - offsetX) / Math.max(scale, 0.0001f));
     }
 
     public float toVirtualY(double physicalScreenY) {
-        float scale = forceVirtualResolution ? virtualScale : (framebufferHeight / (float) virtualHeight);
+        float scale = forceVirtualResolution ? getAppliedScaleY() : (framebufferHeight / (float) virtualHeight);
         float offsetY = forceVirtualResolution ? physicalY : 0f;
         return (float) ((physicalScreenY - offsetY) / Math.max(scale, 0.0001f));
     }
 
     public float toPhysicalX(float virtualX) {
-        float scale = forceVirtualResolution ? virtualScale : (framebufferWidth / (float) virtualWidth);
+        float scale = forceVirtualResolution ? getAppliedScaleX() : (framebufferWidth / (float) virtualWidth);
         float offsetX = forceVirtualResolution ? physicalX : 0f;
         return offsetX + (virtualX * scale);
     }
 
     public float toPhysicalY(float virtualY) {
-        float scale = forceVirtualResolution ? virtualScale : (framebufferHeight / (float) virtualHeight);
+        float scale = forceVirtualResolution ? getAppliedScaleY() : (framebufferHeight / (float) virtualHeight);
         float offsetY = forceVirtualResolution ? physicalY : 0f;
         return offsetY + (virtualY * scale);
     }
@@ -431,14 +431,22 @@ public class Manager {
 
         framebufferWidth = Math.max(1, fbW[0]);
         framebufferHeight = Math.max(1, fbH[0]);
-        physicalX = 0;
-        physicalY = 0;
-        physicalWidth = framebufferWidth;
-        physicalHeight = framebufferHeight;
-
         if (forceVirtualResolution) {
+            int scaleX = Math.max(1, framebufferWidth / Math.max(1, virtualWidth));
+            int scaleY = Math.max(1, framebufferHeight / Math.max(1, virtualHeight));
+            int appliedScale = Math.max(1, Math.min(scaleX, scaleY));
+
+            physicalWidth = Math.max(1, virtualWidth * appliedScale);
+            physicalHeight = Math.max(1, virtualHeight * appliedScale);
+            physicalX = (framebufferWidth - physicalWidth) / 2;
+            physicalY = (framebufferHeight - physicalHeight) / 2;
+
             glViewport(physicalX, physicalY, physicalWidth, physicalHeight);
         } else {
+            physicalX = 0;
+            physicalY = 0;
+            physicalWidth = framebufferWidth;
+            physicalHeight = framebufferHeight;
             glViewport(0, 0, framebufferWidth, framebufferHeight);
         }
     }
@@ -447,14 +455,22 @@ public class Manager {
         if (!forceVirtualResolution) {
             return Math.max(1, framebufferWidth);
         }
-        return framebufferWidth / (float) Math.max(1, virtualScale);
+        return Math.max(1, virtualWidth);
     }
 
     private float getDynamicVirtualHeight() {
         if (!forceVirtualResolution) {
             return Math.max(1, framebufferHeight);
         }
-        return framebufferHeight / (float) Math.max(1, virtualScale);
+        return Math.max(1, virtualHeight);
+    }
+
+    private float getAppliedScaleX() {
+        return Math.max(physicalWidth, 1) / (float) Math.max(virtualWidth, 1);
+    }
+
+    private float getAppliedScaleY() {
+        return Math.max(physicalHeight, 1) / (float) Math.max(virtualHeight, 1);
     }
     private void applyWindowMode() {
         Monitor monitor = Monitor.primary(config.getWidth(), config.getHeight());
