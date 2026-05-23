@@ -1,5 +1,6 @@
 package ui;
 
+import engine.util.EngineConstraints;
 import engine.visual.Overlay;
 
 public final class Selection {
@@ -11,9 +12,13 @@ public final class Selection {
     private float endY;
 
     public void begin(float x, float y) {
+        EngineConstraints.requirePixelAligned(x, "Selection.begin(x)");
+        EngineConstraints.requirePixelAligned(y, "Selection.begin(y)");
         active = true;
         startX = x;
         startY = y;
+        EngineConstraints.requirePixelAligned(x, "Selection.update(x)");
+        EngineConstraints.requirePixelAligned(y, "Selection.update(y)");
         endX = x;
         endY = y;
     }
@@ -22,6 +27,8 @@ public final class Selection {
         if (!active) {
             return;
         }
+        EngineConstraints.requirePixelAligned(x, "Selection.update(x)");
+        EngineConstraints.requirePixelAligned(y, "Selection.update(y)");
         endX = x;
         endY = y;
     }
@@ -39,10 +46,6 @@ public final class Selection {
         float maxX = Math.max(startX, endX);
         float minY = Math.min(startY, endY);
         float maxY = Math.max(startY, endY);
-        minX = (float) Math.floor(minX);
-        maxX = (float) Math.floor(maxX);
-        minY = (float) Math.floor(minY);
-        maxY = (float) Math.floor(maxY);
         if (maxX <= minX || maxY <= minY) {
             return;
         }

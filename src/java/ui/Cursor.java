@@ -1,5 +1,6 @@
 package ui;
 
+import engine.util.EngineConstraints;
 import engine.visual.Overlay;
 import engine.visual.TextureLoader;
 
@@ -69,6 +70,8 @@ public class Cursor {
     }
 
     public void setClampedPosition(double x, double y, float virtualWidth, float virtualHeight) {
+        EngineConstraints.requirePixelAligned(x, "Cursor.setClampedPosition(x)");
+        EngineConstraints.requirePixelAligned(y, "Cursor.setClampedPosition(y)");
         this.x = clampX(x, virtualWidth);
         this.y = clampY(y, virtualHeight);
     }
@@ -152,8 +155,10 @@ public class Cursor {
         }
 
         glDisable(GL_DEPTH_TEST);
-        float drawX = (float) Math.floor(x);
-        float drawY = (float) Math.floor(y);
+        EngineConstraints.requirePixelAligned(x, "Cursor.render(x)");
+        EngineConstraints.requirePixelAligned(y, "Cursor.render(y)");
+        float drawX = (float) x;
+        float drawY = (float) y;
         drawWidth = Math.max(1f, drawWidth);
         drawHeight = Math.max(1f, drawHeight);
         overlay.drawTexturedQuad(textureId, drawX, drawY, drawWidth, drawHeight);
@@ -167,12 +172,12 @@ public class Cursor {
     }
 
     private double clampX(double value, float virtualWidth) {
-        double maxX = Math.max(0, virtualWidth);
+        double maxX = Math.max(0, virtualWidth - 1);
         return Math.max(0, Math.min(value, maxX));
     }
 
     private double clampY(double value, float virtualHeight) {
-        double maxY = Math.max(0, virtualHeight);
+        double maxY = Math.max(0, virtualHeight - 1);
         return Math.max(0, Math.min(value, maxY));
     }
 }
