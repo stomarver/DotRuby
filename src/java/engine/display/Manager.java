@@ -37,6 +37,7 @@ import static org.lwjgl.glfw.GLFW.glfwSwapBuffers;
 import static org.lwjgl.glfw.GLFW.glfwSwapInterval;
 import static org.lwjgl.glfw.GLFW.glfwTerminate;
 import static org.lwjgl.glfw.GLFW.glfwGetTime;
+import static org.lwjgl.glfw.GLFW.glfwHideWindow;
 import static org.lwjgl.glfw.GLFW.glfwWindowHint;
 import static org.lwjgl.glfw.GLFW.glfwWindowShouldClose;
 import static org.lwjgl.opengl.GL11.GL_COLOR_BUFFER_BIT;
@@ -323,13 +324,25 @@ public class Manager {
 
     public void setMode(Mode mode) {
         Mode nextMode = mode == null ? Mode.WINDOWED : mode;
+        Mode previousMode = this.mode;
         if (this.mode == Mode.WINDOWED && nextMode == Mode.FULLSCREEN) {
             rememberWindowedBounds(Monitor.primary(config.getWidth(), config.getHeight()));
         }
         this.mode = nextMode;
         uiManager.preserveCursorGridPosition(getDynamicVirtualWidth(), getDynamicVirtualHeight());
+
+        boolean hideDuringWindowedTransition = (previousMode == Mode.FULLSCREEN && nextMode == Mode.WINDOWED);
+        if (hideDuringWindowedTransition) {
+            glfwHideWindow(windowHandle);
+        }
+
         applyWindowMode();
         updateViewport();
+
+        if (hideDuringWindowedTransition) {
+            glfwPollEvents();
+            glfwShowWindow(windowHandle);
+        }
     }
 
     public void setFullscreen(Fullscreen fullscreen) {
