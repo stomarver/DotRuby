@@ -17,6 +17,9 @@ public final class Render {
             Path.of("src/main/resources/fonts/Regular")
     );
     private static final float BASE_SCALE = 1f;
+    // New intuitive logical scale model:
+    // 1 -> old 2, 2 -> old 3, 3 -> old 4, ...
+    private static final float LOGICAL_SCALE_OFFSET = 1f;
     private static final float SHADOW_ALPHA = 0.5f;
     private float configuredVirtualScale = 1f;
 
@@ -156,13 +159,18 @@ public final class Render {
         TextScale resolved = textScale == null ? TextScale.standard() : textScale;
         float configScale = Math.max(0.0001f, configuredVirtualScale);
 
-        float physicalTarget = switch (resolved.mode()) {
+        float logicalTarget = switch (resolved.mode()) {
             case FIXED -> configScale;
             case RELATIVE -> Math.max(0.0001f, configScale + resolved.value());
             case STANDARD -> Math.max(0.0001f, resolved.value());
         };
 
-        return (physicalTarget * 2f) / configScale;
+        float physicalTarget = toPhysicalScale(logicalTarget);
+        return physicalTarget / configScale;
+    }
+
+    private float toPhysicalScale(float logicalScale) {
+        return Math.max(0.0001f, logicalScale + LOGICAL_SCALE_OFFSET);
     }
 
     private static Path existingPath(List<Path> candidates) {
