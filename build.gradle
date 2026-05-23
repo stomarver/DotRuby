@@ -1,5 +1,6 @@
 plugins {
     id 'java'
+    id 'com.gradleup.shadow' version '8.3.6'
 }
 
 group = 'io.56k-panic'
@@ -65,4 +66,22 @@ tasks.matching { it.name == 'engine.Launcher.main()' }.configureEach {
     if (it instanceof JavaExec) {
         it.jvmArgs '--enable-native-access=ALL-UNNAMED'
     }
+}
+
+
+jar {
+    manifest {
+        attributes 'Main-Class': 'engine.Launcher'
+    }
+}
+
+tasks.named('shadowJar') {
+    archiveClassifier.set('fat')
+    mergeServiceFiles()
+}
+
+tasks.register('fastFatJar') {
+    group = 'build'
+    description = 'Fast fat-jar build (no tests), output in build/libs/*-fat.jar'
+    dependsOn tasks.named('shadowJar')
 }
