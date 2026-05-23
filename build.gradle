@@ -78,6 +78,8 @@ jar {
 tasks.named('shadowJar') {
     archiveClassifier.set('fat')
     mergeServiceFiles()
+    // Explicitly disable any bytecode/package rewriting features.
+    enableRelocation = false
 }
 
 tasks.register('fastFatJar') {

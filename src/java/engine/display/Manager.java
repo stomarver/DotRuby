@@ -25,6 +25,7 @@ import static org.lwjgl.glfw.GLFW.glfwDestroyWindow;
 import static org.lwjgl.glfw.GLFW.glfwGetFramebufferSize;
 import static org.lwjgl.glfw.GLFW.glfwGetWindowPos;
 import static org.lwjgl.glfw.GLFW.glfwGetWindowSize;
+import static org.lwjgl.glfw.GLFW.glfwGetWindowMonitor;
 import static org.lwjgl.glfw.GLFW.glfwInit;
 import static org.lwjgl.glfw.GLFW.glfwMakeContextCurrent;
 import static org.lwjgl.glfw.GLFW.glfwPollEvents;
@@ -334,14 +335,25 @@ public class Manager {
         boolean hideDuringWindowedTransition = (previousMode == Mode.FULLSCREEN && nextMode == Mode.WINDOWED);
         if (hideDuringWindowedTransition) {
             glfwHideWindow(windowHandle);
+            glfwPollEvents();
         }
 
         applyWindowMode();
+
+        if (hideDuringWindowedTransition) {
+            for (int attempt = 0; attempt < 4; attempt++) {
+                glfwPollEvents();
+                if (glfwGetWindowMonitor(windowHandle) == NULL) {
+                    break;
+                }
+            }
+        }
+
         updateViewport();
 
         if (hideDuringWindowedTransition) {
-            glfwPollEvents();
             glfwShowWindow(windowHandle);
+            glfwPollEvents();
         }
     }
 
