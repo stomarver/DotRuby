@@ -17,7 +17,6 @@ public final class Render {
             Path.of("src/main/resources/fonts/Regular")
     );
     private static final float BASE_SCALE = 1f;
-    private static final float SHADOW_OFFSET_VIRTUAL_PIXELS = 1f;
     private static final float SHADOW_ALPHA = 0.5f;
     private float configuredVirtualScale = 1f;
 
@@ -97,7 +96,7 @@ public final class Render {
             EngineConstraints.requireIntegerScale(textScale.value(), "Render.drawText(textScale)");
         }
         float resolvedScale = Math.max(0.0001f, size) * BASE_SCALE * resolveScaleMultiplier(textScale);
-        float shadowOffsetVirtual = SHADOW_OFFSET_VIRTUAL_PIXELS;
+        float shadowOffsetVirtual = resolvedScale;
         List<Parse.Quad> quads = Parse.text(font, value);
         for (Parse.Quad quad : quads) {
             float minU = quad.glyph().atlasX() / (float) textureWidth;
