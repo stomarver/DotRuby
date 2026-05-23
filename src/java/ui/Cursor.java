@@ -167,7 +167,7 @@ public class Cursor {
     }
 
     private double clampX(double value, float virtualWidth) {
-        double maxX = Math.max(0, virtualWidth - 1);
+        double maxX = Math.max(0, virtualWidth);
         return Math.max(0, Math.min(value, maxX));
     }
 
