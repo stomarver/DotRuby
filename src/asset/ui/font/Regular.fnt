@@ -23,7 +23,7 @@ advances = ( //уникальные размеры
     AaBbCcDdEeFGgHhJjKkLNnOoPpQqRrSsUuvXxYyZzАаБбВвГдЕеЗзИиКкЛлНнОоПпРрСсУуХхЧчЬьЭэЯя023456789$ = (4x8)
     fItг+-{}<>/\1*^ = (3x8)
     l()[]` = (2x8)
-    i! = (1x8)
+    i!:; = (1x8)
 )
 
 diacritics = ( //пустышка
