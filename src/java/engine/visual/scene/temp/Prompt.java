@@ -14,30 +14,24 @@ public final class Prompt extends SceneTemplate {
 
     @Override
     public void render2D(Overlay overlay, Render textRender) {
-        textRender.drawText(overlay, "Text Engine Demo", 16f, 16f, 3f, Render.TextScale.standard());
-        textRender.drawText(overlay, "- Integer-only scale policy", 16f, 48f, 2f, Render.TextScale.standard());
-        textRender.drawText(overlay, "- Shadowed bitmap glyph rendering", 16f, 72f, 2f, Render.TextScale.standard());
-        textRender.drawText(overlay, "- UTF-8 safe string pipeline", 16f, 96f, 2f, Render.TextScale.standard());
+        textRender.drawText(overlay, "^2DotRuby^0 text showcase", 16f, 16f, 1f, Render.TextScale.standard(1f));
+        textRender.drawText(overlay, "Legacy scale model: 1->x2, 2->x4", 16f, 44f, 1f, Render.TextScale.standard(1f));
 
-        textRender.drawText(overlay, "STANDARD MODE", 16f, 136f, 2f, Render.TextScale.standard());
-        textRender.drawText(overlay, "Scale 1", 32f, 160f, 1f, Render.TextScale.standard(1f));
-        textRender.drawText(overlay, "Scale 2", 32f, 180f, 1f, Render.TextScale.standard(2f));
-        textRender.drawText(overlay, "Scale 3", 32f, 212f, 1f, Render.TextScale.standard(3f));
+        textRender.drawText(overlay, "STANDARD", 16f, 88f, 1f, Render.TextScale.standard(1f));
+        textRender.drawText(overlay, "scale 1", 32f, 112f, 1f, Render.TextScale.standard(1f));
+        textRender.drawText(overlay, "scale 2", 32f, 140f, 1f, Render.TextScale.standard(2f));
 
-        textRender.drawText(overlay, "FIXED MODE", 360f, 136f, 2f, Render.TextScale.standard());
-        textRender.drawText(overlay, "Fixed 1", 376f, 160f, 1f, Render.TextScale.fixed());
-        textRender.drawText(overlay, "Fixed 2", 376f, 180f, 2f, Render.TextScale.fixed());
-        textRender.drawText(overlay, "Fixed 3", 376f, 212f, 3f, Render.TextScale.fixed());
+        textRender.drawText(overlay, "FIXED (follows config)", 360f, 88f, 1f, Render.TextScale.standard(1f));
+        textRender.drawText(overlay, "fixed 1", 376f, 112f, 1f, Render.TextScale.fixed());
+        textRender.drawText(overlay, "fixed 2", 376f, 140f, 2f, Render.TextScale.fixed());
 
-        textRender.drawText(overlay, "RELATIVE MODE", 680f, 136f, 2f, Render.TextScale.standard());
-        textRender.drawText(overlay, "Relative -1", 696f, 160f, 1f, Render.TextScale.relative(-1f));
-        textRender.drawText(overlay, "Relative +0", 696f, 180f, 1f, Render.TextScale.relative(0f));
-        textRender.drawText(overlay, "Relative +1", 696f, 212f, 1f, Render.TextScale.relative(1f));
+        textRender.drawText(overlay, "RELATIVE", 720f, 88f, 1f, Render.TextScale.standard(1f));
+        textRender.drawText(overlay, "relative -1", 736f, 112f, 1f, Render.TextScale.relative(-1f));
+        textRender.drawText(overlay, "relative +0", 736f, 140f, 1f, Render.TextScale.relative(0f));
+        textRender.drawText(overlay, "relative +1", 736f, 168f, 1f, Render.TextScale.relative(1f));
 
-        textRender.drawText(overlay, "0123456789 !?@#$%^&* /()[]{}<>", 16f, 280f, 2f, Render.TextScale.standard());
-        textRender.drawText(overlay, "The quick brown fox jumps over the lazy dog", 16f, 308f, 2f, Render.TextScale.standard());
-
-        textRender.drawText(overlay, "F1 Text  |  F2 Cube  |  F3 Lighting", 16f, 500f, 2f, Render.TextScale.standard());
-        textRender.drawText(overlay, "Press L for hardware/specs log", 16f, 524f, 1f, Render.TextScale.standard());
+        textRender.drawText(overlay, "0123456789 !?@#$%^&* /()[]{}<>", 16f, 230f, 1f, Render.TextScale.standard(1f));
+        textRender.drawText(overlay, "The quick brown fox jumps over the lazy dog", 16f, 258f, 1f, Render.TextScale.standard(1f));
+        textRender.drawText(overlay, "F1 Text  |  F2 Cube  |  F3 Lighting", 16f, 500f, 1f, Render.TextScale.standard(1f));
     }
 }

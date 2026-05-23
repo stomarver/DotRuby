@@ -4,7 +4,6 @@ import engine.util.EngineConstraints;
 import ui.text.Parse;
 
 import java.nio.file.Path;
-import java.util.Optional;
 import java.util.List;
 
 import static org.lwjgl.opengl.GL11.glDeleteTextures;
@@ -17,9 +16,7 @@ public final class Render {
             Path.of("src/main/resources/fonts/Regular")
     );
     private static final float BASE_SCALE = 1f;
-    // New intuitive logical scale model:
-    // 1 -> old 2, 2 -> old 3, 3 -> old 4, ...
-    private static final float LOGICAL_SCALE_OFFSET = 1f;
+    private static final float LEGACY_SCALE_MULTIPLIER = 2f;
     private static final float SHADOW_ALPHA = 0.5f;
     private float configuredVirtualScale = 1f;
 
@@ -98,8 +95,11 @@ public final class Render {
         if (textScale != null) {
             EngineConstraints.requireIntegerScale(textScale.value(), "Render.drawText(textScale)");
         }
-        float resolvedScale = toPhysicalScale(Math.max(0.1f, size)) * BASE_SCALE * resolveScaleMultiplier(textScale);
+
+        float logicalScale = Math.max(0.1f, size) * BASE_SCALE * resolveScaleMultiplier(textScale);
+        float resolvedScale = logicalScale * LEGACY_SCALE_MULTIPLIER;
         float shadowOffsetVirtual = resolvedScale;
+
         List<Parse.Quad> quads = Parse.text(font, value);
         for (Parse.Quad quad : quads) {
             float minU = quad.glyph().atlasX() / (float) textureWidth;
@@ -157,21 +157,13 @@ public final class Render {
 
     private float resolveScaleMultiplier(TextScale textScale) {
         TextScale resolved = textScale == null ? TextScale.standard() : textScale;
-        float configLogicalScale = Math.max(0.0001f, configuredVirtualScale);
-        float configPhysicalScale = toPhysicalScale(configLogicalScale);
+        float configScale = Math.max(0.0001f, configuredVirtualScale);
 
-        float logicalTarget = switch (resolved.mode()) {
-            case FIXED -> configLogicalScale;
-            case RELATIVE -> Math.max(0.0001f, configLogicalScale + resolved.value());
-            case STANDARD -> Math.max(0.0001f, resolved.value());
+        return switch (resolved.mode()) {
+            case FIXED -> 1f;
+            case RELATIVE -> Math.max(0.1f, 1f + (resolved.value() / configScale));
+            case STANDARD -> Math.max(0.1f, resolved.value());
         };
-
-        float physicalTarget = toPhysicalScale(logicalTarget);
-        return physicalTarget / configPhysicalScale;
-    }
-
-    private float toPhysicalScale(float logicalScale) {
-        return Math.max(0.0001f, logicalScale + LOGICAL_SCALE_OFFSET);
     }
 
     private static Path existingPath(List<Path> candidates) {
