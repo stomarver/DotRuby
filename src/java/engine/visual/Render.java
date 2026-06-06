@@ -12,9 +12,9 @@ import static org.lwjgl.opengl.GL11.glDeleteTextures;
 public final class Render {
 
     private static final List<Path> FONT_DEFINITION_PATHS = List.of(
-            Path.of("src/asset/ui/font/Regular.fnt"),
-            Path.of("src/java/ui/text/font/Regular"),
-            Path.of("src/main/resources/fonts/Regular")
+            Path.of("src/asset/ui/font/RD-8.fnt"),
+            Path.of("src/java/ui/text/font/RD-8"),
+            Path.of("src/main/resources/fonts/RD-8")
     );
     private static final float BASE_SCALE = 1f;
     private static final float SHADOW_ALPHA = 0.5f;
@@ -59,14 +59,14 @@ public final class Render {
         if (fontPath != null) {
             font = Parse.font(fontPath);
         } else {
-            font = Parse.font(List.of("ui/font/Regular.fnt"));
+            font = Parse.font(List.of("ui/font/RD-8.fnt"));
         }
 
         TextureLoader.LoadedTexture loadedTexture = textureLoader.loadNearestRgbaTexture(List.of(
                 Path.of(font.bitmapPath()),
-                Path.of("src/asset/ui/font/Regular.png"),
-                Path.of("src/main/resources/fonts/font.png")
-        ), List.of("ui/font/Regular.png"));
+                Path.of("src/asset/ui/font/RD-8.png"),
+                Path.of("src/main/resources/fonts/RD-8.png")
+        ), List.of("ui/font/RD-8.png"));
         textureId = loadedTexture.id();
         textureWidth = loadedTexture.width();
         textureHeight = loadedTexture.height();
