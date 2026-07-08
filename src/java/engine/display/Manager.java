@@ -2,7 +2,6 @@ package engine.display;
 
 import engine.visual.Overlay;
 import engine.util.shader.BackgroundGradient;
-import engine.display.gl.Mesh;
 import org.lwjgl.glfw.GLFWErrorCallback;
 import org.lwjgl.opengl.GL;
 
@@ -42,11 +41,8 @@ import static org.lwjgl.glfw.GLFW.glfwHideWindow;
 import static org.lwjgl.glfw.GLFW.glfwWindowHint;
 import static org.lwjgl.glfw.GLFW.glfwWindowShouldClose;
 import static org.lwjgl.opengl.GL11.GL_COLOR_BUFFER_BIT;
-import static org.lwjgl.opengl.GL11.GL_DEPTH_BUFFER_BIT;
-import static org.lwjgl.opengl.GL11.GL_DEPTH_TEST;
 import static org.lwjgl.opengl.GL11.glClear;
 import static org.lwjgl.opengl.GL11.glClearColor;
-import static org.lwjgl.opengl.GL11.glEnable;
 import static org.lwjgl.opengl.GL11.glViewport;
 import static org.lwjgl.system.MemoryUtil.NULL;
 
@@ -56,7 +52,6 @@ public class Manager {
     private final ui.Manager uiManager = new ui.Manager();
     private final Overlay overlay = new Overlay();
     private final BackgroundGradient backgroundGradient = new BackgroundGradient();
-    private final Mesh mesh = new Mesh();
 
     private long windowHandle;
     private Mode mode;
@@ -128,7 +123,6 @@ public class Manager {
         overlay.init();
 
         glClearColor(config.getClearR(), config.getClearG(), config.getClearB(), config.getClearA());
-        glEnable(GL_DEPTH_TEST);
         uiManager.initialize(windowHandle, config.isLockCursor());
 
         updateViewport();
@@ -265,47 +259,15 @@ public class Manager {
         return offsetY + (virtualY * scale);
     }
 
-    public int createVertexArray() {
-        return mesh.createVertexArray();
-    }
-
-    public int createVertexBuffer(float[] vertices) {
-        return mesh.createVertexBuffer(vertices);
-    }
-
-    public int createVertexBuffer(float[] vertices, int usage) {
-        return mesh.createVertexBuffer(vertices, usage);
-    }
-
-    public void prepareVertexLayout(int vaoId, int vboId, int attributeIndex, int componentCount, int strideBytes, int offsetBytes) {
-        mesh.prepareVertexLayout(vaoId, vboId, attributeIndex, componentCount, strideBytes, offsetBytes);
-    }
-
-    public void bindVertexArray(int vaoId) {
-        mesh.bindVertexArray(vaoId);
-    }
-
-    public void unbindVertexArray() {
-        mesh.unbindVertexArray();
-    }
-
-    public void deleteVertexArray(int vaoId) {
-        mesh.deleteVertexArray(vaoId);
-    }
-
-    public void deleteVertexBuffer(int vboId) {
-        mesh.deleteVertexBuffer(vboId);
-    }
-
     public void clearFrame() {
         glViewport(0, 0, getFramebufferWidth(), getFramebufferHeight());
-        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+        glClear(GL_COLOR_BUFFER_BIT);
         backgroundGradient.renderFullscreen(getFramebufferWidth(), getFramebufferHeight(), (float) glfwGetTime());
         applyRenderViewport();
     }
 
     public void updateFrame() {
-        uiManager.render3D();
+        uiManager.update(1f / 60f);
         begin2DPass();
         uiManager.render2D(
                 overlay,

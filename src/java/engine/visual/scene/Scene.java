@@ -1,8 +1,8 @@
 package engine.visual.scene;
 
+import engine.util.resource.Unloader;
 import engine.visual.Overlay;
 import engine.visual.Render;
-import engine.util.resource.Unloader;
 
 public interface Scene {
 
@@ -13,8 +13,6 @@ public interface Scene {
     void initialize(Unloader resources);
 
     void update(float deltaSeconds);
-
-    void render3D();
 
     void render2D(Overlay overlay, Render textRender);
 

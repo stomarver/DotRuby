@@ -37,7 +37,7 @@ public final class Prompt extends SceneTemplate {
         textRender.drawText(overlay, "0123456789   !?@#$%^&*   /()[]{}<>", 16f, 280f, 2f, Render.TextScale.standard());
         textRender.drawText(overlay, "The quick brown fox jumps over the lazy dog", 16f, 308f, 2f, Render.TextScale.standard());
 
-        textRender.drawText(overlay, "F1 Text  |  F2 Cube  |  F3 Lighting", 16f, 500f, 2f, Render.TextScale.standard());
-        textRender.drawText(overlay, "Press L for hardware/specs log", 16f, 524f, 1f, Render.TextScale.standard());
+        textRender.drawText(overlay, "F1 Text  |  F2 Layout Lab", 16f, 500f, 2f, Render.TextScale.standard());
+        textRender.drawText(overlay, "Press L for hardware/specs log | F2 opens layout lab", 16f, 524f, 1f, Render.TextScale.standard());
     }
 }

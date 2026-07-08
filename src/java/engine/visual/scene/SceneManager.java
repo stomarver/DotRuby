@@ -1,8 +1,8 @@
 package engine.visual.scene;
 
+import engine.util.resource.Unloader;
 import engine.visual.Overlay;
 import engine.visual.Render;
-import engine.util.resource.Unloader;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -40,14 +40,8 @@ public final class SceneManager {
         }
     }
 
-    public void render3DPass() {
-        if (activeScene != null && activeScene.type().requires3D()) {
-            activeScene.render3D();
-        }
-    }
-
     public void render2DPass(Overlay overlay, Render textRender) {
-        if (activeScene != null && activeScene.type().requires2D()) {
+        if (activeScene != null) {
             activeScene.render2D(overlay, textRender);
         }
     }

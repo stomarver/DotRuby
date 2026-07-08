@@ -33,10 +33,6 @@ public abstract class SceneTemplate implements Scene {
     }
 
     @Override
-    public void render3D() {
-    }
-
-    @Override
     public void render2D(Overlay overlay, Render textRender) {
     }
 

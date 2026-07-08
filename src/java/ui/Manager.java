@@ -20,8 +20,8 @@ public final class Manager {
         applyCursorLock(windowHandle, lockCursor);
     }
 
-    public void render3D() {
-        visualManager.render3D();
+    public void update(float deltaSeconds) {
+        visualManager.update(deltaSeconds);
     }
 
     public void render2D(Overlay overlay, float borderThickness, float cursorWidth, float cursorHeight, float configuredVirtualScale) {
@@ -34,17 +34,6 @@ public final class Manager {
         visualManager.activateSceneByHotkey(sceneHotkey);
     }
 
-    public void toggleLightingMode() {
-        visualManager.toggleLightingMode();
-    }
-
-    public void toggleBulbRotation() {
-        visualManager.toggleBulbRotation();
-    }
-
-    public void toggleBulbVerticalMotion() {
-        visualManager.toggleBulbVerticalMotion();
-    }
 
     public Cursor getCursor() {
         return cursor;

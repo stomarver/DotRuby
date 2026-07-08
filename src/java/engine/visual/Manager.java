@@ -1,11 +1,9 @@
 package engine.visual;
 
-import engine.visual.scene.temp.Prompt;
-import engine.visual.scene.temp.PortalGridScene;
-import engine.visual.scene.temp.RotatingCubeScene;
 import engine.visual.scene.SceneIds;
 import engine.visual.scene.SceneManager;
-import engine.visual.scene.SceneType;
+import engine.visual.scene.temp.LayoutLabScene;
+import engine.visual.scene.temp.Prompt;
 
 public final class Manager {
 
@@ -15,8 +13,7 @@ public final class Manager {
 
     public void initialize() {
         sceneManager.register(new Prompt());
-        sceneManager.register(new RotatingCubeScene());
-        sceneManager.register(new PortalGridScene());
+        sceneManager.register(new LayoutLabScene());
         sceneManager.activate(SceneIds.LOG_PROMPT);
         syncSceneResources();
     }
@@ -24,40 +21,20 @@ public final class Manager {
     public void activateSceneByHotkey(int sceneHotkey) {
         switch (sceneHotkey) {
             case 1 -> sceneManager.activate(SceneIds.LOG_PROMPT);
-            case 2 -> sceneManager.activate(SceneIds.ROTATING_CUBE);
-            case 3 -> sceneManager.activate(SceneIds.PORTAL_GRID);
+            case 2 -> sceneManager.activate(SceneIds.LAYOUT_LAB);
             default -> {
             }
         }
         syncSceneResources();
     }
 
-    public void render3D() {
-        sceneManager.update(1f / 60f);
-        sceneManager.render3DPass();
+    public void update(float deltaSeconds) {
+        sceneManager.update(deltaSeconds);
     }
 
     public void render2D(Overlay overlay, float configuredVirtualScale) {
         textRender.setConfiguredVirtualScale(configuredVirtualScale);
         sceneManager.render2DPass(overlay, textRender);
-    }
-
-    public void toggleLightingMode() {
-        if (sceneManager.activeSceneType().requires3D() && sceneManager.getActiveScene() instanceof engine.visual.scene.temp.PortalGridScene portalGridScene) {
-            portalGridScene.toggleLightingMode();
-        }
-    }
-
-    public void toggleBulbRotation() {
-        if (sceneManager.activeSceneType().requires3D() && sceneManager.getActiveScene() instanceof engine.visual.scene.temp.PortalGridScene portalGridScene) {
-            portalGridScene.toggleBulbRotation();
-        }
-    }
-
-    public void toggleBulbVerticalMotion() {
-        if (sceneManager.activeSceneType().requires3D() && sceneManager.getActiveScene() instanceof engine.visual.scene.temp.PortalGridScene portalGridScene) {
-            portalGridScene.toggleBulbVerticalMotion();
-        }
     }
 
     public void destroy() {
@@ -69,17 +46,9 @@ public final class Manager {
     }
 
     private void syncSceneResources() {
-        SceneType type = sceneManager.activeSceneType();
-        if (type.requires2D() && !textRenderLoaded) {
+        if (!textRenderLoaded) {
             textRender.load();
             textRenderLoaded = true;
-            return;
-        }
-        if (!type.requires2D() && textRenderLoaded) {
-            textRender.destroy();
-            textRenderLoaded = false;
         }
     }
 }
-
-
