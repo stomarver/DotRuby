@@ -3,10 +3,13 @@ package engine.visual.scene.temp;
 import engine.visual.Overlay;
 import engine.visual.Render;
 
-import java.util.ArrayList;
 import java.util.List;
 
 public final class TextLayoutEngine {
+
+    private static final float GLYPH_WIDTH = 5f;
+    private static final float GLYPH_HEIGHT = 8f;
+    private static final float WORD_GAP = 4f;
 
     public enum Align {
         LEFT,
@@ -14,71 +17,65 @@ public final class TextLayoutEngine {
         RIGHT
     }
 
-    public record TextLine(String value, float scale, Render.TextScale textScale) {
-        public TextLine(String value, float scale) {
-            this(value, scale, Render.TextScale.standard());
-        }
+    public float drawLine(Overlay overlay, Render render, String value, float x, float y, float scale) {
+        render.drawText(overlay, value, x, y, scale, Render.TextScale.standard());
+        return y + lineHeight(scale);
     }
 
-    private final List<TextLine> lines = new ArrayList<>();
-    private float lineGap = 6f;
-
-    public TextLayoutEngine lineGap(float lineGap) {
-        this.lineGap = Math.max(0f, lineGap);
-        return this;
+    public float drawLine(Overlay overlay, Render render, String value, float x, float y, float width, float scale, Align align) {
+        float drawX = switch (align) {
+            case LEFT -> x;
+            case CENTER -> x + Math.max(0f, (width - estimateWidth(value, scale)) * 0.5f);
+            case RIGHT -> x + Math.max(0f, width - estimateWidth(value, scale));
+        };
+        return drawLine(overlay, render, value, drawX, y, scale);
     }
 
-    public TextLayoutEngine clear() {
-        lines.clear();
-        return this;
+    public float drawHeading(Overlay overlay, Render render, String value, float x, float y) {
+        float nextY = drawLine(overlay, render, value, x, y, 2f);
+        return drawRule(overlay, render, x, nextY + 2f, value.length()) + 8f;
     }
 
-    public TextLayoutEngine add(String value, float scale) {
-        return add(value, scale, Render.TextScale.standard());
-    }
-
-    public TextLayoutEngine add(String value, float scale, Render.TextScale textScale) {
-        lines.add(new TextLine(value, Math.max(1f, scale), textScale));
-        return this;
-    }
-
-    public void drawColumn(Overlay overlay, Render render, float x, float y) {
-        drawColumn(overlay, render, x, y, 0f, Align.LEFT);
-    }
-
-    public void drawColumn(Overlay overlay, Render render, float x, float y, float width, Align align) {
-        float penY = y;
-        for (TextLine line : lines) {
-            float drawX = switch (align) {
-                case LEFT -> x;
-                case CENTER -> x + Math.max(0f, (width - estimateWidth(line)) * 0.5f);
-                case RIGHT -> x + Math.max(0f, width - estimateWidth(line));
-            };
-            render.drawText(overlay, line.value(), drawX, penY, line.scale(), line.textScale());
-            penY += estimateHeight(line) + lineGap;
-        }
-    }
-
-    public void drawWrapped(Overlay overlay, Render render, String text, float x, float y, float width, float scale) {
+    public float drawParagraph(Overlay overlay, Render render, String value, float x, float y, float width, float scale) {
         float penX = x;
         float penY = y;
-        float spaceWidth = 4f * scale;
-        for (String word : text.split(" ")) {
-            float wordWidth = Math.max(1, word.length()) * 5f * scale;
+        for (String word : value.split(" ")) {
+            float wordWidth = estimateWidth(word, scale);
             if (penX > x && penX + wordWidth > x + width) {
                 penX = x;
-                penY += 8f * scale + lineGap;
+                penY += lineHeight(scale) + 2f;
             }
             render.drawText(overlay, word, penX, penY, scale, Render.TextScale.standard());
-            penX += wordWidth + spaceWidth;
+            penX += wordWidth + (WORD_GAP * scale);
         }
+        return penY + lineHeight(scale);
     }
 
-    private static float estimateWidth(TextLine line) {
-        return Math.max(1, line.value() == null ? 0 : line.value().length()) * 5f * line.scale();
+    public float drawBullets(Overlay overlay, Render render, List<String> values, float x, float y, float width) {
+        float penY = y;
+        for (String value : values) {
+            penY = drawParagraph(overlay, render, "> " + value, x, penY, width, 1f) + 4f;
+        }
+        return penY;
     }
 
-    private static float estimateHeight(TextLine line) {
-        return 8f * line.scale();
+    public float drawKeyValue(Overlay overlay, Render render, String key, String value, float x, float y, float keyWidth) {
+        render.drawText(overlay, key, x, y, 1f, Render.TextScale.fixed());
+        render.drawText(overlay, value, x + keyWidth, y, 1f, Render.TextScale.standard());
+        return y + lineHeight(1f) + 4f;
+    }
+
+    public float drawRule(Overlay overlay, Render render, float x, float y, int cells) {
+        String rule = "-".repeat(Math.max(4, cells));
+        render.drawText(overlay, rule, x, y, 1f, Render.TextScale.fixed());
+        return y + lineHeight(1f);
+    }
+
+    private static float estimateWidth(String value, float scale) {
+        return Math.max(1, value == null ? 0 : value.length()) * GLYPH_WIDTH * Math.max(1f, scale);
+    }
+
+    private static float lineHeight(float scale) {
+        return GLYPH_HEIGHT * Math.max(1f, scale);
     }
 }

@@ -8,8 +8,6 @@ public interface Scene {
 
     String id();
 
-    SceneType type();
-
     void initialize(Unloader resources);
 
     void update(float deltaSeconds);

@@ -5,71 +5,79 @@ import engine.visual.Overlay;
 import engine.visual.Render;
 import engine.visual.scene.SceneIds;
 import engine.visual.scene.SceneTemplate;
-import engine.visual.scene.SceneType;
+
+import java.util.List;
 
 public final class LayoutLabScene extends SceneTemplate {
 
     private final SceneEngine sceneEngine = new SceneEngine();
-    private final TextLayoutEngine titleColumn = new TextLayoutEngine();
-    private final TextLayoutEngine rightColumn = new TextLayoutEngine();
-    private float elapsedSeconds;
+    private final TextLayoutEngine text = new TextLayoutEngine();
 
     public LayoutLabScene() {
-        super(SceneIds.LAYOUT_LAB, SceneType.TWO_D);
+        super(SceneIds.LAYOUT_LAB);
     }
 
     @Override
     public void initialize(Unloader resources) {
-        elapsedSeconds = 0f;
         sceneEngine.clear()
-                .panel(14f, 14f, 932f, 512f)
-                .panel(40f, 96f, 392f, 336f)
-                .panel(472f, 96f, 432f, 336f)
-                .label("SCENE ENGINE", 64f, 116f, 2f)
-                .label("TEXT LAYOUT ENGINE", 496f, 116f, 2f);
-
-        titleColumn.clear().lineGap(8f)
-                .add("scene 2: layout lab", 3f)
-                .add("no cube. no portal. no fake 3d.", 2f)
-                .add("only flat, stubborn, ruby-like pixels.", 1f, Render.TextScale.fixed());
-
-        rightColumn.clear().lineGap(10f)
-                .add("left aligned", 1f)
-                .add("center aligned", 1f)
-                .add("right aligned", 1f)
-                .add("fixed-size text ignores virtual scale", 1f, Render.TextScale.fixed())
-                .add("relative text grows from config scale", 1f, Render.TextScale.relative(1f));
+                .title(
+                        "DotRuby layout notebook",
+                        "A plain 2D scene for testing text rhythm, document flow and future editor screens. No stage props: just readable blocks on the virtual grid."
+                )
+                .section(
+                        "01 scene engine",
+                        "SceneEngine now behaves like a tiny document runner: title, sections, body text, bullets and a clock. It is intentionally boring, because boring structure is reusable.",
+                        List.of("keeps scene text grouped", "renders through one predictable pass", "can evolve into data-loaded scene descriptions")
+                )
+                .section(
+                        "02 text layout engine",
+                        "TextLayoutEngine is the place for columns, wrapping, rules and key-value rows. It should become the tool that makes bitmap text pleasant instead of chaotic.",
+                        List.of("wraps words inside a measured width", "supports left center and right alignment", "keeps scale decisions explicit")
+                )
+                .section(
+                        "03 next useful target",
+                        "The immediate useful target is not a flashy demo. It is a small menu/editor surface where assets, fonts and scene descriptions can be inspected without touching Java code.",
+                        List.of("scene browser", "font specimen page", "asset validation screen")
+                );
     }
 
     @Override
     public void update(float deltaSeconds) {
-        elapsedSeconds += Math.max(0f, deltaSeconds);
         sceneEngine.update(deltaSeconds);
     }
 
     @Override
     public void render2D(Overlay overlay, Render textRender) {
-        sceneEngine.render(overlay, textRender);
-        titleColumn.drawColumn(overlay, textRender, 40f, 36f);
+        sceneEngine.render(overlay, textRender, 32f, 28f, 560f);
+        renderSpecimenColumn(overlay, textRender, 640f, 52f, 280f);
+        sceneEngine.renderStatus(overlay, textRender, 640f, 500f);
+        textRender.drawText(overlay, "F1 prompt | F2 layout notebook", 16f, 524f, 1f, Render.TextScale.fixed());
+    }
 
-        TextLayoutEngine wrapped = new TextLayoutEngine().lineGap(5f);
-        wrapped.drawWrapped(
+    private void renderSpecimenColumn(Overlay overlay, Render textRender, float x, float y, float width) {
+        float penY = text.drawLine(overlay, textRender, "type specimen", x, y, width, 2f, TextLayoutEngine.Align.CENTER) + 10f;
+        penY = text.drawRule(overlay, textRender, x, penY, 32) + 10f;
+        penY = text.drawKeyValue(overlay, textRender, "standard", "scales with requested size", x, penY, 88f);
+        penY = text.drawKeyValue(overlay, textRender, "fixed", "stays tied to virtual grid", x, penY, 88f);
+        penY = text.drawKeyValue(overlay, textRender, "relative", "offsets configured scale", x, penY, 88f) + 14f;
+
+        textRender.drawText(overlay, "AaBbCc 0123", x, penY, 1f, Render.TextScale.standard());
+        penY += 18f;
+        textRender.drawText(overlay, "AaBbCc 0123", x, penY, 2f, Render.TextScale.standard());
+        penY += 28f;
+        textRender.drawText(overlay, "fixed sample", x, penY, 1f, Render.TextScale.fixed());
+        penY += 18f;
+        textRender.drawText(overlay, "relative +1", x, penY, 1f, Render.TextScale.relative(1f));
+        penY += 30f;
+
+        text.drawParagraph(
                 overlay,
                 textRender,
-                "SceneEngine collects panels and labels; TextLayoutEngine places columns wraps words and aligns blocks for future editor screens.",
-                64f,
-                156f,
-                320f,
+                "This column is deliberately quiet: it tests spacing, wrapping and scale without pretending to be a finished interface.",
+                x,
+                penY,
+                width,
                 1f
         );
-
-        rightColumn.drawColumn(overlay, textRender, 520f, 156f, 300f, TextLayoutEngine.Align.LEFT);
-        rightColumn.drawColumn(overlay, textRender, 520f, 260f, 300f, TextLayoutEngine.Align.CENTER);
-        rightColumn.drawColumn(overlay, textRender, 520f, 364f, 300f, TextLayoutEngine.Align.RIGHT);
-
-        int seconds = (int) elapsedSeconds;
-        textRender.drawText(overlay, "F1 prompt | F2 layout lab", 16f, 500f, 2f, Render.TextScale.standard());
-        textRender.drawText(overlay, "flat scene runtime: " + seconds + "s", 656f, 500f, 1f, Render.TextScale.fixed());
-        sceneEngine.renderPulse(overlay, textRender, 656f, 476f);
     }
 }

@@ -7,21 +7,14 @@ import engine.visual.Render;
 public abstract class SceneTemplate implements Scene {
 
     private final String id;
-    private final SceneType type;
 
-    protected SceneTemplate(String id, SceneType type) {
+    protected SceneTemplate(String id) {
         this.id = id;
-        this.type = type;
     }
 
     @Override
     public String id() {
         return id;
-    }
-
-    @Override
-    public SceneType type() {
-        return type;
     }
 
     @Override

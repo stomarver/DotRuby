@@ -50,10 +50,6 @@ public final class SceneManager {
         return activeScene;
     }
 
-    public SceneType activeSceneType() {
-        return activeScene == null ? SceneType.TWO_D : activeScene.type();
-    }
-
     public void destroy() {
         if (activeScene != null) {
             activeSceneResources.disposeAll();

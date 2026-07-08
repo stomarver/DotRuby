@@ -4,12 +4,11 @@ import engine.visual.Overlay;
 import engine.visual.Render;
 import engine.visual.scene.SceneIds;
 import engine.visual.scene.SceneTemplate;
-import engine.visual.scene.SceneType;
 
 public final class Prompt extends SceneTemplate {
 
     public Prompt() {
-        super(SceneIds.LOG_PROMPT, SceneType.TWO_D);
+        super(SceneIds.LOG_PROMPT);
     }
 
     @Override

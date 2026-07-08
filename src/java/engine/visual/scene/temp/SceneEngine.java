@@ -8,23 +8,28 @@ import java.util.List;
 
 public final class SceneEngine {
 
-    private final List<Panel> panels = new ArrayList<>();
-    private final List<Label> labels = new ArrayList<>();
+    private final TextLayoutEngine text = new TextLayoutEngine();
+    private final List<Section> sections = new ArrayList<>();
+    private String title = "";
+    private String subtitle = "";
     private float timeSeconds;
 
     public SceneEngine clear() {
-        panels.clear();
-        labels.clear();
+        sections.clear();
+        title = "";
+        subtitle = "";
+        timeSeconds = 0f;
         return this;
     }
 
-    public SceneEngine panel(float x, float y, float width, float height) {
-        panels.add(new Panel(x, y, width, height));
+    public SceneEngine title(String title, String subtitle) {
+        this.title = title == null ? "" : title;
+        this.subtitle = subtitle == null ? "" : subtitle;
         return this;
     }
 
-    public SceneEngine label(String value, float x, float y, float scale) {
-        labels.add(new Label(value, x, y, scale));
+    public SceneEngine section(String heading, String body, List<String> bullets) {
+        sections.add(new Section(heading, body, List.copyOf(bullets)));
         return this;
     }
 
@@ -32,33 +37,28 @@ public final class SceneEngine {
         timeSeconds += Math.max(0f, deltaSeconds);
     }
 
-    public void render(Overlay overlay, Render textRender) {
-        for (Panel panel : panels) {
-            drawPanel(overlay, panel);
+    public void render(Overlay overlay, Render render, float x, float y, float width) {
+        float penY = text.drawHeading(overlay, render, title, x, y);
+        penY = text.drawParagraph(overlay, render, subtitle, x, penY, width, 1f) + 14f;
+
+        for (Section section : sections) {
+            penY = text.drawLine(overlay, render, section.heading(), x, penY, 1f) + 4f;
+            penY = text.drawParagraph(overlay, render, section.body(), x + 16f, penY, width - 16f, 1f) + 4f;
+            penY = text.drawBullets(overlay, render, section.bullets(), x + 16f, penY, width - 16f) + 10f;
         }
-        for (Label label : labels) {
-            textRender.drawText(overlay, label.value(), label.x(), label.y(), label.scale(), Render.TextScale.standard());
-        }
     }
 
-    public void renderPulse(Overlay overlay, Render textRender, float x, float y) {
-        int dotCount = 1 + ((int) (timeSeconds * 2f) % 4);
-        textRender.drawText(overlay, "engine tick" + ".".repeat(dotCount), x, y, 1f, Render.TextScale.fixed());
+    public void renderStatus(Overlay overlay, Render render, float x, float y) {
+        int phase = (int) (timeSeconds * 3f) % 4;
+        String cursor = switch (phase) {
+            case 0 -> "|";
+            case 1 -> "/";
+            case 2 -> "-";
+            default -> "\\";
+        };
+        render.drawText(overlay, "scene-clock " + cursor + " " + (int) timeSeconds + "s", x, y, 1f, Render.TextScale.fixed());
     }
 
-    private static void drawPanel(Overlay overlay, Panel panel) {
-        float x = panel.x();
-        float y = panel.y();
-        float right = x + panel.width();
-        float bottom = y + panel.height();
-        overlay.drawOutlineRect(x, y, right, bottom, 2f);
-        overlay.drawTriangle(x + 8f, y + 8f, x + 22f, y + 8f, x + 8f, y + 22f);
-        overlay.drawTriangle(right - 8f, bottom - 8f, right - 22f, bottom - 8f, right - 8f, bottom - 22f);
-    }
-
-    private record Panel(float x, float y, float width, float height) {
-    }
-
-    private record Label(String value, float x, float y, float scale) {
+    private record Section(String heading, String body, List<String> bullets) {
     }
 }
